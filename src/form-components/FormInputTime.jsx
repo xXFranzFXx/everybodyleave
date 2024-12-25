@@ -9,17 +9,17 @@ export const TimePick = ({ name, control, label }) =>  {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Controller
-        name={name}
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <TimePicker   
-            label={label}
-            value={value ? dayjs(value, 'HH:mm') : null}
-            onChange={(time) => onChange(time ? time.format('HH:mm') : '')} 
-            ampm={false}
-          />
-        )}
-      />
+          name={name}
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <TimePicker   
+              label={label}
+              value={value ? dayjs(value, 'HH:mm') : null}
+              onChange={(time) => onChange(time ? time.format('HH:mm') : '')} 
+              ampm={false}
+            />
+          )}
+        />
     </LocalizationProvider>
   );
 }
