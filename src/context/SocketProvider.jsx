@@ -7,15 +7,15 @@ export const SocketContext = createContext()
 
 const SocketProvider = ({ children }) => {
   const state = useRef(proxy({
-    users: [],
-    user: {
-        scheduledNotifications: "",
-        notifications: [{
+    scheduledNotifications:[
+         {
+            user: "",
+            email: "",
             date: "",
             time: "",
-            method: "",
-        }]
-    }
+            methods: "",
+        }
+      ]
 })).current
 
 
