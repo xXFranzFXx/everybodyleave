@@ -1,3 +1,6 @@
+let EMAIL_REGX  = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/
+
+
 const validationSchema = Yup.object().shape({
     fullname: Yup.string().required('Fullname is required'),
     username: Yup.string()
@@ -6,7 +9,7 @@ const validationSchema = Yup.object().shape({
       .max(20, 'Username must not exceed 20 characters'),
     email: Yup.string()
       .required('Email is required')
-      .email('Email is invalid'),
+      .matches(EMAIL_REGX, "Invalid email address"),
     password: Yup.string()
       .required('Password is required')
       .min(6, 'Password must be at least 6 characters')

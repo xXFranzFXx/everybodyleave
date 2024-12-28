@@ -3,11 +3,15 @@ import { Checkbox, FormControl, FormControlLabel, FormLabel, } from "@mui/materi
 import { Controller } from "react-hook-form";
 const options = [
     {
-        label: "Checkbox Option 1",
+        label: "Email",
         value: "1",
     },
     {
-        label: "Checkbox Option 2",
+        label: "SMS",
+        value: "2",
+    },
+    {
+        label: "Voice Call",
         value: "2",
     },
 ];

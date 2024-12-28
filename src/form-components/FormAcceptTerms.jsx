@@ -44,9 +44,9 @@ const FormAcceptTerms = () => {
                 />
                 <br />
                 <Typography variant="inherit" color="textSecondary">
-                {errors.acceptTerms
-                ? '(' + errors.acceptTerms.message + ')'
-                : ''}
+                    {errors.acceptTerms
+                    ? '(' + errors.acceptTerms.message + ')'
+                    : ''}
                 </Typography>
             </>
       )
