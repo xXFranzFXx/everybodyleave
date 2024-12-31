@@ -4,15 +4,15 @@ import { Controller } from "react-hook-form";
 const options = [
     {
         label: "Email",
-        value: "1",
+        value: "email",
     },
     {
         label: "SMS",
-        value: "2",
+        value: "sms",
     },
     {
         label: "Voice Call",
-        value: "2",
+        value: "voice",
     },
 ];
 export const FormInputMultiCheckbox = ({ name, control, setValue, label, }) => {
