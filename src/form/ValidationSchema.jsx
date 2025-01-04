@@ -1,7 +1,7 @@
 let EMAIL_REGX  = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/
 
 
-const validationSchema = Yup.object().shape({
+export const validationSchema = Yup.object().shape({
     fullname: Yup.string().required('Fullname is required'),
     username: Yup.string()
       .required('Username is required')
