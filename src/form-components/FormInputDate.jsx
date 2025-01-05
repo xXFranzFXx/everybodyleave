@@ -23,11 +23,9 @@ export const FormInputDate = ({ name, control, label }) => {
       <Controller name={name} control={control} render={({ field, fieldState: { error }, formState }) => (
         <DatePicker  
             maxDate={new Date()} 
-            // onError={(newError) => setErrorMsg(newError)}
             slotProps={{
             textField: {
                 error: false,
-                // helperText: errorMessage,
                 }
             }}  
             variant="inline"  

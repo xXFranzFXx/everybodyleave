@@ -7,7 +7,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 
-async function sendScheduledSms(sendWhen, scheduleType, message) {
+async function sendScheduledSms(sendWhen, scheduleType, message, info) {
   // schedule message to be sent 61 minutes after current time
   // const sendWhen = new Date(new Date().getTime() + 61 * 60000);
  

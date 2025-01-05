@@ -49,7 +49,9 @@ socketIO.on("connection", socket => {
       const { notifications } = getNotifications();
       socket.emit('notifiactions', notifications);
     });
-  
+    socket.on('scheduleNotification', (date, type) => {
+      
+    })
     socket.on("disconnect", () => {
       socket.disconnect();
       console.log("🔥: A user disconnected");
