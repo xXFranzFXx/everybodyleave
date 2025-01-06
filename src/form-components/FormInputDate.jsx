@@ -5,7 +5,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { Controller } from "react-hook-form";
 const DATE_FORMAT = "MM-DD-YYYY";
 
-export const FormInputDate = ({ name, control, label }) => {
+export const FormInputDate = ({ name, control, label,  }) => {
     const [errorMsg, setErrorMsg] = useState(null);
     const errorMessage = useMemo(() => {
         switch (errorMsg) {
@@ -15,7 +15,7 @@ export const FormInputDate = ({ name, control, label }) => {
           }
     
           default: {
-            return 'Birth date is required';
+            return 'date is required';
           }
         }
       }, [errorMsg]);

@@ -10,7 +10,7 @@ import {
   } from '@material-ui/core';
 
 import { Controller, useForm } from 'react-hook-form';
-const FormAcceptTerms = () => {  
+export const FormAcceptTerms = () => {  
     const {
         register,
         control,
