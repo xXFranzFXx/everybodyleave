@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
 import { FormInputTel } from '../form-components/FormInputTel';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -13,12 +13,12 @@ import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { FormAcceptTerms } from '../form-components/FormAcceptTerms';
 import * as Yup from 'yup';
 import { scheduleNotification } from '../sockets/emit';
-
+import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid, Box, Paper } from '@mui/material';
 const MainForm = () => {
     
     const { state } = useSocketContext();
     const methods = useForm({ defaultValues: state || "", resolver: yupResolver(validationSchema) });
-    const { handleSubmit, getValues, reset, control, setValue, formState: { errors } } = methods;
+    const { handleSubmit, register,  getValues, reset, control, setValue, formState: { errors } } = methods;
 
     const onSubmit = (data) => {
         scheduleNotification(data);
@@ -31,9 +31,21 @@ const MainForm = () => {
           <Typography variant="h6" align="center" margin="dense">
             Everybodyleave scheduled reminder
           </Typography>
-
+         
           <Grid container spacing={1}>
-            <Grid item xs={12} sm={12}>
+          <Grid item xs={12} sm={12}>
+            <FormInputDate name="date" control={control} label="Date" errors={errors}/>
+          </Grid>
+          <Grid item xs={12} sm={12}>
+            <FormInputTel name="phone" control={control} label="Phone" errors={errors}/>
+          </Grid>
+          <Grid item xs={12} sm={12}>
+            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder" errors={errors}/>
+          </Grid>
+          <Grid item xs={12} sm={12}>
+            <FormInputDropdown name="type" control={control} label="Type" errors={errors}/>
+          </Grid>
+            {/* <Grid item xs={12} sm={12}>
               <TextField
                 required
                 id="fullname"
@@ -109,7 +121,7 @@ const MainForm = () => {
               <Typography variant="inherit" color="textSecondary">
                 {errors.confirmPassword?.message}
               </Typography>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12}>
               <FormControlLabel
                 control={

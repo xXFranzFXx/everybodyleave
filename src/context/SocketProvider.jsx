@@ -1,8 +1,6 @@
 import { createContext, useEffect, useContext, useRef } from 'react'
 import { proxy, useSnapshot } from 'valtio'
 import { initSockets } from "../sockets";
-import secureLocalStorage from "react-secure-storage"
-import { deepMergeObjects } from '../sockets/helpers';
 export const SocketContext = createContext()
 
 const SocketProvider = ({ children }) => {
@@ -13,7 +11,9 @@ const SocketProvider = ({ children }) => {
             email: "",
             date: "",
             time: "",
-            methods: "",
+            method: "",
+            reminder:"",
+            type: "",
         }
       ]
 })).current

@@ -11,7 +11,7 @@ const options = [
         value: "analog",
     },
 ];
-export const FormInputDropdown = ({ name, control, label, options }) => {
+export const FormInputDropdown = ({ name, control, label }) => {
     const generateSingleOptions = () => {
         return options.map((option) => {
             return (<MenuItem key={option.value} value={option.value}>

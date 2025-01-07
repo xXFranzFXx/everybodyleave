@@ -7,7 +7,7 @@ import {
     FormControlLabel,
     Checkbox,
     Button
-  } from '@material-ui/core';
+  } from '@mui/material';
 
 import { Controller, useForm } from 'react-hook-form';
 export const FormAcceptTerms = () => {  

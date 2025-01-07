@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Controller, useForm } from "react-hook-form";
 
-const FormInputTel = ({name, control, label}) => {
+export const FormInputTel = ({name, control, label}) => {
   
   return (
       <Controller
@@ -26,4 +26,3 @@ const FormInputTel = ({name, control, label}) => {
   )
 }
 
-export default FormInputTel;
