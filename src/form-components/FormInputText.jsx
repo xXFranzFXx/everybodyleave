@@ -3,7 +3,7 @@ import { Controller } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import { Typography } from "@mui/material/node";
 
-export const FormInputText = ({ name, control, label, errors }) => {
+export const FormInputText = ({ name, control, label}) => {
     return (
         <>
         <Controller 
@@ -14,9 +14,9 @@ export const FormInputText = ({ name, control, label, errors }) => {
             )} 
             rules={{ required: { value: true, message: 'This field is required' } }}
         />
-        <Typography variant="inherit" color="textSecondary">
+        {/* <Typography variant="inherit" color="textSecondary">
         {errors.name?.message}
-      </Typography>
+      </Typography> */}
       </>
     );
 };

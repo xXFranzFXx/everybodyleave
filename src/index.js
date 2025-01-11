@@ -4,15 +4,14 @@ import './index.css';
 import App from './App';
 import SocketProvider from './context/SocketProvider';
 import reportWebVitals from './reportWebVitals';
-import { FormProvider } from 'react-hook-form';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <SocketProvider>
+    {/* <SocketProvider> */}
       <App />
-    </SocketProvider>
+    {/* </SocketProvider> */}
   </React.StrictMode>
 );
 

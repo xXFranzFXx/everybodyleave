@@ -5,7 +5,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { Controller } from "react-hook-form";
 const DATE_FORMAT = "MM-DD-YYYY";
 
-export const FormInputDate = ({ name, control, label, errors  }) => {
+export const FormInputDate = ({ name, control, label  }) => {
     const [errorMsg, setErrorMsg] = useState(null);
     const errorMessage = useMemo(() => {
         switch (errorMsg) {
@@ -28,6 +28,7 @@ export const FormInputDate = ({ name, control, label, errors  }) => {
                 error: false,
                 }
             }}  
+            defaultValue={new Date()}
             variant="inline"  
             id={`date-${Math.random()}`} 
             label={label} 

@@ -10,6 +10,7 @@ const SocketProvider = ({ children }) => {
             user: "",
             email: "",
             date: "",
+            phone: "",
             time: "",
             method: "",
             reminder:"",
