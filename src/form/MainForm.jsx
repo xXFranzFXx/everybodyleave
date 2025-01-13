@@ -3,8 +3,6 @@ import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
 import { FormInputTel } from '../form-components/FormInputTel';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { validationSchema } from './ValidationSchema';
 import { FormInputText } from '../form-components/FormInputText';
 import { FormInputDate } from '../form-components/FormInputDate';
 import { TimePick } from '../form-components/FormInputTime';
@@ -12,7 +10,6 @@ import { FormInputMultiCheckbox } from '../form-components/FormInputMultiCheckbo
 import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { FormAcceptTerms } from '../form-components/FormAcceptTerms';
 import { FormInputEmail } from '../form-components/FormInputEmail';
-import * as Yup from 'yup';
 import { scheduleNotification } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const MainForm = () => {
@@ -70,87 +67,8 @@ const MainForm = () => {
             <FormInputDate name="date" control={control} label="Date" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
-
             <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder" />
           </Grid2>
-         
-            {/* <Grid2 item xs={12} sm={12}>
-              <TextField
-                required
-                id="fullname"
-                name="fullname"
-                label="Full Name"
-                fullWidth
-                margin="dense"
-                {...register('fullname')}
-                error={errors.fullname ? true : false}
-              />
-              <Typography variant="inherit" color="textSecondary">
-                {errors.fullname?.message}
-              </Typography>
-            </Grid2>
-            <Grid2 item xs={12} sm={6}>
-              <TextField
-                required
-                id="username"
-                name="username"
-                label="Username"
-                fullWidth
-                margin="dense"
-                {...register('username')}
-                error={errors.username ? true : false}
-              />
-              <Typography variant="inherit" color="textSecondary">
-                {errors.username?.message}
-              </Typography>
-            </Grid2>
-            <Grid2 item xs={12} sm={6}>
-              <TextField
-                required
-                id="email"
-                name="email"
-                label="Email"
-                fullWidth
-                margin="dense"
-                {...register('email')}
-                error={errors.email ? true : false}
-              />
-              <Typography variant="inherit" color="textSecondary">
-                {errors.email?.message}
-              </Typography>
-            </Grid2>
-            <Grid2 item xs={12} sm={6}>
-              <TextField
-                required
-                id="password"
-                name="password"
-                label="Password"
-                type="password"
-                fullWidth
-                margin="dense"
-                {...register('password')}
-                error={errors.password ? true : false}
-              />
-              <Typography variant="inherit" color="textSecondary">
-                {errors.password?.message}
-              </Typography>
-            </Grid2>
-            <Grid2 item xs={12} sm={6}>
-              <TextField
-                required
-                id="confirmPassword"
-                name="confirmPassword"
-                label="Confirm Password"
-                type="password"
-                fullWidth
-                margin="dense"
-                {...register('confirmPassword')}
-                error={errors.confirmPassword ? true : false}
-              />
-              <Typography variant="inherit" color="textSecondary">
-                {errors.confirmPassword?.message}
-              </Typography>
-            </Grid2> */}
             <Grid2 item xs={12} sm={12}>
               <FormControlLabel
                 control={

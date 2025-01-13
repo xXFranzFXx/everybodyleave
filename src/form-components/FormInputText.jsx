@@ -14,9 +14,6 @@ export const FormInputText = ({ name, control, label}) => {
             )} 
             rules={{ required: { value: true, message: 'This field is required' } }}
         />
-        {/* <Typography variant="inherit" color="textSecondary">
-        {errors.name?.message}
-      </Typography> */}
       </>
     );
 };

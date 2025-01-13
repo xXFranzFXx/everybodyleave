@@ -28,7 +28,7 @@ export const FormInputEmail = ({ control }) => {
                     }
                 }}  
             rules={{
-                required: true,
+                required: { value: true, message: 'email address required' }, 
                 pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
                 message: 'invalid email address'

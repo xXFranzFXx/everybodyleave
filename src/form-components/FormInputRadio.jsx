@@ -11,7 +11,7 @@ const options = [
         value: "2",
     },
 ];
-export const FormInputRadio = ({ name, control, label, }) => {
+export const FormInputRadio = ({ name, control, label }) => {
     const generateRadioOptions = () => {
         return options.map((singleOption) => (<FormControlLabel value={singleOption.value} label={singleOption.label} control={<Radio />}/>));
     };

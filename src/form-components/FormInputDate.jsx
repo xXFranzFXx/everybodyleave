@@ -20,15 +20,19 @@ export const FormInputDate = ({ name, control, label  }) => {
         }
       }, [errorMsg]);
     return (<LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Controller name={name} control={control} render={({ field, fieldState: { error }, formState }) => (
+      <Controller name={name} control={control} render={({ field, fieldState: { error } }) => (
         <DatePicker  
+        inputFormat={DATE_FORMAT} 
             maxDate={new Date()} 
+            defaultValue={new Date()}
             slotProps={{
             textField: {
-                error: false,
+              error: false,
+              helperText: error ? errorMessage : "",
                 }
             }}  
-            defaultValue={new Date()}
+            onError={(newError) => setErrorMsg(newError)}
+            
             variant="inline"  
             id={`date-${Math.random()}`} 
             label={label} 
@@ -38,9 +42,14 @@ export const FormInputDate = ({ name, control, label  }) => {
             KeyboardButtonProps={{
                 "aria-label": "change date",
             }} 
-            inputFormat={DATE_FORMAT} 
+           
             {...field}
         />
-    )} />
+        
+    )} 
+    rules={{
+      required: true, 
+  }}
+    />
     </LocalizationProvider>);
 };
