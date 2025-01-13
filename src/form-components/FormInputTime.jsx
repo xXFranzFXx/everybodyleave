@@ -11,14 +11,24 @@ export const TimePick = ({ name, control, label }) =>  {
         <Controller
           name={name}
           control={control}
-          render={({ field: { onChange, value } }) => (
+          
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <TimePicker   
               label={label}
+              slotProps={{
+                textField: {
+                  error: !!error,
+                  helperText: error ? "time is required ex: HH:mm" : "",
+                  }
+                }}  
               value={value ? dayjs(value, 'HH:mm') : null}
               onChange={(time) => onChange(time ? time.format('HH:mm') : '')} 
               ampm={false}
             />
           )}
+          rules={{
+            required: true, 
+        }}
         />
     </LocalizationProvider>
   );

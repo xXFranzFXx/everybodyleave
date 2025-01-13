@@ -40,7 +40,7 @@ const MainForm = () => {
                 padding: "20px",
                 margin: "auto",
                 width: "auto",
-                maxWidth: "600px",
+                maxWidth: "620px",
                 minWidth: "250px",
                 marginTop: "30px",
                 boxShadow: "none"  
@@ -55,19 +55,19 @@ const MainForm = () => {
           <Grid2 item xs={12} sm={4}>
             <FormInputEmail control={control} />
           </Grid2>
-          <Grid2 item xs={12} sm={8}>
-            <FormInputTel name="phone" control={control} label="Phone" />
+          <Grid2 item xs={12} sm={4}>
+            <FormInputTel name="phone" control={control} label="Phone*" />
           </Grid2>
           
          
           <Grid2 item xs={12} sm={12}>
-            <TimePick name="time" control={control} label="Time" />
+            <TimePick name="time" control={control} label="Time*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
-            <FormInputDate name="date" control={control} label="Date" />
+            <FormInputDate name="date" control={control} label="Date*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
-            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder" />
+            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder*" />
           </Grid2>
             <Grid2 item xs={12} sm={12}>
               <FormControlLabel

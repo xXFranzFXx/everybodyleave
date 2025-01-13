@@ -16,7 +16,7 @@ export const FormInputTel = ({name, control, label}) => {
             defaultCountry="US"
             value={value ?? ''}
             inputRef={fieldRef}
-            helperText={fieldState.invalid ? "Tel is invalid" : ""}
+            helperText={fieldState.invalid ? "enter valid number ex: 123 555 5555" : ""}
             error={fieldState.invalid}
             label={label}
           />

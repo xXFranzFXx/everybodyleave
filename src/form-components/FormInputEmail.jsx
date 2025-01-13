@@ -13,7 +13,7 @@ export const FormInputEmail = ({ control }) => {
                     labelWidth={40}
                     helperText={error ? error.message : null} 
                     error={!!error}
-                    label="email"
+                    label="Email*"
                     onChange={onChange} 
                     value={value} 
                     fullWidth  
@@ -28,10 +28,10 @@ export const FormInputEmail = ({ control }) => {
                     }
                 }}  
             rules={{
-                required: { value: true, message: 'email address required' }, 
+                required: { value: true, message: 'email required ex: xxx@xxx.com' }, 
                 pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                message: 'invalid email address'
+                message: 'enter valid email ex: xxx@xxx.com'
                 }
             }}
         />

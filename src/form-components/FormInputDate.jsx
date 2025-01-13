@@ -11,7 +11,7 @@ export const FormInputDate = ({ name, control, label  }) => {
         switch (errorMsg) {
           
           case 'invalidDate': {
-            return 'Your date is not valid';
+            return 'date is not valid';
           }
     
           default: {
@@ -19,37 +19,39 @@ export const FormInputDate = ({ name, control, label  }) => {
           }
         }
       }, [errorMsg]);
-    return (<LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Controller name={name} control={control} render={({ field, fieldState: { error } }) => (
-        <DatePicker  
-        inputFormat={DATE_FORMAT} 
-            maxDate={new Date()} 
-            defaultValue={new Date()}
-            slotProps={{
-            textField: {
-              error: false,
-              helperText: error ? errorMessage : "",
+
+    return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Controller 
+        name={name} 
+        control={control} 
+        render={({ field, fieldState: { error } }) => (
+          <DatePicker  
+              inputFormat={DATE_FORMAT} 
+              maxDate={new Date()} 
+              defaultValue={new Date()}
+              slotProps={{
+              textField: {
+                error: !!error,
+                helperText: error ? errorMessage : "",
                 }
-            }}  
-            onError={(newError) => setErrorMsg(newError)}
-            
-            variant="inline"  
-            id={`date-${Math.random()}`} 
-            label={label} 
-            rifmFormatter={(val) => val.replace(/[^[a-zA-Z0-9-]*$]+/gi, "")} 
-            refuse={/[^[a-zA-Z0-9-]*$]+/gi} 
-            autoOk 
-            KeyboardButtonProps={{
-                "aria-label": "change date",
-            }} 
-           
-            {...field}
-        />
-        
-    )} 
-    rules={{
-      required: true, 
-  }}
+              }}  
+              onError={(newError) => setErrorMsg(newError)}
+              variant="inline"  
+              id={`date-${Math.random()}`} 
+              label={label} 
+              rifmFormatter={(val) => val.replace(/[^[a-zA-Z0-9-]*$]+/gi, "")} 
+              refuse={/[^[a-zA-Z0-9-]*$]+/gi} 
+              autoOk 
+              KeyboardButtonProps={{
+                  "aria-label": "change date",
+              }}         
+              {...field}
+          />       
+        )} 
+        rules={{
+          required: true, 
+      }}
     />
     </LocalizationProvider>);
 };
