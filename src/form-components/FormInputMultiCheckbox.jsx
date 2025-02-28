@@ -30,14 +30,15 @@ export const FormInputMultiCheckbox = ({ name, control, setValue, label, }) => {
     useEffect(() => {
         setValue(name, selectedItems);
     }, [selectedItems]);
-    return (<FormControl variant={"outlined"}>
+    return (<FormControl variant="outlined" required>
       <FormLabel component="legend">{label}</FormLabel>
 
       <div>
         {options.map((option) => {
-            return (<FormControlLabel control={<Controller name={name} render={({}) => {
+            return (<FormControlLabel control={<Controller name={name} 
+            render={({fieldState: {error}}) => {
                         return (<Checkbox checked={selectedItems.includes(option.value)} onChange={() => handleSelect(option.value)}/>);
-                    }} control={control}/>} label={option.label} key={option.value}/>);
+                    }} control={control}/>} label={option.label} key={option.value}  />);
         })}
       </div>
     </FormControl>);

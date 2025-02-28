@@ -9,19 +9,22 @@ async function scheduleNotification(socket, date, type, info) {
     switch (type) {
         case 'text' : {
             //send text at given date
-            await socket.emit('text_sent');
+            schedule.scheduleJob(scheduledDate, () => {
+                socket.emit('text_sent');
+            })
+            break;
         }
         case 'email': {
            schedule.scheduleJob(scheduledDate, () => {
                 //email task
-               socket.emit('email_sent');
+             socket.emit('email_sent');
             })
             break;
         }
         case 'phone': {           
             schedule.scheduleJob(scheduledDate, () => {
                 //voice call
-                socket.emit('call_sent');
+               socket.emit('call_sent');
             })
             break;
         }

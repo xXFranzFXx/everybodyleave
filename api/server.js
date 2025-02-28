@@ -5,7 +5,7 @@ const path = require("path");
 const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
-
+const { sendScheduledSms, sendScheduledVoice } = require('./helpers/twilio')
 const app = express();
 const http = require("http").Server(app);
 const corsOptions = {
@@ -49,8 +49,9 @@ socketIO.on("connection", socket => {
       const { notifications } = getNotifications();
       socket.emit('notifiactions', notifications);
     });
-    socket.on('scheduleNotification', (date, type) => {
-      
+    socket.on('scheduleTwilioSmsNotification', async (sendWhen, scheduleType, smsMsg) => {
+      const { sid } = await sendScheduledSms(sendWhen, scheduleType, message);
+      socket.emit('twilioSms', sid);
     })
     socket.on("disconnect", () => {
       socket.disconnect();

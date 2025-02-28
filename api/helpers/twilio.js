@@ -7,7 +7,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 
-async function sendScheduledSms(sendWhen, scheduleType, message, info) {
+async function sendScheduledSms(sendWhen, scheduleType, smsMsg, info) {
   // schedule message to be sent 61 minutes after current time
   // const sendWhen = new Date(new Date().getTime() + 61 * 60000);
  
@@ -16,13 +16,27 @@ async function sendScheduledSms(sendWhen, scheduleType, message, info) {
   const message = await client.messages.create({
     from: messagingServiceSid,
     to: '+1xxxxxxxxxx',  // ← your phone number here
-    body: message,
+    body: smsMsg,
     scheduleType: scheduleType,
     sendAt: sendWhen.toISOString(),
   });
 
   console.log(message.sid);
-  return message.sid;
+  const { sid } = message;
+  return sid;
 }
 
-module.exports = { sendScheduledSms };
+async function sendScheduledVoice(){
+  const call = await client.calls.create({
+    from: "+14155551212",
+    to: "+14155551212",
+    // url: "http://demo.twilio.com/docs/classic.mp3",
+    twml:"<Response><Say>This is your courtesy reminder from Everybody leave!</Say></Response>"
+  });
+
+  console.log(call.sid);
+  const { sid } = call;
+  return sid;
+}
+
+module.exports = { sendScheduledSms, sendScheduledVoice };

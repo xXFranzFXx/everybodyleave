@@ -67,7 +67,7 @@ const MainForm = () => {
             <FormInputDate name="date" control={control} label="Date*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
-            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder*" />
+            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder" />
           </Grid2>
             <Grid2 item xs={12} sm={12}>
               <FormControlLabel
