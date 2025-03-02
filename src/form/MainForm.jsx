@@ -59,7 +59,6 @@ const MainForm = () => {
             <FormInputTel name="phone" control={control} label="Phone*" />
           </Grid2>
           
-         
           <Grid2 item xs={12} sm={12}>
             <TimePick name="time" control={control} label="Time*" />
           </Grid2>
