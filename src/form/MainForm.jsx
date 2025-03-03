@@ -98,7 +98,6 @@ const MainForm = () => {
               </Typography>
             </Grid2>
           </Grid2>
-
           <Box mt={3}>
             <Button
               variant="contained"
@@ -112,6 +111,5 @@ const MainForm = () => {
       </Paper>
         </FormProvider>
     )
-
 }
 export default MainForm;
