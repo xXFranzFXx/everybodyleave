@@ -12,8 +12,7 @@ import { Controller, useForm } from 'react-hook-form';
 export const FormAcceptTerms = () => {  
     const {
         register,
-        control,
-       
+        control,  
         formState: { errors }
       } = useForm({
        // resolver: yupResolver(validationSchema)
