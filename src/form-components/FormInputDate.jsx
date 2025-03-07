@@ -8,12 +8,10 @@ const DATE_FORMAT = "MM-DD-YYYY";
 export const FormInputDate = ({ name, control, label  }) => {
     const [errorMsg, setErrorMsg] = useState(null);
     const errorMessage = useMemo(() => {
-        switch (errorMsg) {
-          
+        switch (errorMsg) {  
           case 'invalidDate': {
             return 'date is not valid';
           }
-    
           default: {
             return 'date is required';
           }
