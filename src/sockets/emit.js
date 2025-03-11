@@ -5,5 +5,5 @@ export const getNotifications = () => {
   };
 
 export const scheduleNotification = (data) => {
-  socket.emit('scheduleNotification', data)
+  socket.emit('scheduleTwilioSmsNotification', data)
 }

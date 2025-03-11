@@ -49,8 +49,8 @@ socketIO.on("connection", socket => {
       const { notifications } = getNotifications();
       socket.emit('notifiactions', notifications);
     });
-    socket.on('scheduleTwilioSmsNotification', async (sendWhen, scheduleType, smsMsg) => {
-      const { sid } = await sendScheduledSms(sendWhen, scheduleType, message);
+    socket.on('scheduleTwilioSmsNotification', async (date, phone, smsMsg) => {
+      const { sid } = await sendScheduledSms(date, phone, smsMsg);
       socket.emit('twilioSms', sid);
     })
     socket.on("disconnect", () => {
