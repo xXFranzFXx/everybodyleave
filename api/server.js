@@ -6,6 +6,7 @@ const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
 const { sendScheduledSms, sendScheduledVoice } = require('./helpers/twilio')
+const { sms46Elks } = require('./helpers/46elks');
 const app = express();
 const http = require("http").Server(app);
 const corsOptions = {
@@ -57,8 +58,11 @@ socketIO.on("connection", socket => {
       socket.disconnect();
       console.log("🔥: A user disconnected");
     });
-  });
-  
+  socket.on('send46ElksSms', async(phone, param) => {
+    const { smsSent } = await sms46Elks(phone, param);
+    socket.emit('46ElksSms', smsSent)
+  })
+});
   http.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
   });

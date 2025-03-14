@@ -1,3 +1,11 @@
+//node wrapper
+const fortysixElks = require('fortysix-elks');
+const fc = new fortysixElks.Client(process.env.FORTYSIXELKS_USER, process.env.FORTYSIXELKS_PASSWORD)
+fc.sendSMS('Sender', '+4670****085', 'Hello!', function(err, res) {
+    console.log(err);
+    console.log(res);
+  });
+
 
 //for testing we set param to 'dryrun'
 async function sms46Elks(phone, param) {
