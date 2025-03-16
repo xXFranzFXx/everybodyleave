@@ -4,11 +4,10 @@ export const getNotifications = () => {
     socket.emit('notificationsToSocket');
   };
 
-export const scheduleNotification = (data) => {
-  socket.emit('scheduleTwilioSmsNotification', data)
+export const twilioSms = (data) => {
+  socket.emit('sendTwilioSms', data )
 }
 
 export const sms46Elks = (data) => {
-  const { phone } = data;
-  socket.emit('send46ElksSms', phone)
+  socket.emit('send46ElksSms', data, 'dryrun')
 }

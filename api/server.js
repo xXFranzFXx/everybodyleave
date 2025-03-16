@@ -50,7 +50,8 @@ socketIO.on("connection", socket => {
       const { notifications } = getNotifications();
       socket.emit('notifiactions', notifications);
     });
-    socket.on('scheduleTwilioSmsNotification', async (date, phone, smsMsg) => {
+    socket.on('sendTwilioSms', async (data) => {
+      const { date, phone, smsMsg } = data;
       const { sid } = await sendScheduledSms(date, phone, smsMsg);
       socket.emit('twilioSms', sid);
     })
@@ -58,7 +59,8 @@ socketIO.on("connection", socket => {
       socket.disconnect();
       console.log("🔥: A user disconnected");
     });
-  socket.on('send46ElksSms', async(phone, param) => {
+  socket.on('send46ElksSms', async(data, param) => {
+    const { phone } = data;
     const { smsSent } = await sms46Elks(phone, param);
     socket.emit('46ElksSms', smsSent)
   })

@@ -28,7 +28,7 @@ const MainForm = () => {
 
     const onSubmit = (data) => {
         console.log(data);
-        scheduleNotification(data);
+       twilioSms(data);
     }
 
     return (
