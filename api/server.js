@@ -7,6 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const { sendScheduledSms, sendScheduledVoice } = require('./helpers/twilio')
 const { sms46Elks } = require('./helpers/46elks');
+const { cronJob } = require('./cron');
 const app = express();
 const http = require("http").Server(app);
 const corsOptions = {
@@ -51,8 +52,7 @@ socketIO.on("connection", socket => {
       socket.emit('notifiactions', notifications);
     });
     socket.on('sendTwilioSms', async (data) => {
-      const { date, phone, smsMsg } = data;
-      const { sid } = await sendScheduledSms(date, phone, smsMsg);
+      const { sid } = await cronJob(data);
       socket.emit('twilioSms', sid);
     })
     socket.on("disconnect", () => {
