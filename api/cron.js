@@ -1,20 +1,23 @@
 const schedule = require('node-schedule');
 const { sendScheduledSms } = require('./helpers/twilio')
 
-function dateToCron(date) {
-    const minutes = date.getMinutes();
-    const hours = date.getHours();
+function dateToCron(date, time) {
+    const time = data.time;
+    const re = /(\d+):(\d+)/g;
+    const matches = re.exec(time);
+    const hour = matches[0];
+    const minute = matches[1];
     const dayOfMonth = date.getDate();
     const month = date.getMonth() + 1; // Month is 0-indexed, so add 1
     const dayOfWeek = date.getDay(); // 0 for Sunday, 1 for Monday, etc.
   
-    const cronExpression = `${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
+    const cronExpression = `${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
     return cronExpression;
   }
 
 async function cronJob(data) {
-    const { date, phone, smsMsg } = data; 
-    const { cronExpression } = dateToCron(date);
+    const { date, phone, smsMsg, time } = data; 
+    const { cronExpression } = dateToCron(date, time);
     const job = schedule.scheduleJob(cronExpression, async () => {
         const { sid } = await sendScheduledSms(smsMsg, phone);
         await sid;

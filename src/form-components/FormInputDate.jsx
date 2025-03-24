@@ -26,7 +26,7 @@ export const FormInputDate = ({ name, control, label  }) => {
         render={({ field, fieldState: { error } }) => (
           <DatePicker  
               inputFormat={DATE_FORMAT} 
-              maxDate={new Date()} 
+              // maxDate={new Date()} 
               defaultValue={new Date()}
               slotProps={{
               textField: {

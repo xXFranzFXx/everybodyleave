@@ -10,7 +10,7 @@ import { FormInputMultiCheckbox } from '../form-components/FormInputMultiCheckbo
 import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { FormAcceptTerms } from '../form-components/FormAcceptTerms';
 import { FormInputEmail } from '../form-components/FormInputEmail';
-import { scheduleNotification } from '../sockets/emit';
+import { twilioSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const MainForm = () => {
     const defaultValues = {
@@ -27,8 +27,9 @@ const MainForm = () => {
     const { handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
 
     const onSubmit = (data) => {
-        console.log(data);
-       twilioSms(data);
+        console.log(data);      
+        console.log(data.time);
+        twilioSms(data);
     }
 
     return (
