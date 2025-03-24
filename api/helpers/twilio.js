@@ -3,27 +3,16 @@
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
-
+const { default: format } = require('date-fns/format');
+const { formatDateTime } = require('./dateTimeFormatter');
 const client = require('twilio')(accountSid, authToken);
 
-function toISOString(date, time) {
-  const re = /(\d+):(\d+)/g;
-  const matches = re.exec(time);
-  const hour = matches[0];
-  const minute = matches[1];
-  const dayOfMonth = date.getDate();
-  const year = date.getYear();
-  const month = date.getMonth() + 1; // Month is 0-indexed, so add 1
-  const isoString = `${year}-${month}-${dayOfMonth}T${hour}:${minute}:00.00Z`;
-
-  return isoString;
-}
 //send sms to specific phone number
 async function sendSms( smsMsg, phone) {
   // send the SMS using twilio api
   const message = await client.messages.create({
     from: process.env.TWILIO_PHONE_NUMBER, 
-    to: `1${phone}`,  
+    to: `${phone}`,  
     body: smsMsg
   });
 
@@ -40,7 +29,7 @@ async function sendScheduledSms( smsMsg, phone, data) {
   // const sendWhen = new Date(new Date().getTime() + 61 * 60000);
   const date = data.date;
   const time = data.time;
-  const str = toISOString(date, time);
+  const str = formatDateTime(date, time, 'iso');
   // send the SMS
   const message = await client.messages.create({
     from: messagingServiceSid,
