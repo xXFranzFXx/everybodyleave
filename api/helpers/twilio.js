@@ -7,7 +7,7 @@ const { default: format } = require('date-fns/format');
 const { formatDateTime } = require('./cron');
 const client = require('twilio')(accountSid, authToken);
 
-//send sms to specific phone number
+//send sms to specific phone number, gets called by cronjob
 async function sendSms( smsMsg, phone) {
   // send the SMS using twilio api
   const message = await client.messages.create({
@@ -15,13 +15,12 @@ async function sendSms( smsMsg, phone) {
     to: `${phone}`,  
     body: smsMsg
   });
-
   console.log(message.sid);
   const { sid } = message;
   return sid;
 }
 
-/* The code below uses twilio's message scheduling service.  code taken from :
+/* The code below uses twilio's message scheduling service. This doesn't require cronjobs. code taken from :
 https://www.twilio.com/en-us/blog/send-scheduled-sms-node-js-twilio
 */
 async function sendScheduledSms( smsMsg, phone, data) {
@@ -38,11 +37,11 @@ async function sendScheduledSms( smsMsg, phone, data) {
     // scheduleType: scheduleType,
     sendAt: str,
   });
-
   console.log(message.sid);
   const { sid } = message;
   return sid;
 }
+
 async function sendScheduledVoice(phone){
   const call = await client.calls.create({
     from: messagingServiceSid,
@@ -50,7 +49,6 @@ async function sendScheduledVoice(phone){
     // url: "http://demo.twilio.com/docs/classic.mp3", 
     twml:"<Response><Say>This is your courtesy reminder from Everybody leave!</Say></Response>"
   });
-
   console.log(call.sid);
   const { sid } = call;
   return sid;
