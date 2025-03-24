@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { sendSms } = require('./helpers/twilio')
+const { sendSms } = require('./twilio');
 
 function dateToCron(date, time) {
     const time = data.time;
@@ -10,7 +10,6 @@ function dateToCron(date, time) {
     const dayOfMonth = date.getDate();
     const month = date.getMonth() + 1; // Month is 0-indexed, so add 1
     const dayOfWeek = date.getDay(); // 0 for Sunday, 1 for Monday, etc.
-  
     const cronExpression = `${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
     return cronExpression;
   }

@@ -7,7 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const { sendScheduledSms, sendScheduledVoice } = require('./helpers/twilio')
 const { sms46Elks } = require('./helpers/46elks');
-const { cronJob } = require('./cron');
+const { cronJob } = require('./helpers/cron');
 const app = express();
 const http = require("http").Server(app);
 const corsOptions = {
@@ -44,8 +44,8 @@ const socketIO = require("socket.io")(http, {
 
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
-    console.log(process.env.USER)
-    console.log(process.env.NODE_ENV)
+    console.log(process.env.USER);
+    console.log(process.env.NODE_ENV);
    
     socket.on('notificationsToSocket', async () => {
       const { notifications } = getNotifications();
@@ -62,7 +62,7 @@ socketIO.on("connection", socket => {
   socket.on('send46ElksSms', async(data, param) => {
     const { phone } = data;
     const { smsSent } = await sms46Elks(phone, param);
-    socket.emit('46ElksSms', smsSent)
+    socket.emit('46ElksSms', smsSent);
   })
 });
   http.listen(PORT, () => {
