@@ -4,7 +4,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
 const { default: format } = require('date-fns/format');
-const { formatDateTime } = require('./dateTimeFormatter');
+const { formatDateTime } = require('./cron');
 const client = require('twilio')(accountSid, authToken);
 
 //send sms to specific phone number
