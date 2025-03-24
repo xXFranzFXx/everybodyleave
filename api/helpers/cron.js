@@ -2,7 +2,6 @@ const schedule = require('node-schedule');
 const { sendSms } = require('./twilio');
 
 function dateToCron(date, time) {
-    const time = data.time;
     const re = /(\d+):(\d+)/g;
     const matches = re.exec(time);
     const hour = matches[0];

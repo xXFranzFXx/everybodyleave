@@ -29,6 +29,7 @@ const MainForm = () => {
     const onSubmit = (data) => {
         console.log(data);      
         console.log(data.time);
+  
         twilioSms(data);
     }
 

@@ -52,6 +52,7 @@ socketIO.on("connection", socket => {
     //   const { notifications } = await getNotifications();
     //   socket.emit('notifiactions', notifications);
     // });
+
     socket.on('sendTwilioSms', async (data) => {
       const { sid } = await cronJob(data);
       socket.emit('twilioSms', sid);

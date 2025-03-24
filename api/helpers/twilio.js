@@ -6,6 +6,18 @@ const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
 
 const client = require('twilio')(accountSid, authToken);
 
+function toISOString(date, time) {
+  const re = /(\d+):(\d+)/g;
+  const matches = re.exec(time);
+  const hour = matches[0];
+  const minute = matches[1];
+  const dayOfMonth = date.getDate();
+  const year = date.getYear();
+  const month = date.getMonth() + 1; // Month is 0-indexed, so add 1
+  const isoString = `${year}-${month}-${dayOfMonth}T${hour}:${minute}:00.00Z`;
+
+  return isoString;
+}
 //send sms to specific phone number
 async function sendSms( smsMsg, phone) {
   // send the SMS using twilio api
@@ -23,17 +35,19 @@ async function sendSms( smsMsg, phone) {
 /* The code below uses twilio's message scheduling service.  code taken from :
 https://www.twilio.com/en-us/blog/send-scheduled-sms-node-js-twilio
 */
-async function sendScheduledSms( smsMsg, phone, date) {
+async function sendScheduledSms( smsMsg, phone, data) {
   // schedule message to be sent 61 minutes after current time using twilio programmable messaging api
   // const sendWhen = new Date(new Date().getTime() + 61 * 60000);
- 
+  const date = data.date;
+  const time = data.time;
+  const str = toISOString(date, time);
   // send the SMS
   const message = await client.messages.create({
     from: messagingServiceSid,
     to: `1${phone}`, 
     body: smsMsg,
     // scheduleType: scheduleType,
-    sendAt: date.toISOString(),
+    sendAt: str,
   });
 
   console.log(message.sid);
