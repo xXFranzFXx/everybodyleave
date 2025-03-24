@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const { sendScheduledSms } = require('./helpers/twilio')
+const { sendSms } = require('./helpers/twilio')
 
 function dateToCron(date, time) {
     const time = data.time;
@@ -19,7 +19,7 @@ async function cronJob(data) {
     const { date, phone, smsMsg, time } = data; 
     const { cronExpression } = dateToCron(date, time);
     const job = schedule.scheduleJob(cronExpression, async () => {
-        const { sid } = await sendScheduledSms(smsMsg, phone);
+        const { sid } = await sendSms(smsMsg, phone);
         await sid;
     })
     return job;
