@@ -63,6 +63,11 @@ socketIO.on("connection", socket => {
     const { smsSent } = await sms46Elks(phone, param);
     socket.emit('46ElksSms', smsSent);
   })
+  
+  socket.on("sendTextBeeSms", async (data) => {
+    const { job } = await cronJobTextBee(data);
+    socket.emit('textBeeSms', job);
+  })
 
   socket.on("disconnect", () => {
     socket.disconnect();
