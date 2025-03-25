@@ -1,7 +1,6 @@
 const schedule = require('node-schedule');
-const { sendSms } = require('./twilio');
+const { sendTwilioSms } = require('./twilio');
 const { textBeeSms } = require('./textBee');
-const { formatDateTime } = require('./dateTimeFormatter');
 
 function formatDateTime(date, time, format) {
     const re = /(\d+):(\d+)/g;
@@ -33,7 +32,7 @@ async function cronJobTwilio(data) {
     const { date, phone, smsMsg, time } = data; 
     const str = formatDateTime(date, time, 'cron');
     const job = schedule.scheduleJob(str, async () => {
-        const { sid } = await sendSms(smsMsg, phone);
+        const { sid } = await sendTwilioSms(smsMsg, phone);
         await sid;
     })
     return job;

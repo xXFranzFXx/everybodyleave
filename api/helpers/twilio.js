@@ -4,11 +4,11 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
 const { default: format } = require('date-fns/format');
-const { formatDateTime } = require('./cron');
+const  formatDateTime  = require('./cron');
 const client = require('twilio')(accountSid, authToken);
 
 //send sms to specific phone number, gets called by cronjob
-async function sendSms( smsMsg, phone) {
+const sendTwilioSms = async ( smsMsg, phone) => {
   // send the SMS using twilio api
   const message = await client.messages.create({
     from: process.env.TWILIO_PHONE_NUMBER, 
@@ -54,4 +54,4 @@ async function sendScheduledVoice(phone){
   return sid;
 }
 
-module.exports = { sendScheduledSms, sendSms, sendScheduledVoice };
+module.exports = { sendScheduledSms, sendTwilioSms, sendScheduledVoice };

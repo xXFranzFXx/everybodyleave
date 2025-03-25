@@ -5,7 +5,6 @@ const path = require("path");
 const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
-const { sendScheduledSms, sendScheduledVoice } = require('./helpers/twilio')
 const { sms46Elks } = require('./helpers/46elks');
 const { cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const app = express();
@@ -46,7 +45,7 @@ const socketIO = require("socket.io")(http, {
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
     console.log(process.env.USER);
-    console.log(process.env.NODE_ENV);
+    // console.log(process.env.NODE_ENV);
    
     // socket.on('notificationsToSocket', async () => {
     //   const { notifications } = await getNotifications();
@@ -54,7 +53,7 @@ socketIO.on("connection", socket => {
     // });
 
     socket.on('sendTwilioSms', async (data) => {
-      const { sid } = await cronJob(data);
+      const { sid } = await cronJobTwilio(data);
       socket.emit('twilioSms', sid);
     })
    
@@ -64,7 +63,7 @@ socketIO.on("connection", socket => {
     socket.emit('46ElksSms', smsSent);
   })
   
-  socket.on("sendTextBeeSms", async (data) => {
+  socket.on('sendTextBeeSms', async (data) => {
     const { job } = await cronJobTextBee(data);
     socket.emit('textBeeSms', job);
   })
