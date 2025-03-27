@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useSocketContext } from '../context/SocketProvider';
+
 import { Checkbox, FormControl, FormControlLabel, FormLabel, } from "@mui/material";
 import { Controller } from "react-hook-form";
 const options = [
@@ -17,18 +19,26 @@ const options = [
 ];
 export const FormInputMultiCheckbox = ({ name, control, setValue, label, }) => {
     const [selectedItems, setSelectedItems] = useState([]);
+    const { state } = useSocketContext();
+    
     const handleSelect = (value) => {
         const isPresent = selectedItems.indexOf(value);
         if (isPresent !== -1) {
             const remaining = selectedItems.filter((item) => item !== value);
+            state['type'] = remaining;
             setSelectedItems(remaining);
         }
         else {
             setSelectedItems((prevItems) => [...prevItems, value]);
+            let newTypes = state.type;
+            newTypes = [...newTypes, value];
+            state['type'] = newTypes;
+
         }
     };
     useEffect(() => {
         setValue(name, selectedItems);
+        
     }, [selectedItems]);
     return (<FormControl variant="outlined" required>
       <FormLabel component="legend">{label}</FormLabel>

@@ -7,6 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const { sms46Elks } = require('./helpers/46elks');
 const { cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
+const { textBeeSms } = require('./helpers/textBee');
 const app = express();
 const http = require("http").Server(app);
 const corsOptions = {
@@ -63,9 +64,16 @@ socketIO.on("connection", socket => {
     socket.emit('46ElksSms', smsSent);
   })
   
-  socket.on('sendTextBeeSms', async (data) => {
+  socket.on('sendTextBeeCronSms', async (data) => {
     const { job } = await cronJobTextBee(data);
     socket.emit('textBeeSms', job);
+  })
+  
+  socket.on('sendTextBeeSms', async (data) => {
+    const smsMsg = 'this is your reminder';
+    const { phone } = data;
+    const { result } = await textBeeSms(smsMsg, phone);
+    socket.emit('textBeeSms',result);
   })
 
   socket.on("disconnect", () => {

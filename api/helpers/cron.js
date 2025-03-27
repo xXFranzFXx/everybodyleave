@@ -18,8 +18,8 @@ function formatDateTime(date, time, format) {
             return cronExpression;
             break;
         }
-        case 'iso': {
-            return isoString;
+        case 'iso': {  //needed for twilio preprogram msg api
+            return isoString; 
             break;
         }
         default: {

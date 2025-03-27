@@ -24,15 +24,18 @@ const MainForm = () => {
     }
     // const { state } = useSocketContext();
     const methods = useForm({ defaultValues: defaultValues || ""});
-    const { handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-
+    const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
+    const { snap } = useSocketContext();
+    const { type } = snap;
     const onSubmit = (data) => {
         console.log(data);      
         console.log(data.time);
   
         textBeeSms(data);
     }
-
+ useEffect(() => {
+console.log(getValues("reminder"))
+ },[getValues("reminder")])
     return (
         <FormProvider {...methods}>
         <Paper
@@ -56,12 +59,20 @@ const MainForm = () => {
          
           <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
           <Grid2 item xs={12} sm={4}>
+            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder Type"  />
+          </Grid2>
+      {
+        type.includes('email')  && 
+          <Grid2 item xs={12} sm={4}>
             <FormInputEmail control={control} />
           </Grid2>
+      }
+      {
+        (type.includes('sms') || type.includes('voice')) &&
           <Grid2 item xs={12} sm={4}>
             <FormInputTel name="phone" control={control} label="Phone*" />
           </Grid2>
-          
+      }
           <Grid2 item xs={12} sm={12}>
             <TimePick name="time" control={control} label="Time*" />
           </Grid2>
@@ -69,8 +80,9 @@ const MainForm = () => {
             <FormInputDate name="date" control={control} label="Date*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
-            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder" />
+            <FormInputText name="message" control={control} label="Message*" />
           </Grid2>
+         
             <Grid2 item xs={12} sm={12}>
               <FormControlLabel
                 control={
