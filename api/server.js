@@ -46,17 +46,16 @@ const socketIO = require("socket.io")(http, {
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
     console.log(process.env.USER);
-    // console.log(process.env.NODE_ENV);
    
-    // socket.on('notificationsToSocket', async () => {
-    //   const { notifications } = await getNotifications();
-    //   socket.emit('notifiactions', notifications);
-    // });
-
     socket.on('sendTwilioSms', async (data) => {
       const { sid } = await cronJobTwilio(data);
       socket.emit('twilioSms', sid);
-    })
+    });
+
+    socket.on('sendTwilioVoice', async (data) => {
+      const { sid } = await sendScheduledVoice(data);
+      socket.emit('twilioVoice', sid);
+    });
    
   socket.on('send46ElksSms', async(data, param) => {
     const { phone } = data;
@@ -70,8 +69,8 @@ socketIO.on("connection", socket => {
   })
   
   socket.on('sendTextBeeSms', async (data) => {
-    const smsMsg = 'this is your reminder';
-    const { phone } = data;
+    // const smsMsg = 'this is your reminder';
+    const { phone, smsMsg } = data;
     const { result } = await textBeeSms(smsMsg, phone);
     socket.emit('textBeeSms',result);
   })

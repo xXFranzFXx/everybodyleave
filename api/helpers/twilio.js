@@ -42,12 +42,15 @@ async function sendScheduledSms( smsMsg, phone, data) {
   return sid;
 }
 
-async function sendScheduledVoice(phone){
+async function sendScheduledVoice(data){
+  const { phone, date, time, smsMsg } = data;
+  const str = formatDateTime(date, time, 'iso');
   const call = await client.calls.create({
     from: messagingServiceSid,
     to: phone,
-    // url: "http://demo.twilio.com/docs/classic.mp3", 
-    twml:"<Response><Say>This is your courtesy reminder from Everybody leave!</Say></Response>"
+    // url: "http://demo.twilio.com/docs/classic.mp3",  use url if using audio recording
+    twml:`<Response><Say>${smsMsg}</Say></Response>`,
+    sendAt: str
   });
   console.log(call.sid);
   const { sid } = call;
