@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
 const { sendTwilioSms } = require('./twilio');
 const { textBeeSms } = require('./textBee');
+const { sendEmail } = require('./emailer');
 
 function formatDateTime(date, time, format) {
     const re = /(\d+):(\d+)/g;
@@ -48,4 +49,14 @@ async function cronJobTextBee(data) {
     return job;
 }
 
-module.exports = { cronJobTwilio, cronJobTextBee, formatDateTime };
+async function cronJobEmail(data) {
+    const { date, time,  email, smsMsg } = data;
+    const str =formatDateTime(date, time, 'cron');
+    const job = schedule.scheduleJob(str, async () => {
+        const { sentEmail } = sendEmail(email, smsMsg);
+        await sentEmail;
+    })
+    return job;
+}
+
+module.exports = { cronJobEmail, cronJobTwilio, cronJobTextBee, formatDateTime };
