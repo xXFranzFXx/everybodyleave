@@ -15,6 +15,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
     "react-scripts": "5.0.1",
+    "react-timezone-select": "^3.2.8",
     "socket.io-client": "^4.8.1",
     "valtio": "^2.1.2",
     "web-vitals": "^4.2.4"

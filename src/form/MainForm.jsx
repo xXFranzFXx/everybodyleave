@@ -10,6 +10,7 @@ import { FormInputMultiCheckbox } from '../form-components/FormInputMultiCheckbo
 import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { FormAcceptTerms } from '../form-components/FormAcceptTerms';
 import { FormInputEmail } from '../form-components/FormInputEmail';
+import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { twilioSms, textBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const MainForm = () => {
@@ -75,6 +76,9 @@ console.log(getValues("reminder"))
       }
           <Grid2 item xs={12} sm={12}>
             <TimePick name="time" control={control} label="Time*" />
+          </Grid2>
+          <Grid2 item xs={12} sm={12}>
+            <FormTimeZoneSelect name="timezone" control={control} label="Timezone*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
             <FormInputDate name="date" control={control} label="Date*" />
