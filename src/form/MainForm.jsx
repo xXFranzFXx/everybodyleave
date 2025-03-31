@@ -21,6 +21,7 @@ const MainForm = () => {
         method: "",
         reminder:"",
         type: "",
+        timezone: "",
         acceptTerms:"",
     }
     // const { state } = useSocketContext();
@@ -76,9 +77,10 @@ console.log(getValues("reminder"))
       }
           <Grid2 item xs={12} sm={12}>
             <TimePick name="time" control={control} label="Time*" />
-          </Grid2>
+            </Grid2>
+
           <Grid2 item xs={12} sm={12}>
-            <FormTimeZoneSelect name="timezone" control={control} label="Timezone*" />
+            <FormTimeZoneSelect name="timezone" control={control}  label="Timezone*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
             <FormInputDate name="date" control={control} label="Date*" />

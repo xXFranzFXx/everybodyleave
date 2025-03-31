@@ -15,3 +15,8 @@ code {
 [class*=MuiGrid2-root] {
   justify-content: space-between;
 }
+
+.css-13cymwt-control {
+min-height: 60px !important;
+min-width: 200px !important
+}
