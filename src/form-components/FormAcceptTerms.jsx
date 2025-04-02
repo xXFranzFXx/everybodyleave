@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react';
+import { useSocketContext } from '../context/SocketProvider';
 import {
     Paper,
     Box,
@@ -9,14 +11,23 @@ import {
   } from '@mui/material';
 
 import { Controller, useForm } from 'react-hook-form';
-export const FormAcceptTerms = () => {  
+export const FormAcceptTerms = ({ control }) => {  
+    const { state } = useSocketContext();
+    const [accepted, setAccepted] = useState(false)
     const {
         register,
-        control,  
         formState: { errors }
       } = useForm({
        // resolver: yupResolver(validationSchema)
       });
+    const handleChange = (value) => {
+        setAccepted(value);
+       
+    }
+    useEffect(() => {
+        state['acceptTerms'] = accepted
+     },[accepted]);
+
       return (
             <>
                 <FormControlLabel
@@ -28,8 +39,9 @@ export const FormAcceptTerms = () => {
                     inputRef={register()}
                     render={({ field: { onChange } }) => (
                     <Checkbox
+                        value={accepted}
                         color="primary"
-                        onChange={e => onChange(e.target.checked)}
+                        onChange={e => handleChange(e.target.checked)}
                     />
                     )}
                 />

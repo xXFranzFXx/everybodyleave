@@ -22,9 +22,29 @@ function App() {
     typography: {
       h6: {
       fontFamily: '',
-      lineHeight: 4 
+      lineHeight: 3 
       }
+    },
+    components: {
+    MuiInputLabel: {
+      defaultProps: {
+        variant: 'outlined',
+        margin: 'dense',
+        size: 'small',
+        fullWidth: true,
+        InputLabelProps: { shrink: true } // <----
+      }
+    },
+    MuiInputBase: {
+     
+        // variant: 'outlined',
+        // margin: 'dense',
+        // size: 'small',
+        // fullWidth: true,
+        InputLabelProps: { shrink: true } // <----
+      
     }
+  }
   });
   
   return (

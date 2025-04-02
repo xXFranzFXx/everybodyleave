@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
+import { FormLabel } from '@mui/material';
 import { useForm } from "react-hook-form";
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputText } from '../form-components/FormInputText';
@@ -22,16 +23,17 @@ const MainForm = () => {
         reminder:"",
         type: "",
         timezone: "",
+        utcDateTime:"",
         acceptTerms:"",
     }
     // const { state } = useSocketContext();
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-    const { snap } = useSocketContext();
-    const { type } = snap;
+    const { state } = useSocketContext();
+    const { type, acceptTerms } = state;
     const onSubmit = (data) => {
         console.log(data);      
-        console.log(data.time);
+        // console.log(data.time);
   
         textBeeSms(data);
     }
@@ -75,11 +77,12 @@ console.log(getValues("reminder"))
             <FormInputTel name="phone" control={control} label="Phone*" />
           </Grid2>
       }
-          <Grid2 item xs={12} sm={12}>
+          <Grid2 item xs={12} sm={4}>
+            {/* <FormLabel>Time*</FormLabel> */}
             <TimePick name="time" control={control} label="Time*" />
             </Grid2>
 
-          <Grid2 item xs={12} sm={12}>
+          <Grid2 item xs={12} sm={4}>
             <FormTimeZoneSelect name="timezone" control={control}  label="Timezone*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
@@ -90,42 +93,17 @@ console.log(getValues("reminder"))
           </Grid2>
          
             <Grid2 item xs={12} sm={12}>
-              <FormControlLabel
-                control={
-                  <Controller
-                    control={control}
-                    name="acceptTerms"
-                    defaultValue="false"
-                    inputRef={register()}
-                    render={({ field: { onChange } }) => (
-                      <Checkbox
-                        color="primary"
-                        onChange={e => onChange(e.target.checked)}
-                      />
-                    )}
-                  />
-                }
-                label={
-                  <Typography color={errors.acceptTerms ? 'error' : 'inherit'}>
-                    I have read and agree to the Terms *
-                  </Typography>
-                }
-              />
-              <br />
-              <Typography variant="inherit" color="textSecondary">
-                {errors.acceptTerms
-                  ? '(' + errors.acceptTerms.message + ')'
-                  : ''}
-              </Typography>
+             <FormAcceptTerms />
             </Grid2>
           </Grid2>
           <Box mt={3}>
             <Button
+              disabled={!acceptTerms}
               variant="contained"
               color="primary"
               onClick={handleSubmit(onSubmit)}
             >
-              Register
+              Send
             </Button>
           </Box>
         </Box>

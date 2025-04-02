@@ -10,7 +10,10 @@ const SocketProvider = ({ children }) => {
             date: "",
             phone: "",
             time: "",
+            timezone:"",
             type: [],
+            utcDateTime:"",
+            acceptTerms: false
 })).current
 
 

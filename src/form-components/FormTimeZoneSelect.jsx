@@ -5,28 +5,33 @@ import { useSocketContext } from '../context/SocketProvider';
 
 
 export const FormTimeZoneSelect = ({ name, control, label }) =>  {
-  const [selectedTz, setSelectedTz] = useState( new  Intl.DateTimeFormat().resolvedOptions().timeZone)
+  //set the default timezone to user's local tz 
+  const [selectedTz, setSelectedTz] = useState(new  Intl.DateTimeFormat().resolvedOptions().timeZone)
   const { state } = useSocketContext(); 
+
   const handleSelected = (selected) => {
-    return selected ? setSelectedTz(selected.value) :null
+    return selected ? setSelectedTz(selected.value) : null
   } 
+
   useEffect(() => {
     state['timezone'] = selectedTz
   },[selectedTz])
+
     return(
       <Controller 
-              // as={TimezoneSelect} 
               name={name} 
-              
               control={control} 
+              defaultValue={{}}     
               render={({  field: { onChange, value } }) => (
                 <TimezoneSelect  
                   label={label} 
-                  value={selectedTz}
-                  onChange={(selected) => handleSelected(selected)}
+                  value={value ? value : new  Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  // onChange={(selected) => handleSelected(selected)}
+                  onChange={(selected) => onChange(selected ? selected.value : null)}
+                  InputLabelProps={{ shrink: true }}
                 />
               )}
-              defaultValue={{}}      
+               
               rules={{ required: true }}
             />
        )

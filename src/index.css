@@ -17,6 +17,11 @@ code {
 }
 
 .css-13cymwt-control {
-min-height: 60px !important;
-min-width: 200px !important
+min-height: 40px !important;
+min-width: 200px !important;
+max-width: 200px !important
+}
+
+[class*=MuiOutlinedInput-root] {
+  height: 40px;
 }
