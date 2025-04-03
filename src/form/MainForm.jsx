@@ -15,20 +15,20 @@ import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const MainForm = () => {
+    const { state } = useSocketContext();
+
     const defaultValues = {
-        date: "",
+        date: new Date(),
         phone: "",
         time: "",
         method: "",
         reminder:"",
         type: "",
         timezone: "",
-        utcDateTime:"",
         acceptTerms:"",
     }
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-    const { state } = useSocketContext();
     const { type, acceptTerms } = state;
     const onSubmit = (data) => {
         console.log(data);      

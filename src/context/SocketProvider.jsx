@@ -7,12 +7,11 @@ const SocketProvider = ({ children }) => {
   const state = useRef(proxy({
             user: "",
             email: "",
-            date: "",
+            date: new Date(),
             phone: "",
             time: "",
             timezone:"",
             type: [],
-            utcDateTime:"",
             acceptTerms: false
 })).current
 

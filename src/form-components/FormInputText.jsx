@@ -9,8 +9,8 @@ export const FormInputText = ({ name, control, label}) => {
         <Controller 
             name={name} 
             control={control} 
-            render={({ field: { onChange, value }, fieldState: { error } }) => (
-                <TextField helperText={error ? error.message : null} error={!!error} onChange={onChange} value={value} fullWidth label={label} variant="outlined" InputLabelProps={{ shrink: true }}/>
+            render={({ field: { onChange, ref: fieldRef, value, ...fieldProps  }, fieldState: { error } }) => (
+                <TextField inputRef={fieldRef} helperText={error ? error.message : null} error={!!error} onChange={onChange} value={value?? ""} fullWidth label={label} variant="outlined" InputLabelProps={{ shrink: true }}/>
             )} 
             rules={{ required: { value: true, message: 'This field is required' } }}
         />

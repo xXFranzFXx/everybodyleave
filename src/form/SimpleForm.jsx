@@ -7,11 +7,13 @@ import { FormInputText } from '../form-components/FormInputText';
 import { FormInputDate } from '../form-components/FormInputDate';
 import { TimePick } from '../form-components/FormInputTime';
 import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
+import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const SimpleForm = () => {
     const defaultValues = {
         date: "",
+        datetime:"",
         phone: "",
         time: "",
         method: "",
@@ -60,22 +62,26 @@ const SimpleForm = () => {
           <Grid2 item xs={12} sm={4}>
             <FormInputTel name="phone" control={control} label="Phone*" />
           </Grid2>
-      <Grid2 item xs={12} sm={4}>
-            <FormInputDate name="date" control={control} label="Date*" />
-          </Grid2>
-          <Grid2 item xs={12} sm={4}>
-            {/* <FormLabel>Time*</FormLabel> */}
-            <TimePick name="time" control={control} label="Time*" />
-            </Grid2>
 
           <Grid2 item xs={12} sm={4}>
-            <FormTimeZoneSelect name="timezone" control={control}  label="Timezone*" />
+            <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
           </Grid2>
-        
+
           <Grid2 item xs={12} sm={4}>
             <FormInputText name="message" control={control} label="Message*" />
           </Grid2>
 
+      {/* <Grid2 item xs={12} sm={4}>
+            <FormInputDate name="date" control={control} label="Date*" />
+          </Grid2>
+          <Grid2 item xs={12} sm={4}>
+            <TimePick name="time" control={control} label="Time*" />
+            </Grid2> */}
+
+          {/* <Grid2 item xs={12} sm={4}>
+            <FormTimeZoneSelect name="timezone" control={control}  label="Timezone*" />
+          </Grid2> */}
+        
           </Grid2>
           <Box mt={3}>
             <Button
