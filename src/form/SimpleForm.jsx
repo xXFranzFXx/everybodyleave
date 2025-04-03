@@ -1,20 +1,15 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
-import { FormLabel } from '@mui/material';
 import { useForm } from "react-hook-form";
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputText } from '../form-components/FormInputText';
 import { FormInputDate } from '../form-components/FormInputDate';
 import { TimePick } from '../form-components/FormInputTime';
-import { FormInputMultiCheckbox } from '../form-components/FormInputMultiCheckbox';
-import { FormInputDropdown } from '../form-components/FormInputDropdown';
-import { FormAcceptTerms } from '../form-components/FormAcceptTerms';
-import { FormInputEmail } from '../form-components/FormInputEmail';
 import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
-const MainForm = () => {
+const SimpleForm = () => {
     const defaultValues = {
         date: "",
         phone: "",
@@ -61,22 +56,10 @@ const MainForm = () => {
           </Typography>
           <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
 
-         
-          <Grid2 item xs={12} sm={4}>
-            <FormInputMultiCheckbox name="reminder" setValue={setValue} control={control} label="Reminder Type"  />
-          </Grid2>
-      {
-        type.includes('email')  && 
-          <Grid2 item xs={12} sm={4}>
-            <FormInputEmail control={control} />
-          </Grid2>
-      }
-      {
-        (type.includes('sms') || type.includes('voice')) &&
+
           <Grid2 item xs={12} sm={4}>
             <FormInputTel name="phone" control={control} label="Phone*" />
           </Grid2>
-     } 
       <Grid2 item xs={12} sm={4}>
             <FormInputDate name="date" control={control} label="Date*" />
           </Grid2>
@@ -92,14 +75,10 @@ const MainForm = () => {
           <Grid2 item xs={12} sm={4}>
             <FormInputText name="message" control={control} label="Message*" />
           </Grid2>
-         
-            <Grid2 item xs={12} sm={12}>
-             <FormAcceptTerms />
-            </Grid2>
+
           </Grid2>
           <Box mt={3}>
             <Button
-              disabled={!acceptTerms}
               variant="contained"
               color="primary"
               onClick={handleSubmit(onSubmit)}
@@ -112,4 +91,4 @@ const MainForm = () => {
         </FormProvider>
     )
 }
-export default MainForm;
+export default SimpleForm;

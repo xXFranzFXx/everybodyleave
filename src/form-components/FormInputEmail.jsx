@@ -17,6 +17,7 @@ export const FormInputEmail = ({ control }) => {
                     value={value} 
                     fullWidth  
                     variant="outlined"
+                    InputLabelProps={{ shrink: true }}
                 />
             )}
             control={control}

@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material/node/styles';
 import { CssBaseline } from '@mui/material/node';
 import { createTheme } from '@mui/material/node/styles'; 
 import MainForm from './form/MainForm';
+import SimpleForm from './form/SimpleForm';
 
 function App() {
   const theme = createTheme({
@@ -31,7 +32,7 @@ function App() {
         variant: 'outlined',
         margin: 'dense',
         size: 'small',
-        fullWidth: true,
+        // fullWidth: true,
         InputLabelProps: { shrink: true } // <----
       }
     },
@@ -43,14 +44,16 @@ function App() {
         // fullWidth: true,
         InputLabelProps: { shrink: true } // <----
       
-    }
+    },
+    
   }
   });
   
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-              <MainForm/>
+              {/* <MainForm/> */}
+              <SimpleForm/>
     </ThemeProvider>
   );
 }

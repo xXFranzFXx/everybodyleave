@@ -1,6 +1,5 @@
 const schedule = require('node-schedule');
 const moment = require('moment-timezone');
-
 const { sendTwilioSms } = require('./twilio');
 const { textBeeSms } = require('./textBee');
 const { sendEmail } = require('./emailer');
@@ -19,7 +18,7 @@ function formatDateTime(date, time, format) {
     const month = date.getMonth() + 1; // Month is 0-indexed, so add 1
     const dayOfWeek = date.getDay(); // 0 for Sunday, 1 for Monday, etc.
     const cronExpression = `${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
-    const isoString = `${year}-${month}-${dayOfMonth}T${hour}:${minute}:00.00Z`;
+    const isoString = `${year}-${month}-${dayOfMonth}T${hour}:${minute}:00.00`;
     
     switch (format) {
         case 'cron': {
@@ -49,9 +48,9 @@ async function cronJobTwilio(data) {
 //TODO: convert date and time to correct timezone
 async function cronJobTextBee(data) {
     const { date, phone, smsMsg, time, timezone } = data; 
-    
-    const str = formatDateTime(date, time, 'cron');
-    const job = schedule.scheduleJob(str, async () => {
+    const str = formatDateTime(date, time, 'iso');
+    const dateInTimeZone = moment.tz(str, timezone);
+    const job = schedule.scheduleJob(dateInTimeZone.toDate(), async () => {
         const { result } = await textBeeSms(smsMsg, phone);
         await result;
     })

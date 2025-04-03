@@ -24,4 +24,5 @@ max-width: 200px !important
 
 [class*=MuiOutlinedInput-root] {
   height: 40px;
+  width: auto;
 }
