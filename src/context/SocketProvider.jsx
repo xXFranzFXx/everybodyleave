@@ -10,7 +10,8 @@ const SocketProvider = ({ children }) => {
             date: new Date(),
             phone: "",
             time: "",
-            timezone:"",
+            timezone:new  Intl.DateTimeFormat().resolvedOptions().timeZone,
+            utcdate:"",
             type: [],
             acceptTerms: false
 })).current

@@ -71,6 +71,10 @@ socketIO.on("connection", socket => {
     const { job } = await cronJobEmail(data);
     socket.emit('email', job);
   })
+  socket.on('sendTest', async (data) => {
+    const { test } = await cronJobTest(data);
+    socket.emit('test', test)
+  })
   
   socket.on('sendTextBeeSms', async (data) => {
     // const smsMsg = 'this is your reminder';

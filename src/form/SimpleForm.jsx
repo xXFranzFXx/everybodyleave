@@ -12,24 +12,26 @@ import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const SimpleForm = () => {
     const defaultValues = {
-        date: "",
         datetime:"",
         phone: "",
-        time: "",
-        method: "",
-        reminder:"",
-        type: "",
-        timezone: "",
-        utcDateTime:"",
         acceptTerms:"",
+        utcdate: ""
     }
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const { state } = useSocketContext();
-    const { type, acceptTerms } = state;
+    const { type, acceptTerms, timezone } = state;
     const onSubmit = (data) => {
-        console.log(data);      
+      
+        console.log(data);  
+        const {datetime} = data;
+        const date = new Date(datetime);
+        // console.log(date.getHours()) 
+        // console.log(date.getMinutes())  
+        // console.log(date.toUTCString())
         // console.log(data.time);
+        state['utcdate'] = date.toUTCString();
+        data.utcdate = date.toUTCString();
         cronTextBeeSms(data)
         // textBeeSms(data);
     }

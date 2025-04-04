@@ -27,7 +27,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
         render={({ field, fieldState: { error } }) => {
             return (
             <DateTimePicker
-                timezone="system"
+                // timezone="system"
                 label="Date/Time*"
                 value={field.value?? null}
                 inputRef={field.ref}
