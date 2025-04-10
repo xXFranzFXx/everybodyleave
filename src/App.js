@@ -37,16 +37,12 @@ function App() {
       }
     },
     MuiInputBase: {
-     
-        // variant: 'outlined',
-        // margin: 'dense',
-        // size: 'small',
-        // fullWidth: true,
         InputLabelProps: { shrink: true } // <----
       
     },
     
-  }
+  },
+ 
   });
   
   return (

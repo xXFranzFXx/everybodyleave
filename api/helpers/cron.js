@@ -5,8 +5,10 @@ const { textBeeSms } = require('./textBee');
 const { sendEmail } = require('./emailer');
 
 // Schedule a notification for a specific time in a specific timezone
+//date can be isoString or unix timestamp
 function convertTimezone(date, timezone) {
   const dateInTimeZone = moment.tz(date, timezone);
+  console.log("converted date: ", dateInTimeZone)
   return dateInTimeZone.toDate()
 };
 function formatDateTime(date, time, format) {

@@ -15,23 +15,24 @@ const SimpleForm = () => {
         datetime:"",
         phone: "",
         acceptTerms:"",
-        utcdate: ""
+        utcdate: "",
+        timezone:""
     }
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const { state } = useSocketContext();
-    const { type, acceptTerms, timezone } = state;
+    const { type, acceptTerms, default_timezone } = state;
     const onSubmit = (data) => {
-      
-        console.log(data);  
         const {datetime} = data;
         const date = new Date(datetime);
         // console.log(date.getHours()) 
         // console.log(date.getMinutes())  
-        // console.log(date.toUTCString())
+        console.log(date.getTime())
+        console.log(date.toISOString())
         // console.log(data.time);
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
+        data.timezone = default_timezone
         cronTextBeeSms(data)
         // textBeeSms(data);
     }
