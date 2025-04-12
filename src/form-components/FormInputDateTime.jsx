@@ -8,21 +8,12 @@ import { Controller } from "react-hook-form";
 import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
 const DATE_FORMAT = "MM-DD-YYYY";
 const isInCurrentWeek = (date) => date.get('week') === dayjs().get('week');
-const datesAvailable = [
-    "2025-04-14T09:00:00.000Z",
-    "2025-04-16T15:00:00.000Z",
-    "2025-04-18T19:00:00.000Z"
-  ];
-  
-  const timesAvailable = [
-    "2025-04-14T10:30:00.000Z",
-    "2025-04-16T17:00:00.000Z",
-    "2025-04-18T09:00:00.000Z",
-  ];
-  
-  const availableTimes = timesAvailable.map((dateTime) => dayjs(dateTime));
-  
-  
+
+/* 
+the available days are set to every Mon, Wed, Fri, and 
+the available times are 5pm and 7pm.  User can only pick Within the current month.
+*/
+
 export const FormInputDateTime = ({ name, control, label  }) => {
    
    
@@ -41,15 +32,12 @@ export const FormInputDateTime = ({ name, control, label  }) => {
 
       const shouldDisableTime =(time, view) => {
           const selectedDay = dayjs(time).date()
-          console.log('endoOfMonth: ', dayjs().endOf('month'))
-        //   if (availableTimes.some((disabled) => disabled.date() === selectedDay)) {
             if ( view === "hours") {
                 return dayjs(time).hour()%2 ===0           
             } else if (view === "minutes"){ 
                 return dayjs(time).minute() <= 0
             }
           return false;
-        // }
     }
     const shouldDisableDay = (date) => {
          //disable every other day.  
