@@ -14,14 +14,13 @@ const datesAvailable = [
     "2025-04-18T19:00:00.000Z"
   ];
   
-  const timesBooked = [
-    "2025-04-03T10:30:00.000Z",
-    "2025-04-04T17:00:00.000Z",
-    "2025-04-05T09:00:00.000Z",
-    "2025-04-19T15:30:00.000Z",
+  const timesAvailable = [
+    "2025-04-14T10:30:00.000Z",
+    "2025-04-16T17:00:00.000Z",
+    "2025-04-18T09:00:00.000Z",
   ];
   
-  const disabledTimes = timesBooked.map((dateTime) => dayjs(dateTime));
+  const availableTimes = timesAvailable.map((dateTime) => dayjs(dateTime));
   
   
 export const FormInputDateTime = ({ name, control, label  }) => {
@@ -40,21 +39,17 @@ export const FormInputDateTime = ({ name, control, label  }) => {
         }
       }, [errorMsg]);
 
-  const shouldDisableTime = 
-    (val, view) => {
-      if (disabledTimes.some((disabled) => disabled.date() === dayjs(val).date())) {
-        console.log("disabledTimes: ", disabledTimes)
-        if (view === "minutes" || view === "hours") {
-            return disabledTimes.some(
-                (disabledTime) =>
-                    disabledTime.date() === dayjs(val).date() &&
-                    disabledTime.hour() - 1 === dayjs(val).hour() &&
-                    disabledTime.minute() === dayjs(val).minute()
-            )
-        }
-        return true
-      }
-      return false;
+      const shouldDisableTime =(time, view) => {
+          const selectedDay = dayjs(time).date()
+          console.log('endoOfMonth: ', dayjs().endOf('month'))
+        //   if (availableTimes.some((disabled) => disabled.date() === selectedDay)) {
+            if ( view === "hours") {
+                return dayjs(time).hour()%2 ===0           
+            } else if (view === "minutes"){ 
+                return dayjs(time).minute() <= 0
+            }
+          return false;
+        // }
     }
     const shouldDisableDay = (date) => {
          //disable every other day.  
@@ -73,11 +68,14 @@ export const FormInputDateTime = ({ name, control, label  }) => {
             return (
             <DateTimePicker
                 // timezone="system"
-                minDate={new Date(datesAvailable[0])}
-                maxDate={new Date(datesAvailable[2])}
-                defaultValue={new Date()}
+                // disablePast={true}
+                minTime={new Date(0,0,0,16)}
+                maxTime={new Date(0,0,0,20)}
+                minDate={new Date()}
+                maxDate={new Date(dayjs().endOf('month'))}
+                
                
-              
+               
                 label="Date/Time*"
                 value={field.value?? null}
                 inputRef={field.ref}
@@ -92,12 +90,15 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                       helperText: error ? errorMessage : null,
                       }
                     }}
+                    minutesStep={60}
+                    views={['year', 'day', 'hours']}
                     viewRenderers={{
                         hours: renderDigitalClockTimeView,
                         minutes: renderDigitalClockTimeView,
                         seconds: renderDigitalClockTimeView,
                       }} 
                       skipDisabled={true} 
+                    
                     onError={(newError) => setErrorMsg(newError)}
                     variant="inline"  
                     id={`date-${Math.random()}`} 
@@ -108,7 +109,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                         "aria-label": "change date",
                     }}                    
                     shouldDisableDate={(date) => shouldDisableDay(date)}
-                    // shouldDisableTime={(time, view) => shouldDisableTime(field?.value, view)}
+                    shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
                     {...field}     
             />
             );
