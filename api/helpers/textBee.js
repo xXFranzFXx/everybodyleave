@@ -16,4 +16,14 @@ async function textBeeSms(smsMsg, phone) {
     return result;
 }
 
-module.exports = { textBeeSms };
+async function textBeeReceiveSms() {
+    const response = await axios.get(`https://api.textbee.dev/api/v1/gateway/devices/${DEVICE_ID}/get-received-sms`, {
+        headers: {
+          'x-api-key': API_KEY
+        }
+      });
+      const messages = await response.data;
+      return messages;
+}
+
+module.exports = { textBeeSms, textBeeReceiveSms };
