@@ -5,7 +5,6 @@ const path = require("path");
 const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
-const { sms46Elks } = require('./helpers/46elks');
 const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const { textBeeSms } = require('./helpers/textBee');
 const app = express();
@@ -57,11 +56,6 @@ socketIO.on("connection", socket => {
       socket.emit('twilioVoice', sid);
     });
    
-  socket.on('send46ElksSms', async(data, param) => {
-    const { phone } = data;
-    const { smsSent } = await sms46Elks(phone, param);
-    socket.emit('46ElksSms', smsSent);
-  })
   
   socket.on('sendTextBeeCronSms', async (data) => {
     const { job } = await cronJobTextBee(data);
