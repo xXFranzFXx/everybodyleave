@@ -78,8 +78,8 @@ socketIO.on("connection", socket => {
   
   socket.on('sendTextBeeSms', async (data) => {
     // const smsMsg = 'this is your reminder';
-    const { phone, smsMsg } = data;
-    const { result } = await textBeeSms(smsMsg, phone);
+    const { phone, message } = data;
+    const { result } = await textBeeSms(message, phone);
     socket.emit('textBeeSms',result);
   })
 

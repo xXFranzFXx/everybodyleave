@@ -49,11 +49,11 @@ async function cronJobTwilio(data) {
 
 //TODO: convert date and time to correct timezone
 async function cronJobTextBee(data) {
-    const { date, phone, smsMsg, time, timezone } = data; 
+    const { date, phone, message, time, timezone } = data; 
     const str = formatDateTime(date, time, 'iso');
     const dateInTimeZone = moment.tz(str, timezone);
     const job = schedule.scheduleJob(dateInTimeZone.toDate(), async () => {
-        const { result } = await textBeeSms(smsMsg, phone);
+        const { result } = await textBeeSms(message, phone);
         await result;
     })
     return job;

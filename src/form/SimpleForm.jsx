@@ -16,7 +16,8 @@ const SimpleForm = () => {
         phone: "",
         acceptTerms:"",
         utcdate: "",
-        timezone:""
+        timezone:"", 
+        message:""
     }
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
@@ -25,16 +26,13 @@ const SimpleForm = () => {
     const onSubmit = (data) => {
         const {datetime} = data;
         const date = new Date(datetime);
-        // console.log(date.getHours()) 
-        // console.log(date.getMinutes())  
         console.log(date.getTime())
         console.log(date.toISOString())
-        // console.log(data.time);
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
         data.timezone = default_timezone
-        cronTextBeeSms(data)
-        // textBeeSms(data);
+        // cronTextBeeSms(data)
+        textBeeSms(data);
     }
 //  useEffect(() => {
 // console.log(getValues("reminder"))
