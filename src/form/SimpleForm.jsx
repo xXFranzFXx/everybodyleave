@@ -10,6 +10,7 @@ import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
+
 const SimpleForm = () => {
     const defaultValues = {
         datetime:"",
@@ -39,7 +40,9 @@ const SimpleForm = () => {
 //  },[getValues("reminder")])
     return (
         <FormProvider {...methods}>
+          
         <Paper
+            elevation={24}
             style={{
                 display: "grid",
                 flexWrap: "wrap",
@@ -49,14 +52,14 @@ const SimpleForm = () => {
                 width: "auto",
                 maxWidth: "620px",
                 minWidth: "250px",
-                marginTop: "30px",
-                boxShadow: "none"  
+                marginTop: "30px"
             }} 
         >
-        <Box px={3} py={2}>
-          <Typography variant="h6" align="center" margin="dense">
+           <Typography variant="h6" align="center" margin="dense">
             Everybodyleave Scheduled Reminder
           </Typography>
+        <Box px={3} py={2}>
+         
           <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
 
 
@@ -67,11 +70,11 @@ const SimpleForm = () => {
           <Grid2 item xs={12} sm={4}>
             <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
           </Grid2>
-
-          <Grid2 item xs={12} sm={4}>
+          </Grid2>
+          <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
             <FormInputText name="message" control={control} label="Message*" />
           </Grid2>
-
+          
       {/* <Grid2 item xs={12} sm={4}>
             <FormInputDate name="date" control={control} label="Date*" />
           </Grid2>
@@ -83,7 +86,7 @@ const SimpleForm = () => {
             <FormTimeZoneSelect name="timezone" control={control}  label="Timezone*" />
           </Grid2> */}
         
-          </Grid2>
+          
           <Box mt={3}>
             <Button
               variant="contained"
