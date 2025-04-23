@@ -3,7 +3,7 @@
 //credit: https://www.juansuarez.me/blog/React/react-custom-date-picker
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useForm, useFormContext } from "react-hook-form";
-import '..styles/CronScheduler.css'
+import '../styles/cronScheduler.css'
 
 const CronScheduler = (p) => {
   const { setValue, register } = useFormContext();
