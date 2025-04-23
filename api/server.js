@@ -5,6 +5,7 @@ const path = require("path");
 const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
+const { connectDb } = require('./db/config/dbConfig');
 const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const { textBeeSms } = require('./helpers/textBee');
 const app = express();
@@ -41,6 +42,8 @@ const socketIO = require("socket.io")(http, {
     pingTimeout: 60000,
     maxHttpBufferSize: 2e8
 });
+
+connectDb();
 
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
