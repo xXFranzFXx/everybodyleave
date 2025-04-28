@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
  
 const connectDB = () => {
   const url = "mongodb://localhost:27017/ebl";
- 
   try {
     mongoose.connect(url, {
       useNewUrlParser: true,
