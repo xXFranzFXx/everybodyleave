@@ -42,7 +42,10 @@ const socketIO = require("socket.io")(http, {
     pingTimeout: 60000,
     maxHttpBufferSize: 2e8
 });
-
+app.use((req, res, next) => {
+  req.io = socketIO;
+  return next();
+});
 connectDb();
 
 socketIO.on("connection", socket => {
