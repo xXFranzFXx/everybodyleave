@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const mongo = require('mongodb').MongoClient;
 const dbName = 'otp-manager';
 const collectionName = 'otp';
@@ -108,7 +108,7 @@ router.post('/verifySmsOtp', function (req, res, next) {
         const db = await client.db(dbName);
         const record = await db.collection(collectionName).findOne({ phone: req.body.phone });
         if (!!record) {
-          await db.collection(collectionName).deleteOne({ email: req.body.phone });
+          await db.collection(collectionName).deleteOne({ phone: req.body.phone });
           res.json('OTP Verified successfully!');
         } else {
           res.json('OTP Expired. Please try again');
