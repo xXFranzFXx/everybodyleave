@@ -66,14 +66,12 @@ router.post('/generateSmsOtp',  function (req, res, next) {
         }
         console.log('connected to otp manager');
   
-        let info = await transporter.sendMail({
-          from: `${req.body.label} <no-reply@otpmanager.com>`, // sender address
-          to: req.body.email, // list of receivers
-          subject: `${req.body.label} - ${req.body.email}`, // Subject line
-          html: `Your OTP has been generated below through ${req.body.label} <h2>${otp}</h2> <br/> <h4 style="color:red"><u>This otp will expire in ${expireAfterSeconds / 60} mins</u></h4>`, // html body
-        });
+        let info = await textBeeSms({
+         phone: req.body.phone,
+         message:`Your one time password is ${otp}. This will expire in ${expireAfterSeconds / 60} mins.` 
+                });
   
-        res.send('OTP has been sent to your email!');
+        res.send('OTP has been sent to your sms device!');
         client.close();
       });
     } catch (e) {
