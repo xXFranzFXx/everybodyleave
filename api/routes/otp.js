@@ -99,6 +99,7 @@ router.post('/verifyEmailOtp', function (req, res, next) {
     res.send(e);
   }
 });
+
 router.post('/verifySmsOtp', function (req, res, next) {
     try {
       const client = new mongo(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
