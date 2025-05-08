@@ -11,7 +11,7 @@ async function textBeeSms(message, phone) {
         headers: {
             'x-api-key': API_KEY
         }
-    })
+    });
     const result = await response.data;
     return result;
 }
