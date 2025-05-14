@@ -79,8 +79,6 @@ router.post('/generateSmsOtp',  function (req, res, next) {
     }
 })
 
-
-
 router.post('/verifyEmailOtp', function (req, res, next) {
   try {
     const client = new mongo(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
