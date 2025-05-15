@@ -5,6 +5,8 @@ const path = require("path");
 const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
+const { serve } = require("inngest/express");
+const { inngest, functions } = require("./inngest/client")
 const { connectDb } = require('./db/config/dbConfig');
 const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const { textBeeSms } = require('./helpers/textBee');
@@ -21,6 +23,13 @@ app.use(express.urlencoded({
   extended: true
 }));
 app.use(express.json());
+app.use(
+  express.json({
+    limit: '5mb',
+  })
+);
+
+app.use('/api/inngest', serve({ client: inngest, functions }));
 
 const staticPath = path.join(__dirname, "build");
 const PORT = process.env.PORT || 4000;
