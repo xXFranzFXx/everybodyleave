@@ -45,17 +45,17 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                 return dayjs(date).day()%2 === 0
               }
       };
+
     const addOneWeek = () => {
       const date = new Date();
-      let newStart;
       const oneWeek = date.setDate(date.getDate() + 5); 
       const nextWeekDay = date.getDay(oneWeek);
       if(nextWeekDay < 5){
-        newStart = date.setDate(date.getDate() + 5 - nextWeekDay)
-        return newStart
+        return date.setDate(date.getDate() + 5 - nextWeekDay);  
       }
       return oneWeek;
     }
+
     return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Controller
