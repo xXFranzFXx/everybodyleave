@@ -10,7 +10,6 @@ import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
-import CronScheduler from '../components/CronScheduler';
 const SimpleForm = () => {
     const defaultValues = {
         datetime:"",
@@ -40,7 +39,6 @@ const SimpleForm = () => {
 //  },[getValues("reminder")])
     return (
         <FormProvider {...methods}>
-          <CronScheduler/>
         <Paper
             elevation={24}
             style={{
