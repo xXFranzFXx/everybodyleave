@@ -87,8 +87,10 @@ router.post('/verifyEmailOtp', function (req, res, next) {
       const record = await db.collection(collectionName).findOne({ email: req.body.email });
       if (!!record) {
         await db.collection(collectionName).deleteOne({ email: req.body.email });
+        req.io.emit('email otp verification', { otp_email: true })
         res.json('OTP Verified successfully!');
       } else {
+        req.io.emit('email otp verification', { otp_email: false })
         res.json('OTP Expired. Please try again');
       }
       client.close();
@@ -106,8 +108,10 @@ router.post('/verifySmsOtp', function (req, res, next) {
         const record = await db.collection(collectionName).findOne({ phone: req.body.phone });
         if (!!record) {
           await db.collection(collectionName).deleteOne({ phone: req.body.phone });
+          req.io.emit('sms otp verification', { otp_sms: true });
           res.json('OTP Verified successfully!');
         } else {
+            req.io.emit('sms otp verification', {otp_sms: flase})
           res.json('OTP Expired. Please try again');
         }
         client.close();
