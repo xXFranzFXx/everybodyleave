@@ -9,6 +9,7 @@ export const FormOtp = (props) => {
   async function getOtp() {
     const data = {
       email,
+      phone,
       label: props.label === undefined ? 'OTP Manager' : props.label
     }
 
@@ -25,6 +26,7 @@ export const FormOtp = (props) => {
   async function verifyOtp() {
     const data = {
       email,
+      phone,
       otp
     }
 
