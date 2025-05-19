@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
+import { FormOtpInput } from '../form-components/FormOtpInput'
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputText } from '../form-components/FormInputText';
 import { FormInputDate } from '../form-components/FormInputDate';
@@ -92,8 +93,11 @@ const SimpleForm = () => {
               Send
             </Button>
           </Box>
+          <FormOtpInput/>
         </Box>
+        
       </Paper>
+     
         </FormProvider>
     )
 }
