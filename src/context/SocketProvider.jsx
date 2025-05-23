@@ -13,7 +13,8 @@ const SocketProvider = ({ children }) => {
             default_timezone: new  Intl.DateTimeFormat().resolvedOptions().timeZone,
             utcdate:"",
             type: [],
-            acceptTerms: false
+            acceptTerms: false,
+            otp: ""
 })).current
 
 

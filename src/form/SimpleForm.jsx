@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
+import OTPInput from '../form-components/FormOtpInputs';
+import { MuiOtpInput } from "mui-one-time-password-input";
 import { FormOtpInput } from '../form-components/FormOtpInput'
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputText } from '../form-components/FormInputText';
@@ -18,12 +20,13 @@ const SimpleForm = () => {
         acceptTerms:"",
         utcdate: "",
         timezone:"", 
-        message:""
+        message:"",
+        otp:""
     }
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const { state } = useSocketContext();
-    const { type, acceptTerms, default_timezone } = state;
+    const { type, acceptTerms, default_timezone, otp } = state;
     const onSubmit = (data) => {
         const {datetime} = data;
         const date = new Date(datetime);
@@ -35,6 +38,7 @@ const SimpleForm = () => {
         // cronTextBeeSms(data)
         textBeeSms(data);
     }
+    const handleChange = () => {}
 //  useEffect(() => {
 // console.log(getValues("reminder"))
 //  },[getValues("reminder")])
@@ -92,10 +96,11 @@ const SimpleForm = () => {
             >
               Send
             </Button>
+         
           </Box>
-          <FormOtpInput/>
+       
         </Box>
-        
+       
       </Paper>
      
         </FormProvider>

@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import validator from 'validator'
+import React, { useState } from 'react';
+import validator from 'validator';
+import { FormInputTel } from './FormInputTel';
+import { MuiOtpInput } from "mui-one-time-password-input";
 
 export const FormOtp = (props) => {
   const [email, setEmail] = useState('');
@@ -13,7 +15,7 @@ export const FormOtp = (props) => {
       label: props.label === undefined ? 'OTP Manager' : props.label
     }
 
-    const req = await fetch(`${env}otp/generate`, {
+    const req = await fetch(`${process.env.REACT_APP_URL}otp/generate`, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -30,7 +32,7 @@ export const FormOtp = (props) => {
       otp
     }
 
-    const req = await fetch(`${env}otp/verify`, {
+    const req = await fetch(`${process.env.REACT_APP_URL}otp/verify`, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -43,7 +45,7 @@ export const FormOtp = (props) => {
 
   return (
     <div className={props.mainContainerClass}>
-      <div className={props.emailContainerClass}>
+      {/* <div className={props.emailContainerClass}>
         <label htmlFor='otpEmail'>{props.emailLabel}</label>
         <input
           id='otpEmail'
@@ -53,7 +55,9 @@ export const FormOtp = (props) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-      </div>
+        
+      </div> */}
+      <FormInputTel control={props.control} name="tel" label="tel"/>
       <div className={props.getBtnRowClass}>
         <button
           type='button'

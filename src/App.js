@@ -5,6 +5,7 @@ import { CssBaseline } from '@mui/material/node';
 import { createTheme } from '@mui/material/node/styles'; 
 import MainForm from './form/MainForm';
 import SimpleForm from './form/SimpleForm';
+import OTPInput from './form-components/FormOtpInputs';
 
 function App() {
   const theme = createTheme({
@@ -48,8 +49,10 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
+            <OTPInput/>
+
               {/* <MainForm/> */}
-              <SimpleForm/>
+              {/* <SimpleForm/> */}
     </ThemeProvider>
   );
 }
