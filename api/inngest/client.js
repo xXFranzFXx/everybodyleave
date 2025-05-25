@@ -1,6 +1,6 @@
-import { Inngest } from "inngest";
+const{ Inngest } = require('inngest');
 
-export const inngest = new Inngest({ id: "everybodyleave" });
+const inngest = new Inngest({ id: "everybodyleave" });
 
 // Your new function:
 const helloWorld = inngest.createFunction(
@@ -13,6 +13,7 @@ const helloWorld = inngest.createFunction(
 );
 
 // Add the function to the exported array:
-export const functions = [
+ const functions = [
   helloWorld
 ];
+module.exports = { functions }

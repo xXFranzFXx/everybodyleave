@@ -29,7 +29,7 @@ app.use(
   })
 );
 
-app.use('/api/inngest', serve({ client: inngest, functions }));
+// app.use('/api/inngest', serve({ client: inngest, functions }));
 
 const staticPath = path.join(__dirname, "build");
 const PORT = process.env.PORT || 4000;
@@ -51,11 +51,12 @@ const socketIO = require("socket.io")(http, {
     pingTimeout: 60000,
     maxHttpBufferSize: 2e8
 });
+
 app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-connectDb();
+// connectDb();
 
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);

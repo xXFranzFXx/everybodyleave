@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
+import { useAuth0 } from '@auth0/auth0-react';
 import OTPInput from '../form-components/FormOtpInputs';
 import { MuiOtpInput } from "mui-one-time-password-input";
 import { FormOtpInput } from '../form-components/FormOtpInput'
@@ -23,6 +24,8 @@ const SimpleForm = () => {
         message:"",
         otp:""
     }
+    const { user } = useAuth0();
+    
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const { state } = useSocketContext();
