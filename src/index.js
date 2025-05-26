@@ -11,11 +11,11 @@ root.render(
   <React.StrictMode>
     <Auth0Provider
     domain={process.env.REACT_APP_AUTH0_DOMAIN}
-    clientId={process.env.REACT_APP_AUTH0_CLIENT_ID}
+    clientId={process.env.REACT_APP_AUTH0_CLIENTID}
     authorizationParams={{
       redirect_uri: window.location.origin,
        audience: "https://dev-weyvnjxijdttrlb2.us.auth0.com/api/v2/",
-      scope: "read:current_user update:current_user_metadata"
+      scope: "openid read:current_user update:current_user_metadata"
     }}
   >
    <SocketProvider>

@@ -67,9 +67,9 @@ const SimpleForm = () => {
         <Box px={3} py={2}>
          
           <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
-          <Grid2 item xs={12} sm={4}>
+          {/* <Grid2 item xs={12} sm={4}>
             <FormInputTel name="phone" control={control} label="Phone*" />
-          </Grid2>
+          </Grid2> */}
 
           <Grid2 item xs={12} sm={4}>
             <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
@@ -97,7 +97,7 @@ const SimpleForm = () => {
               color="primary"
               onClick={handleSubmit(onSubmit)}
             >
-              Send
+              Save
             </Button>
          
           </Box>
