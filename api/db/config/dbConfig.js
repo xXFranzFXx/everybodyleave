@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
  
 const connectDB = () => {
-  const url = "mongodb://localhost:27017/ebl";
+  const url = process.env.MONGO_CONNECTION;
   try {
     mongoose.connect(url, {
       useNewUrlParser: true,
