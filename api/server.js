@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-// connectDb();
+connectDb;
 
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);

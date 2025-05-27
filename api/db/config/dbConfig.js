@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
  
-const connectDB = () => {
+function connectDB() {
   const url = process.env.MONGO_CONNECTION;
   try {
     mongoose.connect(url, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
     });
   } catch (err) {
     console.error(err.message);
@@ -21,5 +21,5 @@ const connectDB = () => {
   });
   return;
 }
-
+connectDB()
 module.exports = { connectDB };
