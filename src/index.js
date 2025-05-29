@@ -15,7 +15,7 @@ root.render(
     authorizationParams={{
       redirect_uri: window.location.origin,
        audience: "https://dev-weyvnjxijdttrlb2.us.auth0.com/api/v2/",
-      scope: "openid read:current_user update:current_user_metadata"
+      scope: "openid profile read:current_user update:current_user_metadata"
     }}
   >
    <SocketProvider>

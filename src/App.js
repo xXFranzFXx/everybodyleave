@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { ThemeProvider } from '@mui/material/node/styles';
 import { CssBaseline } from '@mui/material/node';
@@ -7,10 +7,18 @@ import MainForm from './form/MainForm';
 import SimpleForm from './form/SimpleForm';
 import LoginButton from './components/LoginButton';
 import { useAuth0 } from '@auth0/auth0-react';
-import OTPInput from './form-components/FormOtpInputs';
+import { useSocketContext } from './context/SocketProvider';
 
 function App() {
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, user } = useAuth0();
+  const [userInfo, setUserInfo] = useState('')
+  const { state } = useSocketContext();
+
+  useEffect(() => {
+    setUserInfo(user?.name)
+    state.phone =  user?.name;
+  },[user] );
+
   const theme = createTheme({
     palette: {
       mode: 'light',
@@ -52,10 +60,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-          {isAuthenticated  ?
-              <SimpleForm/>
-         :
-              <LoginButton/>
+          { isAuthenticated  ? <SimpleForm userInfo={userInfo}/>
+              : <LoginButton/>
             }
     </ThemeProvider>
   );

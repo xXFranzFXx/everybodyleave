@@ -3,9 +3,6 @@ import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
 import { useAuth0 } from '@auth0/auth0-react';
-import OTPInput from '../form-components/FormOtpInputs';
-import { MuiOtpInput } from "mui-one-time-password-input";
-import { FormOtpInput } from '../form-components/FormOtpInput'
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputText } from '../form-components/FormInputText';
 import { FormInputDate } from '../form-components/FormInputDate';
@@ -62,35 +59,22 @@ const SimpleForm = () => {
             }} 
         >
            <Typography variant="h6" align="center" margin="dense">
-            Everybodyleave Scheduled Reminder
+            Everybodyleave Weekly Reminders
           </Typography>
-        <Box px={3} py={2}>
-         
+        <Box px={3} py={2}>        
           <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
-          {/* <Grid2 item xs={12} sm={4}>
-            <FormInputTel name="phone" control={control} label="Phone*" />
-          </Grid2> */}
-
+          <Grid2 item xs={12} sm={4}>
+            { user &&          
+              <FormInputTel name="phone" control={control} label="Your Phone" />
+            }
+          </Grid2>
           <Grid2 item xs={12} sm={4}>
             <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
           </Grid2>
           </Grid2>
           <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
             <FormInputText name="message" control={control} label="Message*" />
-          </Grid2>
-          
-      {/* <Grid2 item xs={12} sm={4}>
-            <FormInputDate name="date" control={control} label="Date*" />
-          </Grid2>
-          <Grid2 item xs={12} sm={4}>
-            <TimePick name="time" control={control} label="Time*" />
-            </Grid2> */}
-
-          {/* <Grid2 item xs={12} sm={4}>
-            <FormTimeZoneSelect name="timezone" control={control}  label="Timezone*" />
-          </Grid2> */}
-        
-          
+          </Grid2>    
           <Box mt={3}>
             <Button
               variant="contained"
@@ -98,14 +82,10 @@ const SimpleForm = () => {
               onClick={handleSubmit(onSubmit)}
             >
               Save
-            </Button>
-         
-          </Box>
-       
-        </Box>
-       
-      </Paper>
-     
+            </Button>        
+          </Box>     
+        </Box>     
+      </Paper>     
         </FormProvider>
     )
 }
