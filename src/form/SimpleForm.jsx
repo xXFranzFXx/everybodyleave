@@ -21,7 +21,7 @@ const SimpleForm = () => {
         message:"",
         otp:""
     }
-    const { user } = useAuth0();
+    const { user, logout } = useAuth0();
     
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
@@ -35,8 +35,9 @@ const SimpleForm = () => {
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
         data.timezone = default_timezone
+        logout();
         // cronTextBeeSms(data)
-        textBeeSms(data);
+        // textBeeSms(data);
     }
     const handleChange = () => {}
 //  useEffect(() => {

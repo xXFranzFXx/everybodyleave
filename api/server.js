@@ -29,7 +29,7 @@ app.use(
   })
 );
 
-// app.use('/api/inngest', serve({ client: inngest, functions }));
+app.use('/api/inngest', serve({ client: inngest, functions }));
 
 const staticPath = path.join(__dirname, "build");
 const PORT = process.env.PORT || 4000;
