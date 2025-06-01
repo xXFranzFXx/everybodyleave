@@ -1,6 +1,6 @@
 const { Inngest } = require('inngest');
-
-const inngest = new Inngest({id: "hello-world"});
+//example application to initially sync with Inngest dev server
+const inngest = new Inngest({id: "Everybodyleave"});
 
 // Your new function:
 const helloWorld = inngest.createFunction(
