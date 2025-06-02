@@ -35,6 +35,7 @@ const SimpleForm = () => {
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
         data.timezone = default_timezone
+        textBeeSms(data)
         logout();
         // cronTextBeeSms(data)
         // textBeeSms(data);

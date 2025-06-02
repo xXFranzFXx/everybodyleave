@@ -33,6 +33,13 @@ exports.postSignIn = (req, res) => {
         })
     }
 
-        
+    //not finished
+    exports.updateUser  = (req, res) => {
+        const { token, phone } = req.body;
+        const decoded = jwtDecode(token);
+        const { name } = token;
+        const user = new User({ name, phone });
+
+    }
 
     
