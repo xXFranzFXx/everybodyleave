@@ -33,13 +33,35 @@ exports.postSignIn = (req, res) => {
         })
     }
 
-    //not finished
-    exports.updateUser  = (req, res) => {
-        const { token, phone } = req.body;
-        const decoded = jwtDecode(token);
-        const { name } = token;
-        const user = new User({ name, phone });
+exports.update = (req, res) => {
+    // console.log('UPDATE USER - req.user', req.user, 'UPDATE DATA', req.body);
+    const { token, phone, datetime, message } = req.body;
+    const decoded = jwtDecode(token);
+    const { name } = token;
+    const reminder = { date: datetime, message: message };
 
-    }
+    User.findOne({ name: name }, (err, user) => {
+        if (err || !user) {
+            return res.status(400).json({
+                error: 'User not found'
+            });
+        }    
+        else {
+            user.reminder = reminder
+        }
+
+        user.save((err, updatedUser) => {
+            if (err) {
+                console.log('USER UPDATE ERROR', err);
+                return res.status(400).json({
+                    error: 'User update failed'
+                });
+            }
+            
+            req.io.emit('reminder scheduled', updatedUser)
+            res.json(updatedUser);
+        });
+    });
+};
 
     
