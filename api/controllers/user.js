@@ -57,11 +57,10 @@ exports.update = (req, res) => {
                     error: 'User update failed'
                 });
             }
-            
+
             req.io.emit('reminder scheduled', updatedUser)
             res.json(updatedUser);
         });
     });
 };
 
-    
