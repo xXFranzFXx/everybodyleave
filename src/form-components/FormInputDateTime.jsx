@@ -15,10 +15,9 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 */
 
 export const FormInputDateTime = ({ name, control, label  }) => {
-   
-   
     const [val, setVal] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
+    
     const errorMessage = useMemo(() => {
         switch (errorMsg) {  
           case 'invalidDate': {
@@ -30,90 +29,86 @@ export const FormInputDateTime = ({ name, control, label  }) => {
         }
       }, [errorMsg]);
 
-      const shouldDisableTime =(time, view) => {
-          const selectedDay = dayjs(time).date()
-            if ( view === "hours") {
-                return dayjs(time).hour()%2 ===0           
-            } else if (view === "minutes"){ 
-                return dayjs(time).minute() <= 0
-            }
-          return false;
+    const shouldDisableTime =(time, view) => {
+        const selectedDay = dayjs(time).date()
+          if ( view === "hours") {
+              return dayjs(time).hour() %2 === 0           
+          } else if (view === "minutes"){ 
+              return dayjs(time).minute() <= 0
+          }
+        return false;
     }
+
     const shouldDisableDay = (date) => {
          //disable every other day.  
             for (let i = 0; i <= 6; i++) {
-                return dayjs(date).day()%2 === 0
+                return dayjs(date).day() %2 === 0
               }
       };
 
     const addOneWeek = () => {
       const date = new Date();
       const oneWeek = date.setDate(date.getDate() + 5); 
-      const nextWeekDay = date.getDay(oneWeek);
-      if(nextWeekDay < 5){
-        return date.setDate(date.getDate() + 5 - nextWeekDay);  
+      const dayNextWeek = date.getDay(oneWeek);
+      if(dayNextWeek < 5){
+        return date.setDate(date.getDate() + 5 - dayNextWeek);  
       }
       return oneWeek;
     }
 
     return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <Controller
-        control={control}
-        name="datetime"
-        rules={{ required: true }}
-        render={({ field, fieldState: { error } }) => {
-            return (
-            <DateTimePicker
-                // timezone="system"
-                // disablePast={true}
-                minTime={new Date(0,0,0,16)}
-                maxTime={new Date(0,0,0,20)}
-                minDate={new Date()}
-                // maxDate={new Date(dayjs().endOf('month'))}
-                maxDate={addOneWeek()}
-                
-               
-               
-                label="Date/Time*"
-                value={field.value?? null}
-                inputRef={field.ref}
-                onChange={(date) => {
-               
-                field.onChange(date);
-                
-                }}
-                slotProps={{
-                    textField: {
-                      error: !!error,
-                      helperText: error ? errorMessage : null,
-                      }
-                    }}
-                    minutesStep={60}
-                    views={['year', 'day', 'hours']}
-                    viewRenderers={{
-                        hours: renderDigitalClockTimeView,
-                        minutes: renderDigitalClockTimeView,
-                        seconds: renderDigitalClockTimeView,
-                      }} 
-                      skipDisabled={true} 
-                    
-                    onError={(newError) => setErrorMsg(newError)}
-                    variant="inline"  
-                    id={`date-${Math.random()}`} 
-                    rifmFormatter={(val) => val.replace(/[^[a-zA-Z0-9-]*$]+/gi, "")} 
-                    refuse={/[^[a-zA-Z0-9-]*$]+/gi} 
-                    autoOk 
-                    KeyboardButtonProps={{
-                        "aria-label": "change date",
-                    }}                    
-                    shouldDisableDate={(date) => shouldDisableDay(date)}
-                    shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
-                    {...field}     
-            />
-            );
-        }}
-        />
-    </LocalizationProvider>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Controller
+          control={control}
+          name="datetime"
+          rules={{ required: true }}
+          render={({ field, fieldState: { error } }) => {
+              return (
+              <DateTimePicker
+                  // timezone="system"
+                  // disablePast={true}
+                  minTime={new Date(0,0,0,16)}
+                  maxTime={new Date(0,0,0,20)}
+                  minDate={new Date()}
+                  // maxDate={new Date(dayjs().endOf('month'))}
+                  maxDate={addOneWeek()}
+                  label="Date/Time*"
+                  value={field.value?? null}
+                  inputRef={field.ref}
+                  onChange={(date) => {        
+                  field.onChange(date);
+                  
+                  }}
+                  slotProps={{
+                      textField: {
+                        error: !!error,
+                        helperText: error ? errorMessage : null,
+                        }
+                      }}
+                  minutesStep={60}
+                  views={['year', 'day', 'hours']}
+                  viewRenderers={{
+                      hours: renderDigitalClockTimeView,
+                      minutes: renderDigitalClockTimeView,
+                      seconds: renderDigitalClockTimeView,
+                  }} 
+                  skipDisabled={true}             
+                  onError={(newError) => setErrorMsg(newError)}
+                  variant="inline"  
+                  id={`date-${Math.random()}`} 
+                  rifmFormatter={(val) => val.replace(/[^[a-zA-Z0-9-]*$]+/gi, "")} 
+                  refuse={/[^[a-zA-Z0-9-]*$]+/gi} 
+                  autoOk 
+                  KeyboardButtonProps={{
+                      "aria-label": "change date",
+                  }}                    
+                  shouldDisableDate={(date) => shouldDisableDay(date)}
+                  shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
+                  {...field}     
+                />
+              );
+           }}
+          />
+      </LocalizationProvider>
     )
 }
