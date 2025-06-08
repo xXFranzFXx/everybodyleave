@@ -12,9 +12,11 @@ import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const SimpleForm = () => {
+   const { state } = useSocketContext();
+    const { type, phone, acceptTerms, default_timezone, otp } = state;
     const defaultValues = {
         datetime:"",
-        phone: "",
+        phone: phone || "",
         acceptTerms:"",
         utcdate: "",
         timezone:"", 
@@ -25,8 +27,7 @@ const SimpleForm = () => {
     
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-    const { state } = useSocketContext();
-    const { type, acceptTerms, default_timezone, otp } = state;
+   
     const onSubmit = (data) => {
         const {datetime} = data;
         const date = new Date(datetime);
@@ -36,7 +37,7 @@ const SimpleForm = () => {
         data.utcdate = date.toUTCString();
         data.timezone = default_timezone
         textBeeSms(data)
-        logout();
+        // logout();
         // cronTextBeeSms(data)
         // textBeeSms(data);
     }
