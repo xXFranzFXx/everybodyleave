@@ -5,6 +5,7 @@ import axios from 'axios';
   export const MetadataContext = createContext();
   const MetadataProvider = ({ children }) => {
     const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
+
     const [ reminders, setReminders ] = useState(null);
     const metadataKey = `${process.env.REACT_APP_AUTH0_DOMAIN}/claims/user_metadata`;
     const getUserMetadata = async () => {
@@ -13,7 +14,7 @@ import axios from 'axios';
             audience: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
             scope: "read:current_user update:current_user_metadata",
           });
-          const auth0Id = await user.sub
+          const auth0Id =  user?.sub
           const config = {
             method: 'get',
             url: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/users/${auth0Id}?fields=user_metadata&include_fields=true`,
@@ -63,7 +64,7 @@ import axios from 'axios';
     }, [user]);
    
     return ( 
-      <MetadataContext.Provider value={{reminders, useAuth0, getUserMetadata}}>
+      <MetadataContext.Provider value={{reminders, useAuth0, getUserMetadata, saveUserReminder}}>
         {children}
       </MetadataContext.Provider>
     )

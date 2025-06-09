@@ -5,7 +5,7 @@ import App from './App';
 import SocketProvider from './context/SocketProvider';
 import reportWebVitals from './reportWebVitals';
 import { Auth0Provider } from '@auth0/auth0-react';
-
+import MetaDataProvider  from './context/MetadataProvider'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -14,13 +14,15 @@ root.render(
     clientId={process.env.REACT_APP_AUTH0_CLIENTID}
     authorizationParams={{
       redirect_uri: window.location.origin,
-       audience: "https://dev-weyvnjxijdttrlb2.us.auth0.com/api/v2/",
+       audience: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
       scope: "openid profile read:current_user update:current_user_metadata"
     }}
   >
+    <MetaDataProvider>
    <SocketProvider>
       <App />
     </SocketProvider> 
+    </MetaDataProvider>
     </Auth0Provider>
   </React.StrictMode>
 );
