@@ -32,7 +32,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     const shouldDisableTime =(time, view) => {
         const selectedDay = dayjs(time).date()
           if ( view === "hours") {
-              return dayjs(time).hour() %2 === 0           
+              return dayjs(time).hour() %2 === 0          
           } else if (view === "minutes"){ 
               return dayjs(time).minute() <= 0
           }
@@ -55,7 +55,8 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       }
       return oneWeek;
     }
-
+    const now = new Date()
+    const currentHour = now.getHours()
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Controller
@@ -67,7 +68,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
               <DateTimePicker
                   // timezone="system"
                   // disablePast={true}
-                  minTime={new Date(0,0,0,16)}
+                  minTime={currentHour <= 17 ? new Date(0,0,0,16) : new Date(0,0,0,18)}
                   maxTime={new Date(0,0,0,20)}
                   minDate={new Date()}
                   // maxDate={new Date(dayjs().endOf('month'))}
