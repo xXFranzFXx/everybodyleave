@@ -44,8 +44,10 @@ export const FormInputDateTime = ({ name, control, label  }) => {
 
     const shouldDisableDay = (date) => {
          //disable every other day.  
+          const today = dayjs(now).date();
+          const selectedDay = dayjs(date).date();
             for (let i = 0; i <= 6; i++) {
-                return dayjs(date).day() %2 === 0
+                return dayjs(date).day() %2 === 0 || (selectedDay === today && currentHour >= 19)
               }
       };
 
