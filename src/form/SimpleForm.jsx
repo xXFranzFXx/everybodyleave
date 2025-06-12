@@ -10,6 +10,7 @@ import { TimePick } from '../form-components/FormInputTime';
 import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
+import { MetadataContext } from '../context/MetadataProvider';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 const SimpleForm = () => {
    const { state } = useSocketContext();
@@ -24,7 +25,7 @@ const SimpleForm = () => {
         otp:""
     }
     const { user, logout } = useAuth0();
-    
+    const { saveUserReminder } = useContext(MetadataContext);
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
    
@@ -36,7 +37,8 @@ const SimpleForm = () => {
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
         data.timezone = default_timezone
-        textBeeSms(data)
+        saveUserReminder(datetime)
+        // textBeeSms(data)
         // logout();
         // cronTextBeeSms(data)
         // textBeeSms(data);

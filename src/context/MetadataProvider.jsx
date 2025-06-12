@@ -12,7 +12,7 @@ import axios from 'axios';
         try {
           const token = await getAccessTokenSilently({
             audience: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
-            scope: "read:current_user update:current_user_metadata",
+            scope: "openid profile read:current_user update:current_user_metadata",
           });
           const auth0Id =  user?.sub
           const config = {
