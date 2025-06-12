@@ -17,7 +17,8 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 export const FormInputDateTime = ({ name, control, label  }) => {
     const [val, setVal] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
-    
+    const now = new Date()
+    const currentHour = now.getHours()
     const errorMessage = useMemo(() => {
         switch (errorMsg) {  
           case 'invalidDate': {
@@ -30,9 +31,11 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       }, [errorMsg]);
 
     const shouldDisableTime =(time, view) => {
-        const selectedDay = dayjs(time).date()
+        const selectedDay = dayjs(time).date();
+        const today = dayjs(now).date();
+        const selectedTime = dayjs(time).hour();
           if ( view === "hours") {
-              return dayjs(time).hour() %2 === 0          
+              return selectedTime % 2 === 0 || (selectedDay === today && currentHour > selectedTime)         
           } else if (view === "minutes"){ 
               return dayjs(time).minute() <= 0
           }
@@ -55,8 +58,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       }
       return oneWeek;
     }
-    const now = new Date()
-    const currentHour = now.getHours()
+  
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Controller
@@ -68,7 +70,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
               <DateTimePicker
                   // timezone="system"
                   // disablePast={true}
-                  minTime={currentHour <= 17 ? new Date(0,0,0,16) : new Date(0,0,0,18)}
+                  minTime={new Date(0,0,0,16)}
                   maxTime={new Date(0,0,0,20)}
                   minDate={new Date()}
                   // maxDate={new Date(dayjs().endOf('month'))}
