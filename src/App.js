@@ -15,8 +15,15 @@ function App() {
   const { state } = useSocketContext();
 
   useEffect(() => {
-    setUserInfo(user?.name)
-    state.phone =  user?.name;
+    const name = user?.name;
+    const reminders = user?.reminders
+    if(Array.isArray(reminders)) {
+      state.reminders = reminders.map(day => new Date(day))
+     }
+  
+    setUserInfo(name)
+    state.phone = name;
+    state.reminders = new Date(reminders)
   },[user] );
 
   const theme = createTheme({
