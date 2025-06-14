@@ -4,26 +4,18 @@ import './index.css';
 import App from './App';
 import SocketProvider from './context/SocketProvider';
 import reportWebVitals from './reportWebVitals';
-import { Auth0Provider } from '@auth0/auth0-react';
+import Auth0ProviderWithHistory from './context/Auth0ProviderWithHistory';
 import MetaDataProvider  from './context/MetadataProvider'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Auth0Provider
-    domain={process.env.REACT_APP_AUTH0_DOMAIN}
-    clientId={process.env.REACT_APP_AUTH0_CLIENTID}
-    authorizationParams={{
-      redirect_uri: window.location.origin,
-       audience: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/`,
-      scope: "openid profile read:current_user update:current_user_metadata"
-    }}
-  >
+    <Auth0ProviderWithHistory>
     <MetaDataProvider>
    <SocketProvider>
       <App />
     </SocketProvider> 
     </MetaDataProvider>
-    </Auth0Provider>
+    </Auth0ProviderWithHistory>
   </React.StrictMode>
 );
 
