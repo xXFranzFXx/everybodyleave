@@ -2,14 +2,16 @@ const { Inngest } = require('inngest');
 const inngest = new Inngest({ id: "445_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
+
 // This weekly digest function will run at 12:00pm on Friday in the Paris timezone
 
 const getFutureDate = (daysAhead) => {
+  const today = new Date();
   return new Date(today.setDate(today.getDate() + daysAhead));
 }
-export const prepareReminders = inngest.createFunction(
+const prepareReminders = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
-  { cron: "TZ=UTC/PTZ 0 0 * * 6" },
+  { cron: "TZ=America/Los_Angeles 0 0 * * 6"},
   async ({ step }) => {
     // create event documents in mongo db
     const weeklyReminders= await step.run(
@@ -24,15 +26,15 @@ export const prepareReminders = inngest.createFunction(
           {date: fri, firstGroup:[], secondGroup:[]} 
         ]
         await Event.insertMany(data)  
-    .then((result) => {
-            console.log("result ", result);
-            res.status(200).json({'success': 'new documents added!', 'data': result});
-    })
-    .catch(err => {
+            .then((result) => {
+                  console.log("result ", result);
+                  // res.status(200).json({'success': 'new documents added!', 'data': result});
+        })
+          .catch(err => {
             console.error("error ", err);
-            res.status(400).json({err});
-    });
-})
+            // res.status(400).json({err});
+        });
+      })
       }
     );
 
@@ -82,3 +84,7 @@ export const prepareReminders = inngest.createFunction(
 //     // task for a large list of users!
 //   }
 // );
+const functions = [
+  prepareReminders
+];
+module.exports = { inngest, functions}

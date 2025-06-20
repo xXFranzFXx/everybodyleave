@@ -6,8 +6,8 @@ const URL = require('url').URL;
 const express = require("express");
 const cors = require("cors");
 const { serve } = require("inngest/express");
-const { inngest, functions } = require("./inngest/client")
-const { connectDb } = require('./db/config/dbConfig');
+const { inngest, functions } = require("./inngest/reminders")
+const  connectDb  = require('./db/config/dbConfig');
 const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const { textBeeSms } = require('./helpers/textBee');
 const app = express();
@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-connectDb;
+const {dbConnection} = connectDb;
 
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
