@@ -4,12 +4,18 @@ const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 
 // This weekly digest function will run at 12:00pm on Friday in the Paris timezone
+/*
+Timezones: EST/New_York, CST/Chicago, MST/Denver, PST/Los_Angeles, AKST/Alaska, HST/Hawaii
 
+*/
 const getFutureDate = (daysAhead) => {
   const today = new Date();
-  return new Date(today.setDate(today.getDate() + daysAhead));
+  const newDate = new Date(today.setDate(today.getDate() + daysAhead));
+  const firstGroup = newDate.setHours(17)
+  const secondGroup = newDate.setHours(19)
+  return { firstGroup, secondGroup }
 }
-const prepareReminders = inngest.createFunction(
+const prepareRemindersPST = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
   { cron: "TZ=America/Los_Angeles 0 0 * * 6"},
   async ({ step }) => {
@@ -17,27 +23,200 @@ const prepareReminders = inngest.createFunction(
     const weeklyReminders= await step.run(
       "create-reminders",
       async () => {
-        const mon = getFutureDate(2);
-        const wed = getFutureDate(4);
-        const fri = getFutureDate(6);
+        const mon5 = getFutureDate(2).firstGroup;
+        const mon7 = getFutureDate(2).secondGroup;
+        const wed5 = getFutureDate(4).firstGroup;
+         const wed7 = getFutureDate(4).secondGroup;
+        const fri5 = getFutureDate(6).firstGroup;
+        const fri7 = getFutureDate(6).secondGroup;
+
         const data = [
-          {date: mon, firstGroup:[], secondGroup:[]},  
-          {date: wed, firstGroup:[], secondGroup:[]},  
-          {date: fri, firstGroup:[], secondGroup:[]} 
+          {date: mon5, timezone: 'PDT', users:[]},  
+          {date: mon7, timezone: 'PDT', users:[]},  
+          {date: wed5, timezone: 'PDT', users:[]},  
+          {date: wed7, timezone: 'PDT', users:[]},  
+          {date: fri5, timezone: 'PDT', users:[]},
+          {date: fri7, timezone: 'PDT', users:[]}  
         ]
         await Event.insertMany(data)  
             .then((result) => {
                   console.log("result ", result);
-                  // res.status(200).json({'success': 'new documents added!', 'data': result});
         })
           .catch(err => {
             console.error("error ", err);
-            // res.status(400).json({err});
         });
       })
       }
     );
 
+const prepareRemindersEST = inngest.createFunction(
+  { id: "prepare-weekly-reminders" },
+  { cron: "TZ=America/New_York 0 0 * * 6"},
+  async ({ step }) => {
+    // create event documents in mongo db
+    const weeklyReminders= await step.run(
+      "create-reminders",
+      async () => {
+        const mon5 = getFutureDate(2).firstGroup;
+        const mon7 = getFutureDate(2).secondGroup;
+        const wed5 = getFutureDate(4).firstGroup;
+         const wed7 = getFutureDate(4).secondGroup;
+        const fri5 = getFutureDate(6).firstGroup;
+        const fri7 = getFutureDate(6).secondGroup;
+
+        const data = [
+          {date: mon5, timezone: 'EDT', users:[]},  
+          {date: mon7, timezone: 'EDT', users:[]},  
+          {date: wed5, timezone: 'EDT', users:[]},  
+          {date: wed7, timezone: 'EDT', users:[]},  
+          {date: fri5, timezone: 'EDT', users:[]},
+          {date: fri7, timezone: 'EDT', users:[]}  
+        ]
+        await Event.insertMany(data)  
+            .then((result) => {
+                  console.log("result ", result);
+        })
+          .catch(err => {
+            console.error("error ", err);
+        });
+      })
+      }
+    );
+
+const prepareRemindersCST = inngest.createFunction(
+  { id: "prepare-weekly-reminders" },
+  { cron: "TZ=America/Chicago 0 0 * * 6"},
+  async ({ step }) => {
+    // create event documents in mongo db
+    const weeklyReminders= await step.run(
+      "create-reminders",
+      async () => {
+        const mon5 = getFutureDate(2).firstGroup;
+        const mon7 = getFutureDate(2).secondGroup;
+        const wed5 = getFutureDate(4).firstGroup;
+         const wed7 = getFutureDate(4).secondGroup;
+        const fri5 = getFutureDate(6).firstGroup;
+        const fri7 = getFutureDate(6).secondGroup;
+
+        const data = [
+          {date: mon5, timezone: 'CDT', users:[]},  
+          {date: mon7, timezone: 'CDT', users:[]},  
+          {date: wed5, timezone: 'CDT', users:[]},  
+          {date: wed7, timezone: 'CDT', users:[]},  
+          {date: fri5, timezone: 'CDT', users:[]},
+          {date: fri7, timezone: 'CDT', users:[]}  
+        ]
+        await Event.insertMany(data)  
+            .then((result) => {
+                  console.log("result ", result);
+        })
+          .catch(err => {
+            console.error("error ", err);
+        });
+      })
+      }
+    );
+const prepareRemindersMST = inngest.createFunction(
+  { id: "prepare-weekly-reminders" },
+  { cron: "TZ=America/Denver 0 0 * * 6"},
+  async ({ step }) => {
+    // create event documents in mongo db
+    const weeklyReminders= await step.run(
+      "create-reminders",
+      async () => {
+        const mon5 = getFutureDate(2).firstGroup;
+        const mon7 = getFutureDate(2).secondGroup;
+        const wed5 = getFutureDate(4).firstGroup;
+         const wed7 = getFutureDate(4).secondGroup;
+        const fri5 = getFutureDate(6).firstGroup;
+        const fri7 = getFutureDate(6).secondGroup;
+
+        const data = [
+          {date: mon5, timezone: 'MDT', users:[]},  
+          {date: mon7, timezone: 'MDT', users:[]},  
+          {date: wed5, timezone: 'MDT', users:[]},  
+          {date: wed7, timezone: 'MDT', users:[]},  
+          {date: fri5, timezone: 'MDT', users:[]},
+          {date: fri7, timezone: 'MDT', users:[]}  
+        ]
+        await Event.insertMany(data)  
+            .then((result) => {
+                  console.log("result ", result);
+        })
+          .catch(err => {
+            console.error("error ", err);
+        });
+      })
+      }
+    );
+
+const prepareRemindersAKST = inngest.createFunction(
+  { id: "prepare-weekly-reminders" },
+  { cron: "TZ=America/Alaska 0 0 * * 6"},
+  async ({ step }) => {
+    // create event documents in mongo db
+    const weeklyReminders= await step.run(
+      "create-reminders",
+      async () => {
+        const mon5 = getFutureDate(2).firstGroup;
+        const mon7 = getFutureDate(2).secondGroup;
+        const wed5 = getFutureDate(4).firstGroup;
+         const wed7 = getFutureDate(4).secondGroup;
+        const fri5 = getFutureDate(6).firstGroup;
+        const fri7 = getFutureDate(6).secondGroup;
+
+        const data = [
+          {date: mon5, timezone: 'AKDT', users:[]},  
+          {date: mon7, timezone: 'AKDT', users:[]},  
+          {date: wed5, timezone: 'AKDT', users:[]},  
+          {date: wed7, timezone: 'AKDT', users:[]},  
+          {date: fri5, timezone: 'AKDT', users:[]},
+          {date: fri7, timezone: 'AKDT', users:[]}  
+        ]
+        await Event.insertMany(data)  
+            .then((result) => {
+                  console.log("result ", result);
+        })
+          .catch(err => {
+            console.error("error ", err);
+        });
+      })
+      }
+    );
+
+const prepareRemindersHST = inngest.createFunction(
+  { id: "prepare-weekly-reminders" },
+  { cron: "TZ=America/Hawaii 0 0 * * 6"},
+  async ({ step }) => {
+    // create event documents in mongo db
+    const weeklyReminders= await step.run(
+      "create-reminders",
+      async () => {
+        const mon5 = getFutureDate(2).firstGroup;
+        const mon7 = getFutureDate(2).secondGroup;
+        const wed5 = getFutureDate(4).firstGroup;
+         const wed7 = getFutureDate(4).secondGroup;
+        const fri5 = getFutureDate(6).firstGroup;
+        const fri7 = getFutureDate(6).secondGroup;
+
+        const data = [
+          {date: mon5, timezone: 'HDT', users:[]},  
+          {date: mon7, timezone: 'HDT', users:[]},  
+          {date: wed5, timezone: 'HDT', users:[]},  
+          {date: wed7, timezone: 'HDT', users:[]},  
+          {date: fri5, timezone: 'HDT', users:[]},
+          {date: fri7, timezone: 'HDT', users:[]}  
+        ]
+        await Event.insertMany(data)  
+            .then((result) => {
+                  console.log("result ", result);
+        })
+          .catch(err => {
+            console.error("error ", err);
+        });
+      })
+      }
+    );
     // 💡 Since we want to send a weekly digest to each one of these users
     // it may take a long time to iterate through each user and send an email.
 
@@ -85,6 +264,11 @@ const prepareReminders = inngest.createFunction(
 //   }
 // );
 const functions = [
-  prepareReminders
+  prepareRemindersPST,
+  prepareRemindersAKST,
+  prepareRemindersCST,
+  prepareRemindersEST,
+  prepareRemindersHST,
+  prepareRemindersMST
 ];
 module.exports = { inngest, functions}
