@@ -10,7 +10,7 @@ const SocketProvider = ({ children }) => {
             date: new Date(),
             phone: "",
             time: "",
-            default_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'long' }).substring(4),
+            default_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4),
             utcdate:"",
             type: [],
             reminders:[],
