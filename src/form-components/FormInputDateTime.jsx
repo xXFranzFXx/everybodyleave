@@ -75,7 +75,6 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   minTime={new Date(0,0,0,16)}
                   maxTime={new Date(0,0,0,20)}
                   minDate={new Date()}
-                  // maxDate={new Date(dayjs().endOf('month'))}
                   maxDate={addOneWeek()}
                   label="Date/Time*"
                   value={field.value?? null}
