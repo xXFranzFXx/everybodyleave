@@ -95,7 +95,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   viewRenderers={{
                       hours: renderDigitalClockTimeView,
                       minutes: renderDigitalClockTimeView,
-                      seconds: renderDigitalClockTimeView,
+                      // seconds: renderDigitalClockTimeView,
                   }} 
                   skipDisabled={true}             
                   onError={(newError) => setErrorMsg(newError)}
@@ -109,6 +109,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   }}                    
                   shouldDisableDate={(date) => shouldDisableDay(date)}
                   shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
+                  referenceDate={dayjs().set("hours", 17).set("minutes", 0).set("seconds", 0)}
                   {...field}     
                 />
               );
