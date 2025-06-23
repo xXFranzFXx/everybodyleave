@@ -4,13 +4,14 @@
 /node_modules
 /.pnp
 .pnp.js
-
+/.inngest
 # testing
 /coverage
 .env
 # production
 /build
 /api/node_modules
+/api/.inngest
 # misc
 .DS_Store
 .env.local
