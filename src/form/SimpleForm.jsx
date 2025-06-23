@@ -20,9 +20,8 @@ const SimpleForm = () => {
         phone: phone || "",
         acceptTerms:"",
         utcdate: "",
-        timezone:"", 
+        timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4), 
         message:"",
-        otp:""
     }
     const { user, logout } = useAuth0();
     const { saveUserReminder } = useContext(MetadataContext);
@@ -30,14 +29,18 @@ const SimpleForm = () => {
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
    
     const onSubmit = (data) => {
-        const {datetime} = data;
+        const {datetime, message} = data;
         const date = new Date(datetime);
         console.log(date.getTime())
         console.log(date.toISOString())
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
+        const reminder = {
+          event: datetime,
+          message: message
+        }
         data.timezone = default_timezone
-        saveUserReminder(datetime)
+        // saveUserReminder(reminder)
         // textBeeSms(data)
         // logout();
         // cronTextBeeSms(data)
@@ -77,9 +80,9 @@ const SimpleForm = () => {
             <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
           </Grid2>
           </Grid2>
-          <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
+          {/* <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
             <FormInputText name="message" control={control} label="Message*" />
-          </Grid2>    
+          </Grid2>     */}
           <Box mt={3}>
             <Button
               variant="contained"
