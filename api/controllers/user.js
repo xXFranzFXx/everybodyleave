@@ -7,7 +7,7 @@ exports.postSignIn = (req, res) => {
     const { token, phone } = req.body;
     const decoded = jwtDecode(token);
     const { name } = token;
-    const user = new User({ name, phone });
+    const newUser = new User({ name, phone });
 
     User.findOne({ name }).exec((err, user) => {
         if (user) {
@@ -15,7 +15,7 @@ exports.postSignIn = (req, res) => {
                 user
             })
             } else {
-                user.save((err, user) => {
+                newUser.save((err, success) => {
                     if (err) {
                         console.log('Cannot create user', err);
                         return res.status(401).json({
@@ -33,13 +33,18 @@ exports.postSignIn = (req, res) => {
         })
     }
 
-exports.update = (req, res) => {
+exports.scheduleReminder = (req, res) => {
     // console.log('UPDATE USER - req.user', req.user, 'UPDATE DATA', req.body);
-    const { token, phone, datetime, message } = req.body;
+    const { token, phone, date, message, group } = req.body;
     const decoded = jwtDecode(token);
-    const { name } = token;
-    const reminder = { date: datetime, message: message };
+    const { mongoId } = token;
+    const reminder = { event: date, message: message };
 
+    const newEvent = new Event({
+        date: date,
+        users: mongoId
+    })
+    const scheduledEvent = Event.findOne({ date: date })
     User.findOne({ name: name }, (err, user) => {
         if (err || !user) {
             return res.status(400).json({
