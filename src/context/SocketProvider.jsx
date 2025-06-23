@@ -5,17 +5,10 @@ export const SocketContext = createContext()
 
 const SocketProvider = ({ children }) => {
   const state = useRef(proxy({
-            user: "",
-            email: "",
-            date: new Date(),
             phone: "",
-            time: "",
             default_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4),
-            utcdate:"",
-            type: [],
             reminders:[],
             acceptTerms: false,
-            otp: ""
 })).current
 
 
