@@ -12,7 +12,7 @@ exports.saveReminder = (req, res) => {
                 { new: true }, // Return the updated document
                 function(err, doc) {
                      if (err) {
-                        console.log('Cannot created scheduled reminder', err);
+                        console.log('Cannot create scheduled reminder', err);
                         return res.status(401).json({error: 'Error saving reminder'});
                     } else {
                         res.status(200).json({ doc })
