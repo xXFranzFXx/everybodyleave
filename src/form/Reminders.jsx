@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
@@ -8,6 +9,7 @@ import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, 
 export const Reminders = () => {
     const { state } = useSocketContext();
     const { reminders } = state;
+    const { user } = useAuth0();
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     
@@ -19,6 +21,7 @@ export const Reminders = () => {
     };
     return (
         <>
+        <FormProvider {...methods}>
                 <Paper
                     elevation={24}
                     style={{
@@ -68,6 +71,7 @@ export const Reminders = () => {
                   </Box>     
                 </Box>     
               </Paper>   
+              </FormProvider>
               </>  
        
     )
