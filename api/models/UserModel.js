@@ -20,11 +20,11 @@ const UserSchema = mongoose.Schema({
     },
     reminder: {
         type: String,
-        required: true
+        required: false
     },
     role: {
         type: String,
-        default: 'subscriber'
+        default: 'basic'
     },
 });
 
