@@ -1,17 +1,17 @@
 import React from "react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { Controller } from "react-hook-form";
-const options = [
-    {
-        label: "digital",
-        value: "digital",
-    },
-    {
-        label: "analog",
-        value: "analog",
-    },
-];
-export const FormInputDropdown = ({ name, control, label }) => {
+// const options = [
+//     {
+//         label: "digital",
+//         value: "digital",
+//     },
+//     {
+//         label: "analog",
+//         value: "analog",
+//     },
+// ];
+export const FormInputDropdown = ({ name, control, label, options }) => {
     const generateSingleOptions = () => {
         return options.map((option) => {
             return (<MenuItem key={option.value} value={option.value}>
