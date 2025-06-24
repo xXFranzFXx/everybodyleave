@@ -13,7 +13,9 @@ export const Reminders = () => {
     const { reminder } = user;
     // const methods = useForm({ defaultValues: defaultValues || ""});
     // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-    
+    const isBeforeNow = (date) =>  {
+    return new Date(date) < new Date();
+  }
     const onDelete = () => {
 
     };
@@ -37,20 +39,20 @@ export const Reminders = () => {
                     }} 
                 >
                    <Typography variant="h6" align="center" margin="dense">
-                   Upcoming Reminders
+                   { isBeforeNow(user.reminder) ? 'Past Reminders' : 'Upcoming Reminders' }
                   </Typography>
                 <Box px={3} py={2}>        
                   <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
               
                   <Typography variant="h6" align="center" margin="dense">
                   { user.reminder ? 
-                   (new Date(user.reminder).toLocaleDateString() + '@' + new Date(user.reminder).toLocaleTimeString())
+                   (new Date(user.reminder).toLocaleDateString() +' ' +'@' + new Date(user.reminder).toLocaleTimeString())
                    :
                    `There are no reminders.`
                   }
                   </Typography>
                   </Grid2>    
-                  { user.reminder && 
+                  { user.reminder && !isBeforeNow(user.reminder) &&
                   <Box mt={3}>
                     <Button
                       variant="contained"
