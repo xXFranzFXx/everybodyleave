@@ -8,6 +8,8 @@ const cors = require("cors");
 const { serve } = require("inngest/express");
 const { inngest, functions } = require("./inngest/reminders")
 const  connectDb  = require('./db/config/dbConfig');
+const { dbConnection } = connectDb;
+
 const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const { textBeeSms } = require('./helpers/textBee');
 const app = express();
@@ -17,6 +19,9 @@ const corsOptions = {
   'Access-Control-Allow-Origin': ["*"],
   methods: ["OPTIONS", "GET", "POST"]
 };
+
+const userRoutes = require('./routes/user');
+const eventRoutes = require('./routes/events');
 
 app.use(cors());
 app.use(express.urlencoded({
@@ -28,7 +33,8 @@ app.use(
     limit: '5mb',
   })
 );
-
+app.use('/api/userRoutes');
+app.use('api/eventRoutes');
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
 const staticPath = path.join(__dirname, "build");
@@ -56,7 +62,6 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-const {dbConnection} = connectDb;
 
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
