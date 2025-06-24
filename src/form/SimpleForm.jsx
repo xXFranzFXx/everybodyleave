@@ -12,6 +12,7 @@ import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { MetadataContext } from '../context/MetadataProvider';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
+import { Reminders } from './Reminders';
 const SimpleForm = () => {
    const { state } = useSocketContext();
     const { type, phone, acceptTerms, default_timezone, otp } = state;
@@ -51,7 +52,7 @@ const SimpleForm = () => {
 // console.log(getValues("reminder"))
 //  },[getValues("reminder")])
     return (
-        <FormProvider {...methods}>
+      <>        <FormProvider {...methods}>
         <Paper
             elevation={24}
             style={{
@@ -93,8 +94,12 @@ const SimpleForm = () => {
             </Button>        
           </Box>     
         </Box>     
-      </Paper>     
+      </Paper>   
+        
         </FormProvider>
+        <Reminders/>
+        </>
+
     )
 }
 export default SimpleForm;

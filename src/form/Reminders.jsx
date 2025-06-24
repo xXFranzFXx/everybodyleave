@@ -8,10 +8,11 @@ import { useForm } from "react-hook-form";
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 export const Reminders = () => {
     const { state } = useSocketContext();
-    const { reminders } = state;
+   
     const { user } = useAuth0();
-    const methods = useForm({ defaultValues: defaultValues || ""});
-    const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
+    const { reminder } = user;
+    // const methods = useForm({ defaultValues: defaultValues || ""});
+    // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     
     const onDelete = () => {
 
@@ -21,7 +22,6 @@ export const Reminders = () => {
     };
     return (
         <>
-        <FormProvider {...methods}>
                 <Paper
                     elevation={24}
                     style={{
@@ -37,22 +37,20 @@ export const Reminders = () => {
                     }} 
                 >
                    <Typography variant="h6" align="center" margin="dense">
-                    Your Scheduled Reminders
+                   Upcoming Reminders
                   </Typography>
                 <Box px={3} py={2}>        
                   <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
-                  <Grid2 item xs={12} sm={4}>
-                    { user &&          
-                      <FormInputTel name="phone" control={control} label="Your Phone" />
-                    }
-                  </Grid2>
-                  <Grid2 item xs={12} sm={4}>
-                        <FormInputDropdown />
-                    </Grid2>
-                  </Grid2>
-                  <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
-                    <FormInputText name="message" control={control} label="Message*" />
+              
+                  <Typography variant="h6" align="center" margin="dense">
+                  { user.reminder ? 
+                   (new Date(user.reminder).toLocaleDateString() + '@' + new Date(user.reminder).toLocaleTimeString())
+                   :
+                   `There are no reminders.`
+                  }
+                  </Typography>
                   </Grid2>    
+                  { user.reminder && 
                   <Box mt={3}>
                     <Button
                       variant="contained"
@@ -67,11 +65,12 @@ export const Reminders = () => {
                       onClick={onEdit}
                     >
                       Edit
-                    </Button>        
+                    </Button>    
+                 
                   </Box>     
+}
                 </Box>     
               </Paper>   
-              </FormProvider>
               </>  
        
     )
