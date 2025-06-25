@@ -10,7 +10,7 @@ export const Reminders = () => {
     const { state } = useSocketContext();
    
     const { user } = useAuth0();
-    const { reminder } = user;
+    const { reminder } = state;
     // const methods = useForm({ defaultValues: defaultValues || ""});
     // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const isBeforeNow = (date) =>  {
@@ -39,14 +39,14 @@ export const Reminders = () => {
                     }} 
                 >
                    <Typography variant="h6" align="center" margin="dense">
-                   { isBeforeNow(user.reminder) ? 'Past Reminders' : 'Upcoming Reminders' }
+                   { isBeforeNow(reminder) ? 'Past Reminders' : 'Upcoming Reminders' }
                   </Typography>
                 <Box px={3} py={2}>        
                   <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
               
                   <Typography variant="h6" align="center" margin="dense">
-                  { user.reminder ? 
-                   (new Date(user.reminder).toLocaleDateString() +' ' +'@' + new Date(user.reminder).toLocaleTimeString())
+                  { reminder ? 
+                   (new Date(reminder).toLocaleDateString('en-EN', { weekday: 'long' })+' '+new Date(reminder).toLocaleDateString() +' ' +'@' + new Date(reminder).toLocaleTimeString())
                    :
                    `There are no reminders.`
                   }
