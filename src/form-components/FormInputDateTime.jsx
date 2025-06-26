@@ -35,7 +35,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
         const today = dayjs(now).date();
         const selectedTime = dayjs(time).hour();
           if ( view === "hours") {
-              return selectedTime % 2 === 0 || (selectedDay === today && currentHour > selectedTime)         
+              return selectedTime % 2 === 0 || (selectedDay === today && currentHour >= selectedTime)         
           } else if (view === "minutes"){ 
               return dayjs(time).minute() <= 0
           }
@@ -108,7 +108,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   }}                    
                   shouldDisableDate={(date) => shouldDisableDay(date)}
                   shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
-                  referenceDate={currentHour < 17 ? dayjs().set("hours", 17).set("minutes", 0).set("seconds", 0) : dayjs().set("hours", 19).set("minutes", 0).set("seconds", 0)}
+                  referenceDate={null}
                   {...field}     
                 />
               );
