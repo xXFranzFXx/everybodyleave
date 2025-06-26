@@ -13,6 +13,7 @@ import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { MetadataContext } from '../context/MetadataProvider';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 import { Reminders } from './Reminders';
+import axios from 'axios';
 const SimpleForm = () => {
    const { state } = useSocketContext();
     const { type, phone, acceptTerms, default_timezone, otp } = state;
@@ -24,11 +25,22 @@ const SimpleForm = () => {
         timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4), 
         message:"",
     }
-    const { user, logout } = useAuth0();
+    const { user, logout, getAccessTokenSilently } = useAuth0();
     const { saveUserReminder } = useContext(MetadataContext);
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-   
+    
+    const saveReminder = async (datetime) => {
+     const token = await getAccessTokenSilently();
+     axios({
+            method: 'PUT',
+            url: `${process.env.REACT_APP_API}/events/${datetime}`,
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: new Date(datetime)
+        })
+      }
     const onSubmit = (data) => {
         const {datetime, message} = data;
         const date = new Date(datetime);
