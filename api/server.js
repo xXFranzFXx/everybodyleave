@@ -33,8 +33,8 @@ app.use(
     limit: '5mb',
   })
 );
-app.use('/api/userRoutes');
-app.use('api/eventRoutes');
+app.use('/api', userRoutes);
+app.use('/api', eventRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
 const staticPath = path.join(__dirname, "build");
@@ -59,6 +59,7 @@ const socketIO = require("socket.io")(http, {
 });
 
 app.use((req, res, next) => {
+  req.dbConnection = dbConnection;
   req.io = socketIO;
   return next();
 });
