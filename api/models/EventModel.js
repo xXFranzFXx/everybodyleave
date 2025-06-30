@@ -7,7 +7,10 @@ const EventSchema = mongoose.Schema({
     timezones: {
        type: Map,
        of: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
-    }
+    },
+    users: [{
+        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+}]
 
 });
 
