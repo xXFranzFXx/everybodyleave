@@ -7,7 +7,7 @@ const SocketProvider = ({ children }) => {
   const state = useRef(proxy({
             phone: "",
             default_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4),
-            reminder:"",
+            reminder:[],
             acceptTerms: false,
 })).current
 

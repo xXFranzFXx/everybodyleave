@@ -16,7 +16,7 @@ import { Reminders } from './Reminders';
 import axios from 'axios';
 const SimpleForm = () => {
    const { state } = useSocketContext();
-    const { type, phone, acceptTerms, default_timezone, otp } = state;
+    const { type, phone, acceptTerms, default_timezone, otp, reminder } = state;
     const defaultValues = {
         datetime:"",
         phone: phone || "",
@@ -26,6 +26,7 @@ const SimpleForm = () => {
         message:"",
     }
     const { user, logout, getAccessTokenSilently } = useAuth0();
+    const { role, reminderDate } = user;
     const { saveUserReminder } = useContext(MetadataContext);
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
@@ -49,6 +50,7 @@ const SimpleForm = () => {
                     }
                 })
                 const res = await response.data;
+                
                 return res;
               } catch (err) {
                 console.log("Error saving reminder: ", err)
@@ -77,7 +79,8 @@ const SimpleForm = () => {
 // console.log(getValues("reminder"))
 //  },[getValues("reminder")])
     return (
-      <>        <FormProvider {...methods}>
+      <>        
+      <FormProvider {...methods}>
         <Paper
             elevation={24}
             style={{
@@ -106,11 +109,16 @@ const SimpleForm = () => {
             <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
           </Grid2>
           </Grid2>
-          {/* <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
-            <FormInputText name="message" control={control} label="Message*" />
-          </Grid2>     */}
+          {
+            role === 'basic' && reminderDate &&
+          <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
+            <Typography variant="h6" align="center" margin="dense">
+                Upgrade now to schedule multiple reminders
+          </Typography>          </Grid2>  
+} 
           <Box mt={3}>
             <Button
+            disabled={role === 'basic' && reminderDate ? true: false}
               variant="contained"
               color="primary"
               onClick={handleSubmit(onSubmit)}
