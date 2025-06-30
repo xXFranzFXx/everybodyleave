@@ -33,39 +33,34 @@ exports.postSignIn = (req, res) => {
         })
     }
 
-exports.scheduleReminder = (req, res) => {
-    // console.log('UPDATE USER - req.user', req.user, 'UPDATE DATA', req.body);
-    const { token, phone, date, message, group } = req.body;
-    const decoded = jwtDecode(token);
-    const { mongoId } = token;
-    const reminder = { event: date, message: message };
+exports.scheduledReminders = async (req, res) => {
+    const { mongoId, phone, datetime, message, group } = req.body;
+    const agg = [
+  {
+    '$match': {
+      '_id': {
+        '$eq': new ObjectId(mongoId)
+      }
+    }
+  }, {
+    '$unwind': '$reminder'
+  }, {
+    '$lookup': {
+      'from': 'events', 
+      'localField': 'reminder', 
+      'foreignField': '_id', 
+      'as': 'eventDetails'
+    }
+  }, {
+    '$unwind': '$eventDetails'
+  }, {
+    '$project': {
+      'eventDate': '$eventDetails.date'
+    }
+  }
+];
 
-    const newEvent = new Event({
-        date: date,
-        users: mongoId
-    })
-    const scheduledEvent = Event.findOne({ date: date })
-    User.findOne({ name: name }, (err, user) => {
-        if (err || !user) {
-            return res.status(400).json({
-                error: 'User not found'
-            });
-        }    
-        else {
-            user.reminder = reminder
-        }
 
-        user.save((err, updatedUser) => {
-            if (err) {
-                console.log('USER UPDATE ERROR', err);
-                return res.status(400).json({
-                    error: 'User update failed'
-                });
-            }
-
-            req.io.emit('reminder scheduled', updatedUser)
-            res.json(updatedUser);
-        });
-    });
-};
-
+const cursor = await User.aggregate(agg);
+const result = await cursor.toArray();
+    }
