@@ -6,4 +6,4 @@ const { saveReminder, cancelReminder } = require('../controllers/events')
 router.post('/events/save', saveReminder);
 router.put('/events/cancel', checkJwt, cancelReminder);
 
-module.exports = { router };
+module.exports = router ;
