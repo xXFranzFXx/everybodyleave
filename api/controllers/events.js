@@ -1,7 +1,6 @@
 const Event = require('../models/EventModel');
 const User = require('../models/UserModel');
 const mongoose = require('mongoose')
-const { jwtDecode } = require('jwt-decode');
 
 exports.saveReminder = async (req, res) => {
      const { mongoId, phone, datetime, timezone } = req.body;
@@ -16,13 +15,11 @@ exports.saveReminder = async (req, res) => {
                     { $addToSet: { 'users':  id  } }, // If not found, add the value to the nested array
                     { new: true }, { session });
             const eventId = new mongoose.Types.ObjectId(`${event._id}`)
-            const usr = await User.findOneAndUpdate({phone: phone}, 
+            const usr = await User.updateOne({phone: phone}, 
                     {
                         $set: { reminder: eventId}
                     },{new: true},  { session });
           
-
-                // await user;
                 await session.commitTransaction();
 
                 console.log("Transaction successful: ", event._id);
@@ -38,8 +35,6 @@ exports.saveReminder = async (req, res) => {
 
     }
 
-//  { $pull: { 'preferences.notifications': notificationValue } }, // Use $pull to remove the value
- //     { new: true } // Return the updated document
 
  exports.cancelReminder = async (req, res) => {
      const { mongoId, phone, reminderDate, timezone } = req.body;
@@ -51,7 +46,7 @@ exports.saveReminder = async (req, res) => {
                 { $pull: { tz: { mongoId } } }, // If not found, add the value to the nested array
                 { new: true }, {session}); // Return the updated document
        
-                await User.updateOne({ id: mongoId }, {
+                await User.updateOne({ phone: phone }, {
                  $pull: {
                      'reminder': event._id
                     } 
