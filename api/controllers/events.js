@@ -17,13 +17,14 @@ exports.saveReminder = async (req, res) => {
             const eventId = new mongoose.Types.ObjectId(`${event._id}`)
             const usr = await User.updateOne({phone: phone}, 
                     {
-                        $set: { reminder: eventId}
+                        $set: { reminder: event._id}
                     },{new: true},  { session });
           
                 await session.commitTransaction();
-
+                req.io.emit("Success creating reminder", { reminder: event.date })
                 console.log("Transaction successful: ", event._id);
-                return res.status(200).json({ event });
+                const { date } = event
+                return res.status(200).json({ date });
 
         } catch (error) {
             await session.abortTransaction();
@@ -33,7 +34,7 @@ exports.saveReminder = async (req, res) => {
         session.endSession();
     }
 
-    }
+}
 
 
  exports.cancelReminder = async (req, res) => {
@@ -43,13 +44,13 @@ exports.saveReminder = async (req, res) => {
             session.startTransaction();
             const id = new mongoose.Types.ObjectId(`${mongoId}`)
 
-            const event = await Event.findOneAndUpdate({ date: datetime }, // Find the document and check if the value exists in the nested array
-                { $pull: { 'users': { mongoId } } }, // If not found, add the value to the nested array
-                { new: true }, {session}); // Return the updated document
+            const event = await Event.findOneAndUpdate({ date: datetime }, 
+                { $pull: { 'users': { mongoId } } }, 
+                { new: true }, { session }); 
        
                 await User.updateOne({ phone: phone }, {
                         $pull: { 'reminder': event._id } 
-                    }, {session} );
+                    }, { session } );
 
                  await session.commitTransaction();
              
@@ -59,10 +60,10 @@ exports.saveReminder = async (req, res) => {
         } catch (error) {
             await session.abortTransaction();
             console.log("Transaction failed: ", error);
-            res.status(401).json({error: 'Error cancelling reminder'});
+            res.status(401).json({ error: 'Error cancelling reminder' });
             throw error;
 
     } finally {
         session.endSession();
     }
-    }
+}

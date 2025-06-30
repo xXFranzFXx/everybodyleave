@@ -29,21 +29,13 @@ const prepareReminders = inngest.createFunction(
          const wed7 = getFutureDate(4).secondGroup;
         const fri5 = getFutureDate(6).firstGroup;
         const fri7 = getFutureDate(6).secondGroup;
-        const timezones = {
-          'PDT': [] , 
-          'EDT':[] , 
-          'MDT': [] , 
-          'CDT': [] ,
-          'AKDT': [] ,
-          'HDT': [] 
-        }
         const data = [
-          {date: mon5, timezones},  
-          {date: mon7, timezones},  
-          {date: wed5, timezones},  
-          {date: wed7, timezones},  
-          {date: fri5, timezones},
-          {date: fri7, timezones}  
+          {date: mon5, users: []},  
+          {date: mon7, users: []},  
+          {date: wed5, users: []},  
+          {date: wed7, users: []},  
+          {date: fri5, users: []},
+          {date: fri7, users: []}  
         ]
         await Event.insertMany(data)  
             .then((result) => {

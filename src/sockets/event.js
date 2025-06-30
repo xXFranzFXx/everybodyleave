@@ -17,4 +17,7 @@ export const socketEvents = ({ state }) => {
     socket.on('sms otp verification', ({ otp_sms }) => {
       return { ...state, otp_sms };
     })
+    socket.on('Success creating reminder', ({ reminder }) => {
+      return { ...state, reminder }
+    })
 }
