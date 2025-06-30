@@ -1,34 +1,37 @@
 const Event = require('../models/EventModel');
 const User = require('../models/UserModel');
-const session = await mongoose.startSession();
+const mongoose = require('mongoose')
+const { jwtDecode } = require('jwt-decode');
 
 exports.saveReminder = async (req, res) => {
-     const { token, phone, reminderDate, timezone } = req.body;
-        const decoded = await jwtDecode(token);
-        const { mongoId } = decoded;
-        const tz =  `timezones.` + timezone;
+     const { mongoId, phone, datetime, timezone } = req.body;
+     const session = await mongoose.startSession();
+
        try {
             session.startTransaction();
+            const tz =  `timezones.` + timezone
+            const id = new mongoose.Types.ObjectId(`${mongoId}`)
 
-            const event = await Event.findOneAndUpdate({ date: new Date(reminderDate), tz: { $ne: mongoId } }, // Find the document and check if the value exists in the nested array
-                    { $addToSet: { tz: { mongoId } } }, // If not found, add the value to the nested array
+            const event = await Event.findOneAndUpdate({ date: datetime }, // Find the document and check if the value exists in the nested array
+                    { $addToSet: { 'users':  id  } }, // If not found, add the value to the nested array
                     { new: true }, { session });
-
-                await User.updateOne({_id: mongoId}, 
+            const eventId = new mongoose.Types.ObjectId(`${event._id}`)
+            const usr = await User.findOneAndUpdate({phone: phone}, 
                     {
-                        $set: { reminder: event[0]._id }
-                    }, { session });
-                
+                        $set: { reminder: eventId}
+                    },{new: true},  { session });
+          
+
+                // await user;
                 await session.commitTransaction();
 
-                console.log("Transaction successful");
+                console.log("Transaction successful: ", event._id);
                 return res.status(200).json({ event });
 
         } catch (error) {
             await session.abortTransaction();
             res.status(401).json({error: 'Error saving reminder'});
             throw error;
-
     } finally {
         session.endSession();
     }
@@ -39,9 +42,7 @@ exports.saveReminder = async (req, res) => {
  //     { new: true } // Return the updated document
 
  exports.cancelReminder = async (req, res) => {
-     const { token, phone, reminderDate, timezone } = req.body;
-        const decoded = await jwtDecode(token);
-        const { mongoId } = decoded;
+     const { mongoId, phone, reminderDate, timezone } = req.body;
         const tz =  `timezones.` + timezone;
         try {
             session.startTransaction();
@@ -52,7 +53,7 @@ exports.saveReminder = async (req, res) => {
        
                 await User.updateOne({ id: mongoId }, {
                  $pull: {
-                     'reminder': event[0]._id
+                     'reminder': event._id
                     } 
                 }, {session} );
 
