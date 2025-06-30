@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const UserSchema = mongoose.Schema({
     _id: String,
     name: {
@@ -19,8 +18,7 @@ const UserSchema = mongoose.Schema({
         required: false,
     },
     reminder: {
-        type: String,
-        required: false
+       type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
     },
     role: {
         type: String,
