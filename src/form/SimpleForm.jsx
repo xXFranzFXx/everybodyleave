@@ -30,30 +30,43 @@ const SimpleForm = () => {
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     
-    const saveReminder = async (datetime) => {
+    const saveReminder = async (datetime, phone, timezone) => {
      const token = await getAccessTokenSilently();
-     axios({
-            method: 'PUT',
-            url: `${process.env.REACT_APP_API}/events/${datetime}`,
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            body: new Date(datetime)
-        })
-      }
+     const { mongoId } = user;
+     console.log("mongoId: ", mongoId)
+     try {
+             const response = await   axios({
+                    method: 'POST',
+                    url: `http://localhost:4000/api/events/save`,
+                    // headers: {
+                    //     Authorization: `Bearer ${token}`
+                    // },
+                    data:{
+                      mongoId: mongoId,
+                      phone: phone,
+                      datetime: new Date(datetime), 
+                      timezone: timezone
+                    }
+                })
+                const res = await response.data;
+                return res;
+              } catch (err) {
+                console.log("Error saving reminder: ", err)
+              }
+          }
     const onSubmit = (data) => {
-        const {datetime, message} = data;
+        const {datetime, message, timezone} = data;
         const date = new Date(datetime);
         console.log(date.getTime())
         console.log(date.toISOString())
         state['utcdate'] = date.toUTCString();
         data.utcdate = date.toUTCString();
-        const reminder = {
-          event: datetime,
-          message: message
-        }
+        // const reminder = {
+        //   event: datetime,
+        //   message: message
+        // }
         data.timezone = default_timezone
-        // saveUserReminder(reminder)
+        saveReminder(datetime, phone, timezone)
         // textBeeSms(data)
         // logout();
         // cronTextBeeSms(data)
