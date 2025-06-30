@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 function connectDB() {
   const url = process.env.MONGO_CONNECTION;
   try {
-    mongoose.connect(url, {
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
-    });
+    mongoose.connect(url);
   } catch (err) {
     console.error(err.message);
     process.exit(1);
@@ -22,4 +19,4 @@ function connectDB() {
   return dbConnection;
 }
 connectDB()
-module.exports = { connectDB };
+module.exports = connectDB ;
