@@ -37,25 +37,24 @@ exports.saveReminder = async (req, res) => {
 
 
  exports.cancelReminder = async (req, res) => {
-     const { mongoId, phone, reminderDate, timezone } = req.body;
+     const { mongoId, phone, datetime, timezone } = req.body;
         const tz =  `timezones.` + timezone;
         try {
             session.startTransaction();
-        
-            const event = await Event.findOneAndUpdate({ date: new Date(reminderDate)}, // Find the document and check if the value exists in the nested array
-                { $pull: { tz: { mongoId } } }, // If not found, add the value to the nested array
+            const id = new mongoose.Types.ObjectId(`${mongoId}`)
+
+            const event = await Event.findOneAndUpdate({ date: datetime }, // Find the document and check if the value exists in the nested array
+                { $pull: { 'users': { mongoId } } }, // If not found, add the value to the nested array
                 { new: true }, {session}); // Return the updated document
        
                 await User.updateOne({ phone: phone }, {
-                 $pull: {
-                     'reminder': event._id
-                    } 
-                }, {session} );
+                        $pull: { 'reminder': event._id } 
+                    }, {session} );
 
-             await session.commitTransaction();
+                 await session.commitTransaction();
              
-             console.log("Transaction successful");
-             return res.status(200).json({ event });
+                console.log("Transaction successful");
+                return res.status(200).json({ event });
 
         } catch (error) {
             await session.abortTransaction();
