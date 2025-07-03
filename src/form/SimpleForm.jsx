@@ -110,7 +110,7 @@ const SimpleForm = () => {
           </Grid2>
           </Grid2>
           {
-            role === 'basic' && reminderDate &&
+            role === 'basic' && new Date(reminderDate) > new Date() &&
           <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
             <Typography variant="h6" align="center" margin="dense">
                 Upgrade now to schedule multiple reminders
@@ -118,7 +118,7 @@ const SimpleForm = () => {
 } 
           <Box mt={3}>
             <Button
-            disabled={role === 'basic' && reminderDate ? true: false}
+            disabled={role === 'basic' && new Date(reminderDate) > new Date() ? true: false}
               variant="contained"
               color="primary"
               onClick={handleSubmit(onSubmit)}
