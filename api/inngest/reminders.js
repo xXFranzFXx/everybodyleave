@@ -56,39 +56,36 @@ const sendBulkSms = inngest.createFunction(
       "get-users",
       async () => {
         const datetime = new Date();
-
         const agg = [
            {
-    '$match': {
-      'date': new Date(datetime)
-    }
-  }, {
-    '$lookup': {
-      'from': 'users', 
-      'localField': 'users', 
-      'foreignField': '_id', 
-      'as': 'userDetails'
-    }
-  }, {
-    '$project': {
-      'userDetails.phone': 1
-    }
-  }
+          '$match': {
+            'date': new Date(datetime)
+            }
+            },{
+              '$lookup': {
+                'from': 'users', 
+                'localField': 'users', 
+                'foreignField': '_id', 
+                'as': 'userDetails'
+              }
+              },{
+                '$project': {
+                  'userDetails.phone': 1
+                }
+            }
         ];
       const cursor = Event.aggregate(agg);
       const result = await cursor.toArray()[0].userDetails
-      const phoneList = result.map(user => user.phone)
-    
-     
+      const phoneList = await result.map(user => user.phone)
+   
       const smsStep = await step.invoke("send-list-to-textbee", {
-      function: sendTextBeeBulkReminder,
-      data: { 
-        message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't.",
-        phoneList: phoneList
-       }
+        function: sendTextBeeBulkReminder,
+        data: { 
+          message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't.",
+          phoneList: phoneList
+        }
     });
-
-    })
+  })
 
     // const phoneListEvents = userPhoneList.map((user) => {
     //   return {
@@ -109,7 +106,6 @@ export const sendTextBeeBulkReminder = inngest.createFunction(
     const { message, phoneList } = event.data;
 
     await textBeeBulkSms(message, phoneList);
-
   }
 );
 
@@ -118,4 +114,5 @@ const functions = [
   sendTextBeeBulkReminder,
   sendBulkSms
 ];
-module.exports = { inngest, functions}
+
+module.exports = { inngest, functions }
