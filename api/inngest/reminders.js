@@ -20,7 +20,7 @@ const prepareReminders = inngest.createFunction(
   { cron: "0 0 * * 6"},
   async ({ step }) => {
     // create event documents in mongo db
-    const weeklyReminders= await step.run(
+    const weeklyReminders = await step.run(
       "create-reminders",
       async () => {
         const mon5 = getFutureDate(2).firstGroup;
@@ -50,7 +50,7 @@ const prepareReminders = inngest.createFunction(
 
 const sendBulkSms = inngest.createFunction(
   { id: "textbee-bulk-sms" },
-  { cron: "45 16,18 * * 1,3,5"},
+  { cron: "TZ=PST/Los_Angeles 45 16,18 * * 1,3,5"},
   async ({ step }) => {
     const userPhoneList = await step.run(
       "get-users",
