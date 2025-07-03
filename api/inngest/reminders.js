@@ -56,6 +56,7 @@ const sendBulkSms = inngest.createFunction(
       "get-users",
       async () => {
         const datetime = new Date();
+        datetime.setMinutes(datetime.getMinutes() + 15);
         const agg = [
            {
           '$match': {
