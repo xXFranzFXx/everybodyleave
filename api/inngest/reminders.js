@@ -80,7 +80,7 @@ const sendBulkSms = inngest.createFunction(
       const phoneList = result.map(user => user.phone)
     
      
-      const square = await step.invoke("send-list-to-textbee", {
+      const smsStep = await step.invoke("send-list-to-textbee", {
       function: sendTextBeeBulkReminder,
       data: { 
         message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't.",
