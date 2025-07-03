@@ -2,7 +2,7 @@ const { Inngest } = require('inngest');
 const inngest = new Inngest({ id: "weekly_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
-const { textBeeSms } = require('../helpers/textBee')
+const { textBeeBulkSms } = require('../helpers/textBee')
 // This weekly digest function will run at 12:00pm on Friday in the Paris timezone
 /*
 Timezones: EST/New_York, CST/Chicago, MST/Denver, PST/Los_Angeles, AKST/Alaska, HST/Hawaii
@@ -48,8 +48,8 @@ const prepareReminders = inngest.createFunction(
       }
     );
 
-const gatherUserPhoneList = inngest.createFunction(
-  { id: "textbee-sms-phonelist" },
+const sendBulkSms = inngest.createFunction(
+  { id: "textbee-bulk-sms" },
   { cron: "45 16,18 * * 1,3,5"},
   async ({ step }) => {
     const userPhoneList = await step.run(
@@ -78,35 +78,44 @@ const gatherUserPhoneList = inngest.createFunction(
       const cursor = Event.aggregate(agg);
       const result = await cursor.toArray()[0].userDetails
       const phoneList = result.map(user => user.phone)
-      return phoneList
-      })
-
-    const phoneListEvents = userPhoneList.map((user) => {
-      return {
-        name: "app/send.textBee.sms",
-        data: {
-          phone: user,
-          message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't."
-        },
-      };
+    
+     
+      const square = await step.invoke("send-list-to-textbee", {
+      function: sendTextBeeReminder,
+      data: { 
+        message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't.",
+        phoneList: phoneList
+       }
     });
-    await step.sendEvent("send-textBee-sms-events", phoneListEvents);
+
     })
 
-export const sendTextBeeReminder = inngest.createFunction(
+    // const phoneListEvents = userPhoneList.map((user) => {
+    //   return {
+    //     name: "app/send.textBee.sms",
+    //     data: {
+    //       phone: user,
+    //       message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't."
+    //     },
+    //   };
+    // });
+    // await step.sendEvent("send-textBee-sms-events", phoneListEvents);
+    })
+
+export const sendTextBeeBulkReminder = inngest.createFunction(
   { id: "send-textBee-sms" },
   { event: "app/send.textBee.sms" },
   async ({ event }) => {
-    const { message, phone } = event.data;
+    const { message, phoneList } = event.data;
 
-    await textBeeSms(message, phone);
+    await textBeeBulkSms(message, phoneList);
 
   }
 );
 
 const functions = [
   prepareReminders,
-  gatherUserPhoneList,
-  sendTextBeeReminder
+  sendTextBeeBulkReminder,
+  sendBulkSms
 ];
 module.exports = { inngest, functions}

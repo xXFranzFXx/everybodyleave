@@ -15,6 +15,23 @@ async function textBeeSms(message, phone) {
     const result = await response.data;
     return result;
 }
+async function textBeeBulkSms(message, phoneList) {
+    const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-bulk-sms`, {
+        messageTemplate: "everybodyleave",
+        messages: [
+            {
+                recipients: phoneList,
+                message: message,
+            }
+        ]
+        }, {
+        headers: {
+            'x-api-key': API_KEY
+        }
+    });
+    const result = await response.data;
+    return result;
+}
 
 async function textBeeReceiveSms() {
     const response = await axios.get(`https://api.textbee.dev/api/v1/gateway/devices/${DEVICE_ID}/get-received-sms`, {
@@ -26,4 +43,4 @@ async function textBeeReceiveSms() {
       return messages;
 }
 
-module.exports = { textBeeSms, textBeeReceiveSms };
+module.exports = { textBeeSms, textBeeBulkSms, textBeeReceiveSms };
