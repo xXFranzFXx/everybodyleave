@@ -79,7 +79,7 @@ const sendBulkSms = inngest.createFunction(
       const result = await cursor.toArray()[0].userDetails
       const phoneList = await result.map(user => user.phone)
    
-      const smsStep = await step.invoke("send-list-to-textbee", {
+        await step.invoke("send-list-to-textbee", {
         function: sendTextBeeBulkReminder,
         data: { 
           message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't.",
@@ -105,7 +105,6 @@ export const sendTextBeeBulkReminder = inngest.createFunction(
   { event: "app/send.textBee.sms" },
   async ({ event }) => {
     const { message, phoneList } = event.data;
-
     await textBeeBulkSms(message, phoneList);
   }
 );
