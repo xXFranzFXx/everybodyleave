@@ -15,6 +15,9 @@ const getFutureDate = (daysAhead) => {
   const secondGroup = newDate.setHours(2,0,0.0);
   return { firstGroup, secondGroup }
 }
+const isEmpty = (arr) => {
+  return Array.isArray(arr) && arr.length === 0
+} 
 const prepareReminders = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
   { cron: "0 0 * * 6"},
@@ -84,11 +87,13 @@ const sendBulkSms = inngest.createFunction(
       return { phoneList, message };  
   });
 
+const { phoneList, message } = userDetails;
+if (!isEmpty(phoneList)) {
   await step.run("send-textbee-bulk-sms", 
     async () =>{
-      const { phoneList, message } =  userDetails;
-      await  await textBeeBulkSms(message, phoneList);
+      await textBeeBulkSms(message, phoneList);
       })
+    }
   })
 
 const functions = [
