@@ -17,11 +17,11 @@ exports.saveReminder = async (req, res) => {
             const eventId = new mongoose.Types.ObjectId(`${event._id}`)
             const usr = await User.updateOne({phone: phone}, 
                     {
-                        $set: { reminder: event._id}
+                        $set: { reminder: event.date}
                     },{new: true},  { session });
           
                 await session.commitTransaction();
-                req.io.emit("Success creating reminder", { reminder: event.date })
+                req.io.emit('created reminder', { reminder: event.date })
                 console.log("Transaction successful: ", event._id);
                 const { date } = event
                 return res.status(200).json({ date });
@@ -49,11 +49,11 @@ exports.saveReminder = async (req, res) => {
                 { new: true }, { session }); 
        
                 await User.updateOne({ phone: phone }, {
-                        $pull: { 'reminder': event._id } 
+                        $pull: { 'reminder': datetime } 
                     }, { session } );
 
                  await session.commitTransaction();
-             
+                req.io.emit('reminder cancelled', { date: event.date })
                 console.log("Transaction successful");
                 return res.status(200).json({ event });
 

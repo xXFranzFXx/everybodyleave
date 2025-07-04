@@ -72,21 +72,21 @@ const sendBulkSms = inngest.createFunction(
         const datetime = getFutureTime(15);
         const agg = [
            {
-          $match: {
-            'date': new Date(datetime)
-            }
-            },{
-              $lookup: {
-                'from': 'users', 
-                'localField': 'users', 
-                'foreignField': '_id', 
-                'as': 'userDetails'
+              $match: {
+                'date': new Date(datetime)
               }
               },{
-                $project: {
-                  'userDetails.phone': 1
+                $lookup: {
+                  'from': 'users', 
+                  'localField': 'users', 
+                  'foreignField': '_id', 
+                  'as': 'userDetails'
                 }
-            }
+                },{
+                  $project: {
+                    'userDetails.phone': 1
+                  }
+              }
         ];
       const cursor = await Event.aggregate(agg);
       // console.log("cursor: ", cursor);
@@ -98,24 +98,24 @@ const sendBulkSms = inngest.createFunction(
       return { phoneList, message, eventId }
   });
 
-const { phoneList, message, eventId } = userDetails;
-if (!isEmpty(phoneList)) {
-  await step.run("send-textbee-bulk-sms", 
-    async () =>{
-      await textBeeBulkSms(message, phoneList);
-      });
-    } else {
-      await step.run("delete-ebl-event", 
-        async () => {
-          await Event.deleteOne({ _id: eventId })
-            .then((result) => {
-                  console.log("result ", result);
-              })
-                .catch(err => {
-                  console.error("error ", err);
-             });
-        })
-    }
+  const { phoneList, message, eventId } = userDetails;
+  if (!isEmpty(phoneList)) {
+    await step.run("send-textbee-bulk-sms", 
+      async () =>{
+        await textBeeBulkSms(message, phoneList);
+        });
+      } else {
+        await step.run("delete-ebl-event", 
+          async () => {
+            await Event.deleteOne({ _id: eventId })
+              .then((result) => {
+                    console.log("result ", result);
+                })
+                  .catch(err => {
+                    console.error("error ", err);
+              });
+          })
+      }
   });
 
 const functions = [
