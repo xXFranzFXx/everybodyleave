@@ -56,6 +56,8 @@ const SimpleForm = () => {
                 console.log("Error saving reminder: ", err)
               }
           }
+
+  
     const onSubmit = (data) => {
         const {datetime, message, timezone} = data;
         const date = new Date(datetime);

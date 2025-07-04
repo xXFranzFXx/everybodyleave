@@ -16,8 +16,31 @@ export const Reminders = () => {
     const isBeforeNow = (date) =>  {
     return new Date(date) < new Date();
   }
-    const onDelete = () => {
-
+    const onDelete = async () => {
+     const token = await getAccessTokenSilently();
+     const { mongoId } = user;
+     console.log("mongoId: ", mongoId)
+     try {
+             const response = await   axios({
+                    method: 'POST',
+                    url: `http://localhost:4000/api/events/cancel`,
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                    data:{
+                      mongoId: mongoId,
+                      phone: phone,
+                      datetime: new Date(reminderDate), 
+                      timezone: timezone
+                    }
+                })
+                const res = await response.data;
+                
+                return res;
+              } catch (err) {
+                console.log("Error cancelling reminder: ", err)
+              }
+          }
     };
     const onEdit = () => {
 
