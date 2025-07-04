@@ -2,7 +2,7 @@ const { Inngest } = require('inngest');
 const inngest = new Inngest({ id: "weekly_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
-const { textBeeBulkSms } = require('../helpers/textBee')
+const { textBeeBulkSms } = require('../helpers/textBee');
 // This weekly digest function will run at 12:00pm on Friday in the Paris timezone
 /*
 Timezones: EST/New_York, CST/Chicago, MST/Denver, PST/Los_Angeles, AKST/Alaska, HST/Hawaii
@@ -15,9 +15,11 @@ const getFutureDate = (daysAhead) => {
   const secondGroup = newDate.setHours(2,0,0.0);
   return { firstGroup, secondGroup }
 }
+
 const isEmpty = (arr) => {
-  return Array.isArray(arr) && arr.length === 0
+  return Array.isArray(arr) && arr.length === 0;
 } 
+
 const prepareReminders = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
   { cron: "0 0 * * 6"},
@@ -47,7 +49,7 @@ const prepareReminders = inngest.createFunction(
           .catch(err => {
             console.error("error ", err);
         });
-      })
+      });
       }
     );
 
@@ -84,7 +86,7 @@ const sendBulkSms = inngest.createFunction(
       console.log("result: ", result);
       const phoneList = await result.map(user => user.phone);
       const message = "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't."
-      return { phoneList, message };  
+      return { phoneList, message }
   });
 
 const { phoneList, message } = userDetails;
@@ -92,9 +94,9 @@ if (!isEmpty(phoneList)) {
   await step.run("send-textbee-bulk-sms", 
     async () =>{
       await textBeeBulkSms(message, phoneList);
-      })
+      });
     }
-  })
+  });
 
 const functions = [
   prepareReminders,
