@@ -30,6 +30,7 @@ async function textBeeBulkSms(message, phoneList) {
         }
     });
     const result = await response.data;
+    console.log("textbee: ", result)
     return result;
 }
 

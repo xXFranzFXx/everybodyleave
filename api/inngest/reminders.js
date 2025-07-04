@@ -50,68 +50,49 @@ const prepareReminders = inngest.createFunction(
 
 const sendBulkSms = inngest.createFunction(
   { id: "textbee-bulk-sms" },
-  { cron: "TZ=PST/Los_Angeles 45 16,18 * * 1,3,5"},
+  { cron: "TZ=America/Los_Angeles 45 16,18 * * 1,3,5"},
   async ({ step }) => {
-    const userPhoneList = await step.run(
+    const userDetails = await step.run(
       "get-users",
       async () => {
         const datetime = new Date();
         datetime.setMinutes(datetime.getMinutes() + 15);
         const agg = [
            {
-          '$match': {
+          $match: {
             'date': new Date(datetime)
             }
             },{
-              '$lookup': {
+              $lookup: {
                 'from': 'users', 
                 'localField': 'users', 
                 'foreignField': '_id', 
                 'as': 'userDetails'
               }
               },{
-                '$project': {
+                $project: {
                   'userDetails.phone': 1
                 }
             }
         ];
-      const cursor = Event.aggregate(agg);
-      const result = await cursor.toArray()[0].userDetails
-      const phoneList = await result.map(user => user.phone)
-   
-        await step.invoke("send-list-to-textbee", {
-        function: sendTextBeeBulkReminder,
-        data: { 
-          message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't.",
-          phoneList: phoneList
-        }
-    });
+      const cursor = await Event.aggregate(agg);
+      console.log("cursor: ", cursor);
+      const result = await cursor[0].userDetails;
+      console.log("result: ", result);
+      const phoneList = await result.map(user => user.phone);
+      const message = "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't."
+      return { phoneList, message };  
+  });
+
+  await step.run("send-textbee-bulk-sms", 
+    async () =>{
+      const { phoneList, message } =  userDetails;
+      await  await textBeeBulkSms(message, phoneList);
+      })
   })
-
-    // const phoneListEvents = userPhoneList.map((user) => {
-    //   return {
-    //     name: "app/send.textBee.sms",
-    //     data: {
-    //       phone: user,
-    //       message: "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't."
-    //     },
-    //   };
-    // });
-    // await step.sendEvent("send-textBee-sms-events", phoneListEvents);
-    })
-
-export const sendTextBeeBulkReminder = inngest.createFunction(
-  { id: "send-textBee-sms" },
-  { event: "app/send.textBee.sms" },
-  async ({ event }) => {
-    const { message, phoneList } = event.data;
-    await textBeeBulkSms(message, phoneList);
-  }
-);
 
 const functions = [
   prepareReminders,
-  sendTextBeeBulkReminder,
   sendBulkSms
 ];
 
