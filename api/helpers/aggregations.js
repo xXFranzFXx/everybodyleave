@@ -1,18 +1,18 @@
 export const userPhonePerEventAgg = (datetime) => {
     return ([
   {
-    '$match': {
+    $match: {
       'date': new Date(datetime)
     }
   }, {
-    '$lookup': {
+    $lookup: {
       'from': 'users', 
       'localField': 'users', 
       'foreignField': '_id', 
       'as': 'userDetails'
     }
   }, {
-    '$project': {
+    $project: {
       'userDetails.phone': 1
     }
   }
@@ -22,16 +22,35 @@ export const userPhonePerEventAgg = (datetime) => {
 export const userPerEventAgg = (datetime) => {
     return ([
   {
-    '$match': {
+    $match: {
       'date': {
-        '$eq': new Date(datetime)
+        $eq: new Date(datetime)
       }
     }
   }, {
-    '$project': {
+    $project: {
       'users': 1, 
       '_id': 0
     }
   }
 ])
 };
+
+export const dateRange = () => {
+    return (
+     [
+            {
+                $group: {
+                '_id': null, 
+                'earliestDate': {
+                    $min: '$date'
+                }, 
+                'latestDate': {
+                    $max: '$date'
+                }
+                }
+            }
+        ]
+
+    )
+}

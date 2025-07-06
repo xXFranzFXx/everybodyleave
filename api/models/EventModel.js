@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 
 const EventSchema = mongoose.Schema({
     _id: String,
-    date: Date,
+    date: {
+        type: Date,
+        required: true
+    } ,
     timezones: {
        type: Map,
        of: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]

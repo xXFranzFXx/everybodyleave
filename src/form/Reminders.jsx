@@ -4,13 +4,14 @@ import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
+import axios from 'axios';
 
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 export const Reminders = () => {
     const { state } = useSocketContext();
-   
-    const { user } = useAuth0();
-    const { reminderDate } = user;
+    const { phone, timezone } = state;
+    const { user, getAccessTokenSilently } = useAuth0();
+    const { reminderDate, mongoId } = user;
     // const methods = useForm({ defaultValues: defaultValues || ""});
     // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const isBeforeNow = (date) =>  {
@@ -18,11 +19,11 @@ export const Reminders = () => {
   }
     const onDelete = async () => {
      const token = await getAccessTokenSilently();
-     const { mongoId } = user;
+     
      console.log("mongoId: ", mongoId)
      try {
              const response = await   axios({
-                    method: 'POST',
+                    method: 'PUT',
                     url: `http://localhost:4000/api/events/cancel`,
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -40,8 +41,9 @@ export const Reminders = () => {
               } catch (err) {
                 console.log("Error cancelling reminder: ", err)
               }
-          }
+          
     };
+  
     const onEdit = () => {
 
     };

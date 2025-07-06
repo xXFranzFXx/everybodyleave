@@ -1,6 +1,7 @@
 const Event = require('../models/EventModel');
 const User = require('../models/UserModel');
-const mongoose = require('mongoose')
+const SignedUpEvent = require('../models/SignedUpEventModel')
+const mongoose = require('mongoose');
 
 exports.saveReminder = async (req, res) => {
      const { mongoId, phone, datetime, timezone } = req.body;
@@ -8,22 +9,21 @@ exports.saveReminder = async (req, res) => {
 
        try {
             session.startTransaction();
-            const tz =  `timezones.` + timezone
-            const id = new mongoose.Types.ObjectId(`${mongoId}`)
-
+            const tz =  `timezones.` + timezone;
+            const id = new mongoose.Types.ObjectId(`${mongoId}`);
             const event = await Event.findOneAndUpdate({ date: datetime }, // Find the document and check if the value exists in the nested array
                     { $addToSet: { 'users':  id  } }, // If not found, add the value to the nested array
                     { new: true }, { session });
-            const eventId = new mongoose.Types.ObjectId(`${event._id}`)
+            const eventId = new mongoose.Types.ObjectId(`${event._id}`);
             const usr = await User.updateOne({phone: phone}, 
                     {
-                        $set: { reminder: event.date}
+                        $set: { reminder: eventId }
                     },{new: true},  { session });
           
                 await session.commitTransaction();
-                req.io.emit('created reminder', { reminder: event.date })
+                req.io.emit('created reminder', { reminder: event });
                 console.log("Transaction successful: ", event._id);
-                const { date } = event
+                const { date } = event;
                 return res.status(200).json({ date });
 
         } catch (error) {
@@ -36,10 +36,11 @@ exports.saveReminder = async (req, res) => {
 
 }
 
+exports.cancelReminder = async (req, res) => {
+    const { mongoId, phone, datetime, timezone } = req.body;
+    const tz =  `timezones.` + timezone;
+    const session = await mongoose.startSession();
 
- exports.cancelReminder = async (req, res) => {
-     const { mongoId, phone, datetime, timezone } = req.body;
-        const tz =  `timezones.` + timezone;
         try {
             session.startTransaction();
             const id = new mongoose.Types.ObjectId(`${mongoId}`)
@@ -49,7 +50,7 @@ exports.saveReminder = async (req, res) => {
                 { new: true }, { session }); 
        
                 await User.updateOne({ phone: phone }, {
-                        $pull: { 'reminder': datetime } 
+                        $pull: { 'reminder': event._id } 
                     }, { session } );
 
                  await session.commitTransaction();
@@ -65,5 +66,32 @@ exports.saveReminder = async (req, res) => {
 
     } finally {
         session.endSession();
+    }
+ }
+
+exports.getDateRange = async (req, res) => {
+    try {
+        const agg = [
+                {
+                    $group: {
+                        '_id': null, 
+                        'earliestDate': {
+                            $min: $date
+                        }, 
+                        'latestDate': {
+                            $max: $date
+                        }
+                    }
+                }
+            ];
+        
+        const cursor = await Event.aggregate(agg);
+        const result = await cursor.toArray()[0];
+        req.io.emit("dateRange", result);
+        return res.status(200).json({result});
+    } catch (error) {
+        console.log("Error getting date range: ", error);
+        res.status(401).json("Error: ", error.message);
+        throw error;
     }
 }

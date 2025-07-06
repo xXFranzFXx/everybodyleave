@@ -4,6 +4,7 @@ function connectDB() {
   const url = process.env.MONGO_CONNECTION;
   try {
     mongoose.connect(url);
+    mongoose.set('debug', true)
   } catch (err) {
     console.error(err.message);
     process.exit(1);

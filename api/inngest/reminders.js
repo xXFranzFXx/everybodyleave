@@ -3,7 +3,6 @@ const inngest = new Inngest({ id: "weekly_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const { textBeeBulkSms } = require('../helpers/textBee');
-
 /**
  * Timezones: EST/New_York, CST/Chicago, MST/Denver, PST/Los_Angeles, AKST/Alaska, HST/Hawaii
  */
@@ -34,12 +33,12 @@ const prepareReminders = inngest.createFunction(
     const weeklyReminders = await step.run(
       "create-reminders",
       async () => {
-        const mon5 = getFutureDate(2).firstGroup;
-        const mon7 = getFutureDate(2).secondGroup;
-        const wed5 = getFutureDate(4).firstGroup;
-        const wed7 = getFutureDate(4).secondGroup;
-        const fri5 = getFutureDate(6).firstGroup;
-        const fri7 = getFutureDate(6).secondGroup;
+        const mon5 = getFutureDate(3).firstGroup;
+        const mon7 = getFutureDate(3).secondGroup;
+        const wed5 = getFutureDate(5).firstGroup;
+        const wed7 = getFutureDate(5).secondGroup;
+        const fri5 = getFutureDate(7).firstGroup;
+        const fri7 = getFutureDate(7).secondGroup;
         const data = [
           {date: mon5, users: []},  
           {date: mon7, users: []},  
@@ -69,11 +68,14 @@ const sendBulkSms = inngest.createFunction(
     const userDetails = await step.run(
       "get-users",
       async () => {
-        const datetime = getFutureTime(15);
+        const datetime = new Date(datetime);
+        // datetime.setMinutes(datetime.getMinutes() + 15)
+        console.log("inngest datetime: ", datetime)
+        try {
         const agg = [
            {
               $match: {
-                'date': new Date(datetime)
+                'date': getFutureTime(15)
               }
               },{
                 $lookup: {
@@ -94,28 +96,34 @@ const sendBulkSms = inngest.createFunction(
       const eventId = await cursor[0]._id;
       console.log("result: ", result);
       const phoneList = await result.map(user => user.phone);
-      const message = "This is your scheduled reminder from EBL. Respond with 1 if you will be participating, or 2 if you aren't."
+      const message = "This is your scheduled reminder from Everybodyleave. Respond with 1 if you will be participating, or 2 if you aren't."
       return { phoneList, message, eventId }
+        } catch (err) {
+          console.log("Failed to find event, please make sure both date and time are correct: ", err);
+        }
   });
-
+  if ( userDetails ) {
   const { phoneList, message, eventId } = userDetails;
-  if (!isEmpty(phoneList)) {
-    await step.run("send-textbee-bulk-sms", 
-      async () =>{
-        await textBeeBulkSms(message, phoneList);
-        });
-      } else {
-        await step.run("delete-ebl-event", 
-          async () => {
-            await Event.deleteOne({ _id: eventId })
-              .then((result) => {
-                    console.log("result ", result);
-                })
-                  .catch(err => {
-                    console.error("error ", err);
-              });
-          })
-      }
+    if (!isEmpty(phoneList)) {
+      await step.run("send-textbee-bulk-sms", 
+        async () =>{
+          console.log("sending phonelist to textBee")
+          // await textBeeBulkSms(message, phoneList);
+          });
+        } else {
+          await step.run("delete-ebl-event", 
+            async () => {
+              console.log("no users here.")
+              await Event.deleteOne({ _id: eventId })
+                .then((result) => {
+                      console.log("Deleted empty event: ", result);
+                  })
+                    .catch(err => {
+                      console.error("Error deleting event:  ", err);
+                });
+            })
+        }
+    }
   });
 
 const functions = [

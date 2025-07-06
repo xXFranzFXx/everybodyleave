@@ -14,8 +14,9 @@ const UserSchema = mongoose.Schema({
     },
     phone: { 
         type: String,
+        unique: true,
         trim: true,
-        required: false,
+        required: true,
     },
     reminder: {
        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]

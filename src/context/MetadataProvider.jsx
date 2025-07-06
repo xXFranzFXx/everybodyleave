@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios'; 
 
@@ -67,4 +67,8 @@ import axios from 'axios';
       </MetadataContext.Provider>
     )
   }
+export function useMetadataContext() {
+  const { saveUserReminder, getUserMetadata, reminders } = useContext(MetadataContext)
+  return { saveUserReminder, getUserMetadata, reminders };
+}
 export default MetadataProvider;
