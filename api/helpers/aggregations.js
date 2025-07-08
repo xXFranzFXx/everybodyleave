@@ -54,3 +54,15 @@ export const dateRange = () => {
 
     )
 }
+
+
+
+const allDates = ()  => {
+    return ( [
+  {
+    $project: {
+      'date': 1
+    }
+  }
+]);
+}

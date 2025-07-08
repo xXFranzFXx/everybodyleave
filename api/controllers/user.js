@@ -37,24 +37,24 @@ exports.scheduledReminders = async (req, res) => {
     const { mongoId, phone, datetime, message, group } = req.body;
     const agg = [
   {
-    '$match': {
+    $match: {
       '_id': {
-        '$eq': new ObjectId(mongoId)
+        $eq: new ObjectId(mongoId)
       }
     }
   }, {
-    '$unwind': '$reminder'
+    $unwind: '$reminder'
   }, {
-    '$lookup': {
+    $lookup: {
       'from': 'events', 
       'localField': 'reminder', 
       'foreignField': '_id', 
       'as': 'eventDetails'
     }
   }, {
-    '$unwind': '$eventDetails'
+    $unwind: '$eventDetails'
   }, {
-    '$project': {
+    $project: {
       'eventDate': '$eventDetails.date'
     }
   }
@@ -63,4 +63,4 @@ exports.scheduledReminders = async (req, res) => {
 
 const cursor = await User.aggregate(agg);
 const result = await cursor.toArray();
-    }
+}

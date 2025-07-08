@@ -22,7 +22,7 @@ export const Reminders = () => {
      
      console.log("mongoId: ", mongoId)
      try {
-             const response = await   axios({
+             const response = await axios({
                     method: 'PUT',
                     url: `http://localhost:4000/api/events/cancel`,
                     headers: {
