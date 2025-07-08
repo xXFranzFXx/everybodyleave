@@ -15,7 +15,7 @@ import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, 
 import { Reminders } from './Reminders';
 import axios from 'axios';
 const SimpleForm = () => {
-   const { state } = useSocketContext();
+    const { state } = useSocketContext();
     const { type, phone, acceptTerms, default_timezone, otp, reminder } = state;
     const defaultValues = {
         datetime:"",
@@ -30,7 +30,7 @@ const SimpleForm = () => {
     const { saveUserReminder } = useContext(MetadataContext);
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-    
+    const [error, setError] = useState(false);
     const saveReminder = async (datetime, phone, timezone) => {
      const token = await getAccessTokenSilently();
      const { mongoId } = user;
@@ -39,9 +39,9 @@ const SimpleForm = () => {
              const response = await   axios({
                     method: 'POST',
                     url: `http://localhost:4000/api/events/save`,
-                    // headers: {
-                    //     Authorization: `Bearer ${token}`
-                    // },
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
                     data:{
                       mongoId: mongoId,
                       phone: phone,
@@ -50,7 +50,7 @@ const SimpleForm = () => {
                     }
                 })
                 const res = await response.data;
-                
+                saveUserReminder(res.date)
                 return res;
               } catch (err) {
                 console.log("Error saving reminder: ", err)
@@ -94,7 +94,8 @@ const SimpleForm = () => {
                 width: "auto",
                 maxWidth: "620px",
                 minWidth: "250px",
-                marginTop: "30px"
+                marginTop: "30px",
+            
             }} 
         >
            <Typography variant="h6" align="center" margin="dense">

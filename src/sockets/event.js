@@ -1,5 +1,5 @@
 import { socket } from './index';
-import { useMetadataContext } from '../context/MetadataProvider';
+// import { useMetadataContext } from '../context/MetadataProvider';
 export const socketEvents = ({ state }) => {
  
     socket.on('notifications', ({ notifications }) => {
@@ -18,13 +18,12 @@ export const socketEvents = ({ state }) => {
       return { ...state, otp_sms };
     })
     socket.on('created reminder', ({ reminder }) => {
-      const { saveUserReminder } = useMetadataContext();
-      saveUserReminder(reminder);
+      // const { saveUserReminder } = useMetadataContext();
+      // saveUserReminder(reminder);
       return { ...state, reminder }
     })
-    socket.on('cancelled reminder', ({ date }) => {
-      const currentState = { ...state };
-      currentState.reminder.filter(event => event != date);
-      return { state: currentState };
+    socket.on('reminder cancelled', ({ date }) => {
+      state.reminder.filter(event => event != date);
+      return { ...state };
     })
 }

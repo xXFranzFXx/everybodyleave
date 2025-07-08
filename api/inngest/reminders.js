@@ -2,6 +2,7 @@ const { Inngest } = require('inngest');
 const inngest = new Inngest({ id: "weekly_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
+const SignedUpEvent = require('../models/SignedUpEventModel');
 const { textBeeBulkSms } = require('../helpers/textBee');
 /**
  * Timezones: EST/New_York, CST/Chicago, MST/Denver, PST/Los_Angeles, AKST/Alaska, HST/Hawaii
@@ -68,7 +69,7 @@ const sendBulkSms = inngest.createFunction(
     const userDetails = await step.run(
       "get-users",
       async () => {
-        const datetime = new Date(datetime);
+        const datetime = new Date();
         // datetime.setMinutes(datetime.getMinutes() + 15)
         console.log("inngest datetime: ", datetime)
         try {

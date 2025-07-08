@@ -1,11 +1,14 @@
 import React, { useState, useMemo, useCallback }from "react";
 import dayjs from 'dayjs';
+import axios from 'axios';
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import MenuItem from "@mui/material/node/MenuItem";
 import { LocalizationProvider }  from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { Controller } from "react-hook-form";
 import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
+import useGetDates from "../hooks/useGetDates";
+import { format } from "date-fns";
 const DATE_FORMAT = "MM-DD-YYYY";
 const isInCurrentWeek = (date) => date.get('week') === dayjs().get('week');
 
@@ -17,6 +20,7 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 export const FormInputDateTime = ({ name, control, label  }) => {
     const [val, setVal] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
+    const { events, latestTime } = useGetDates();
     const now = new Date()
     const currentHour = now.getHours()
     const errorMessage = useMemo(() => {
@@ -29,7 +33,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
           }
         }
       }, [errorMsg]);
-
+   
     const shouldDisableTime =(time, view) => {
         const selectedDay = dayjs(time).date();
         const today = dayjs(now).date();
@@ -44,11 +48,20 @@ export const FormInputDateTime = ({ name, control, label  }) => {
 
     const shouldDisableDay = (date) => {
          //disable every other day.  
-          const today = dayjs(now).date();
-          const selectedDay = dayjs(date).date();
-            for (let i = 0; i <= 6; i++) {
-                return dayjs(date).day() %2 === 0 || (selectedDay === today && currentHour >= 19)
-              }
+          // const today = dayjs(now).date();
+          // const selectedDay = dayjs(date).date();
+          //   for (let i = 0; i <= 6; i++) {
+          //       return dayjs(date).day() %2 === 0 || (selectedDay === today && currentHour >= 19)
+          //     }
+      const dates = events.map(event => format(event.date, 'yyyy-MM-dd'))
+      
+      // console.log("dates: ", dates)
+      const localDate = new Date(latestTime).toLocaleString()
+      console.log(new Date(localDate).getHours())
+      const pickerDate = format(date, 'yyyy-MM-dd')
+      return  !dates.some((eventDate) => eventDate === pickerDate )  ; 
+    
+         
       };
 
     const addOneWeek = () => {

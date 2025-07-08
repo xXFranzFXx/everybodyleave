@@ -5,8 +5,9 @@ const EventSchema = mongoose.Schema({
     _id: String,
     date: {
         type: Date,
-        required: true
-    } ,
+        required: true,
+        unique: true
+    },
     timezones: {
        type: Map,
        of: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
@@ -17,4 +18,4 @@ const EventSchema = mongoose.Schema({
 
 });
 
-module.exports = mongoose.model('Event',EventSchema);
+module.exports = mongoose.model('Event', EventSchema);

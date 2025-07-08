@@ -11,11 +11,17 @@ exports.saveReminder = async (req, res) => {
             session.startTransaction();
             const tz =  `timezones.` + timezone;
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
+           
             const event = await Event.findOneAndUpdate({ date: datetime }, // Find the document and check if the value exists in the nested array
                     { $addToSet: { 'users':  id  } }, // If not found, add the value to the nested array
-                    { new: true }, { session });
+                    { new: true, upsert: true }, { session }, (err, doc) => {
+                        if (err) {
+                            console.log("could not find event with matching criteria: ", datetime);
+                            return res.status(401).json({ err })
+                        }
+                    });
             const eventId = new mongoose.Types.ObjectId(`${event._id}`);
-            const usr = await User.updateOne({phone: phone}, 
+             await User.updateOne({phone: phone}, 
                     {
                         $set: { reminder: eventId }
                     },{new: true},  { session });
@@ -94,4 +100,55 @@ exports.getDateRange = async (req, res) => {
         res.status(401).json("Error: ", error.message);
         throw error;
     }
+}
+
+exports.getAllDates = async (req, res) => {
+    try {
+        const agg =  [
+                {
+                    $project: {
+                    'date': 1
+                    }
+                }
+                ]
+        
+        const cursor = await Event.aggregate(agg);
+        // const result = await cursor.toArray();
+        console.log("cursor: ", cursor)
+        req.io.emit("all dates", cursor);
+        return res.status(200).json({cursor});
+    } catch (error) {
+        console.log("Error getting dates: ", error);
+        res.status(401).json({error: error.message});
+        throw error;
+    }
+}
+
+exports.getLatestTime = async (req, res) => {
+  try {  
+    const agg = [
+        {
+            $sort: {
+            'date': -1
+            }
+        }, {
+            $limit: 1
+        }, {
+            $project: {
+            'latest_date': '$date', 
+            '_id': 0
+            }
+        }
+    ];
+     const cursor = await Event.aggregate(agg);
+        // const result = await cursor.toArray();
+        console.log("cursor: ", cursor)
+        req.io.emit("latest time", cursor);
+        return res.status(200).json({cursor});
+    } catch (error) {
+        console.log("Error getting dates: ", error);
+        res.status(401).json({error: error.message});
+        throw error;
+    }
+
 }
