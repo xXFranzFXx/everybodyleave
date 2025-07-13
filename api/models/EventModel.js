@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
-
+const baseOptions = {
+	discriminatorKey: "type",
+  	collection: "events",
+};
 
 const EventSchema = mongoose.Schema({
     _id: String,
@@ -7,15 +10,8 @@ const EventSchema = mongoose.Schema({
         type: Date,
         required: true,
         unique: true
-    },
-    timezones: {
-       type: Map,
-       of: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
-    },
-    users: [{
-        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
-}]
+    }
 
-});
+}, baseOptions);
 
 module.exports = mongoose.model('Event', EventSchema);

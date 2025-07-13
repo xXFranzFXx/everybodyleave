@@ -12,24 +12,25 @@ exports.saveReminder = async (req, res) => {
             const tz =  `timezones.` + timezone;
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
            
-            const event = await Event.findOneAndUpdate({ date: datetime }, // Find the document and check if the value exists in the nested array
-                    { $addToSet: { 'users':  id  } }, // If not found, add the value to the nested array
+            const event = await SignedUpEvent.findOneAndUpdate({ date: datetime },
+                    // Find the document and check if the value exists in the nested array
+                    { $addToSet: { 'users':  id  }, $push: { 'timezone': timezone} }, // If not found, add the value to the nested array
                     { new: true, upsert: true }, { session }, (err, doc) => {
                         if (err) {
                             console.log("could not find event with matching criteria: ", datetime);
                             return res.status(401).json({ err })
                         }
                     });
-            const eventId = new mongoose.Types.ObjectId(`${event._id}`);
+            // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
              await User.updateOne({phone: phone}, 
                     {
-                        $set: { reminder: eventId }
+                        $set: { reminder: event }
                     },{new: true},  { session });
           
                 await session.commitTransaction();
-                req.io.emit('created reminder', { reminder: event });
-                console.log("Transaction successful: ", event._id);
                 const { date } = event;
+                req.io.emit('created reminder', { reminder: date });
+                // console.log("Transaction successful: ", event._id);
                 return res.status(200).json({ date });
 
         } catch (error) {

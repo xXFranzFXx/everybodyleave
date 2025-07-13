@@ -5,20 +5,31 @@ const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const { textBeeBulkSms } = require('../helpers/textBee');
 /**
- * Timezones: EST/New_York, CST/Chicago, MST/Denver, PST/Los_Angeles, AKST/Alaska, HST/Hawaii
+ * Timezones: 
+ * EST/New_York, 17:00/21:00UTC same day 19:00/23:00UTC same day
+ * CST/Chicago,  17:00/22:00UTC same day 19:00/00:00UTC next day
+ * MST/Denver, 17:00/23:00UTC same day 19:00/01:00UTC next day
+ * PST/Los_Angeles/17:00/00:00UTC next day 19:00/02:00UTC next day, 
+ * AKST/Anchorage, 17:00/01:00UTC next day 19:00/03:00UTC next day
+ * HST/Honolulu 17:00/03:00UTC next day 19:00/05:00UTC next day
  */
 
 const getFutureDate = (daysAhead) => {
   const today = new Date();
   const newDate = new Date(today.setDate(today.getDate() + daysAhead));
-  const firstGroup = newDate.setHours(0,0,0,0);
-  const secondGroup = newDate.setHours(2,0,0.0);
+  console.log("newDate: ", newDate)
+  const firstGroup = newDate.setHours(17,0,0,0);
+  console.log("firstGroup: ", firstGroup)
+  const secondGroup = newDate.setHours(19,0,0.0);
   return { firstGroup, secondGroup }
 }
 
 const getFutureTime =  (minutesAhead) => {
   const now = new Date()
-  return now.setMinutes(now.getMinutes() + minutesAhead);
+  now.setHours(now.getHours() + 1, 0, 0, 0)
+  // now.setMinutes(now.getMinutes() + minutesAhead);
+  console.log("future time is: ", now)
+  return now;
 }
 
 const isEmpty = (arr) => {
@@ -28,9 +39,22 @@ const isEmpty = (arr) => {
 
 const prepareReminders = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
-  { cron: "0 0 * * 6"},
-  async ({ step }) => {
+  [
+    { cron: "TZ=America/Los_Angeles 0 0 * * 6"},
+    { cron: "TZ=America/New_York 0 0 * * 6"},
+    { cron: "TZ=America/Chicago 0 0 * * 6"},
+    { cron: "TZ=America/Denver 0 0 * * 6"},
+    { cron: "TZ=America/Anchorage 0 0 * * 6"},
+    { cron: "TZ=Pacific/Honolulu 0 0 * * 6"},
+  ],
+  async ({ step, event }) => {
     // create event documents in mongo db
+    console.log("event: ", event)
+    const regex = /(?<=TZ=)([^\s]+)/gm;
+    const str = event.data.cron;
+    console.log("cron: ", str)
+    let tz = regex.exec(str)
+    console.log("tz", tz[0])
     const weeklyReminders = await step.run(
       "create-reminders",
       async () => {
@@ -64,8 +88,15 @@ const prepareReminders = inngest.createFunction(
  */
 const sendBulkSms = inngest.createFunction(
   { id: "textbee-bulk-sms" },
-  { cron: "TZ=America/Los_Angeles 45 16,18 * * 1,3,5"},
-  async ({ step }) => {
+  [
+    { cron: "TZ=America/Los_Angeles 45 16,18 * * 1,3,5"},
+    { cron: "TZ=America/New_York 45 16,18 * * 1,3,5"},
+    { cron: "TZ=America/Chicago 45 16,18 * * 1,3,5"},
+    { cron: "TZ=America/Denver 45 16,18 * * 1,3,5"},
+    { cron: "TZ=America/Anchorage 45 16,18 * * 1,3,5"},
+    { cron: "TZ=Pacific/Honolulu 45 16,18 * * 1,3,5"},
+  ],
+  async ({ step, event }) => {
     const userDetails = await step.run(
       "get-users",
       async () => {
@@ -99,8 +130,9 @@ const sendBulkSms = inngest.createFunction(
       const phoneList = await result.map(user => user.phone);
       const message = "This is your scheduled reminder from Everybodyleave. Respond with 1 if you will be participating, or 2 if you aren't."
       return { phoneList, message, eventId }
-        } catch (err) {
-          console.log("Failed to find event, please make sure both date and time are correct: ", err);
+        } catch (error) {
+          console.log("Failed to find event, please make sure both date and time are correct: ", error);
+          throw error
         }
   });
   if ( userDetails ) {
@@ -109,7 +141,7 @@ const sendBulkSms = inngest.createFunction(
       await step.run("send-textbee-bulk-sms", 
         async () =>{
           console.log("sending phonelist to textBee")
-          // await textBeeBulkSms(message, phoneList);
+          await textBeeBulkSms(message, phoneList);
           });
         } else {
           await step.run("delete-ebl-event", 

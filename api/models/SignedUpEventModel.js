@@ -1,14 +1,11 @@
-const Event = require('./EventModel');
+const eventModel = require('./EventModel');
 const mongoose =  require('mongoose');
 
 const SignedUpEventSchema = mongoose.Schema({
-    _id: String,
-    date: {
-        type: Date,
-        required: true
-    },
+    timezone: String,
     users:[{
          type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
     }]
 })
-module.exports = Event.discriminator('SignedUpEvent', SignedUpEventSchema);
+eventModel.discriminator('SignedUpEvent', SignedUpEventSchema);
+module.exports = mongoose.model('SignedUpEvent');
