@@ -6,7 +6,8 @@ export const SocketContext = createContext()
 const SocketProvider = ({ children }) => {
   const state = useRef(proxy({
             phone: "",
-            default_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4),
+            short_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             reminder:[],
             acceptTerms: false,
 })).current

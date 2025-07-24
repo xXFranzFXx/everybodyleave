@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios'; 
 
@@ -34,7 +34,7 @@ import axios from 'axios';
     const accessToken = await getAccessTokenSilently();
     const config = {
       method: 'patch',
-      url: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/users/${auth0Id}`,
+      url: `${process.env.REACT_APP_AUTH0_DOMAIN}/api/v2/users/${user.sub}`,
       headers: {
       "Authorization": `Bearer ${accessToken}`,
       "Content-Type": "application/json"
