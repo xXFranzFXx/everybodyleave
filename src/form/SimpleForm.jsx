@@ -16,24 +16,23 @@ import { Reminders } from './Reminders';
 import axios from 'axios';
 const SimpleForm = () => {
     const { state } = useSocketContext();
-    const { type, phone, acceptTerms, default_timezone, otp, reminder } = state;
+    const { type, phone, acceptTerms, default_timezone, otp, timezone, reminder } = state;
     const defaultValues = {
         datetime:"",
         phone: phone || "",
         acceptTerms:"",
         utcdate: "",
-        timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4), 
+        timezone:"",
         message:"",
     }
     const { user, logout, getAccessTokenSilently } = useAuth0();
-    const { role, reminderDate } = user;
+    const { role, reminderDate, mongoId } = user;
     const { saveUserReminder } = useContext(MetadataContext);
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const [error, setError] = useState(false);
     const saveReminder = async (datetime, phone, timezone) => {
      const token = await getAccessTokenSilently();
-     const { mongoId } = user;
      console.log("mongoId: ", mongoId)
      try {
              const response = await   axios({
@@ -59,7 +58,8 @@ const SimpleForm = () => {
 
   
     const onSubmit = (data) => {
-        const {datetime, message, timezone} = data;
+        const {datetime, message} = data;
+        const zeroSeconds = new Date(datetime).setMilliseconds(0);
         const date = new Date(datetime);
         console.log(date.getTime())
         console.log(date.toISOString())
@@ -69,8 +69,8 @@ const SimpleForm = () => {
         //   event: datetime,
         //   message: message
         // }
-        data.timezone = default_timezone
-        saveReminder(datetime, phone, timezone)
+        data.timezone = timezone
+        saveReminder(zeroSeconds, phone, timezone)
         // textBeeSms(data)
         // logout();
         // cronTextBeeSms(data)

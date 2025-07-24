@@ -12,6 +12,7 @@ export const Reminders = () => {
     const { phone, timezone } = state;
     const { user, getAccessTokenSilently } = useAuth0();
     const { reminderDate, mongoId } = user;
+    const [ displayedDate, setDisplayedDate] = useState(null);
     // const methods = useForm({ defaultValues: defaultValues || ""});
     // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const isBeforeNow = (date) =>  {
@@ -47,8 +48,12 @@ export const Reminders = () => {
     const onEdit = () => {
 
     };
+    useEffect (() => {
+      setDisplayedDate(reminderDate);
+    },[reminderDate])
     return (
         <>
+        { displayedDate != null && 
                 <Paper
                     elevation={24}
                     style={{
@@ -64,20 +69,20 @@ export const Reminders = () => {
                     }} 
                 >
                    <Typography variant="h6" align="center" margin="dense">
-                   { isBeforeNow(reminderDate) ? 'Past Reminders' : 'Upcoming Reminders' }
+                   { isBeforeNow(displayedDate) ? 'Past Reminders' : 'Upcoming Reminders' }
                   </Typography>
                 <Box px={3} py={2}>        
                   <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
               
                   <Typography variant="h6" align="center" margin="dense">
-                  { reminderDate ? 
-                   (new Date(reminderDate).toLocaleDateString('en-EN', { weekday: 'long' })+' '+new Date(reminderDate).toLocaleDateString() +' ' +'@' + new Date(reminderDate).toLocaleTimeString())
+                  { displayedDate ? 
+                   (new Date(displayedDate).toLocaleDateString('en-EN', { weekday: 'long' })+' '+new Date(displayedDate).toLocaleDateString() +' ' +'@' + new Date(reminderDate).toLocaleTimeString())
                    :
                    `There are no reminders.`
                   }
                   </Typography>
                   </Grid2>    
-                  { user.reminderDate && !isBeforeNow(user.reminderDate) &&
+                  { displayedDate && !isBeforeNow(displayedDate) &&
                   <Box mt={3}>
                     <Button
                       variant="contained"
@@ -86,18 +91,19 @@ export const Reminders = () => {
                     >
                       Delete
                     </Button>        
-                     <Button
+                     {/* <Button
                       variant="contained"
                       color="primary"
                       onClick={onEdit}
                     >
                       Edit
-                    </Button>    
-                 
+                    </Button>     */}
+                   
                   </Box>     
 }
                 </Box>     
               </Paper>   
+}
               </>  
        
     )

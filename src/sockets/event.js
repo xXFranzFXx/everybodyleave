@@ -20,10 +20,17 @@ export const socketEvents = ({ state }) => {
     socket.on('created reminder', ({ reminder }) => {
       // const { saveUserReminder } = useMetadataContext();
       // saveUserReminder(reminder);
-      return { ...state, reminder }
+      
+      console.log("socket reminder: ", reminder)
+      let currentState = {...state};
+      currentState.reminder = reminder;
+      
+      return { state: currentState }
     })
     socket.on('reminder cancelled', ({ date }) => {
-      state.reminder.filter(event => event != date);
-      return { ...state };
+      console.log("state: ", state)
+      const  reminder  = state.reminder;
+      reminder.filter(event => event != date);
+      return { ...state, reminder };
     })
 }

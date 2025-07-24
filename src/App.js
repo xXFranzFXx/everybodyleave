@@ -16,14 +16,18 @@ function App() {
 
   useEffect(() => {
     const name = user?.name;
-    const reminder = user?.reminder
-    if(Array.isArray(reminder)) {
-      state.reminder = reminder.map(day => new Date(day))
+    const reminderDate = user?.reminderDate
+    if(Array.isArray(reminderDate)) {
+      state.reminder = reminderDate.map(day => new Date(day))
+     } else {
+       let newArr = []
+       newArr = [...newArr, new Date(reminderDate)]
+       state.reminder = newArr;
      }
   
     setUserInfo(name)
     state.phone = name;
-    state.reminder = new Date(reminder)
+   
   },[user] );
 
   const theme = createTheme({

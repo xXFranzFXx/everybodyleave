@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useCallback }from "react";
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone'
 import axios from 'axios';
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import MenuItem from "@mui/material/node/MenuItem";
@@ -39,7 +41,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
         const today = dayjs(now).date();
         const selectedTime = dayjs(time).hour();
           if ( view === "hours") {
-              return selectedTime % 2 === 0 || (selectedDay === today && currentHour >= selectedTime)         
+              return selectedTime % 2 != 0 || (selectedDay === today && currentHour >= selectedTime)         
           } else if (view === "minutes"){ 
               return dayjs(time).minute() <= 0
           }
@@ -47,19 +49,19 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     }
 
     const shouldDisableDay = (date) => {
-         //disable every other day.  
-          // const today = dayjs(now).date();
-          // const selectedDay = dayjs(date).date();
-          //   for (let i = 0; i <= 6; i++) {
-          //       return dayjs(date).day() %2 === 0 || (selectedDay === today && currentHour >= 19)
-          //     }
-      const dates = events.map(event => format(event.date, 'yyyy-MM-dd'))
+        //  disable every other day.  
+          const today = dayjs(now).date();
+          const selectedDay = dayjs(date).date();
+            for (let i = 0; i <= 6; i++) {
+                return dayjs(date).day() %2 === 0 || (selectedDay === today && currentHour >= 19)
+              }
+      // const dates = events.map(event => format(event.date, 'yyyy-MM-dd'))
       
-      // console.log("dates: ", dates)
-      const localDate = new Date(latestTime).toLocaleString()
-      console.log(new Date(localDate).getHours())
-      const pickerDate = format(date, 'yyyy-MM-dd')
-      return  !dates.some((eventDate) => eventDate === pickerDate )  ; 
+      // // console.log("dates: ", dates)
+      // const localDate = new Date(latestTime).toLocaleString()
+      // console.log(new Date(localDate).getHours())
+      // const pickerDate = format(date, 'yyyy-MM-dd')
+      // return  !dates.some((eventDate) => eventDate === pickerDate )  ; 
     
          
       };
@@ -85,8 +87,8 @@ export const FormInputDateTime = ({ name, control, label  }) => {
               <DateTimePicker
                   // timezone="system"
                   // disablePast={true}
-                  minTime={new Date(0,0,0,16)}
-                  maxTime={new Date(0,0,0,20)}
+                  minTime={new Date(0,0,0,17)}
+                  maxTime={new Date(0,0,0,21)}
                   minDate={new Date()}
                   maxDate={addOneWeek()}
                   label="Date/Time*"
@@ -121,7 +123,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   }}                    
                   shouldDisableDate={(date) => shouldDisableDay(date)}
                   shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
-                  referenceDate={currentHour < 16 ? dayjs().set("hours", 17).set("minutes", 0).set("seconds", 0) : dayjs().set("hours", 19).set("minutes", 0).set("seconds", 0)}
+                  referenceDate={currentHour < 16 ? dayjs().set("hours", 18).set("minutes", 0).set("seconds", 0) : dayjs().set("hours", 20).set("minutes", 0).set("seconds", 0)}
                   {...field}     
                 />
               );
