@@ -5,13 +5,6 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    email: { 
-        type: String,
-        trim: true,
-        required: false,
-        unique: true,
-        lowercase: true
-    },
     phone: { 
         type: String,
         unique: true,
@@ -20,6 +13,9 @@ const UserSchema = mongoose.Schema({
     },
     reminder: {
        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
+    },
+    optOut: {
+        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
     },
     role: {
         type: String,

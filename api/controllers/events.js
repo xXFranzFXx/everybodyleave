@@ -14,7 +14,7 @@ exports.saveReminder = async (req, res) => {
            
             const event = await SignedUpEvent.findOneAndUpdate({ date: datetime },
                     // Find the document and check if the value exists in the nested array
-                    { $addToSet: { 'users':  id  }, $push: { 'timezone': timezone} }, // If not found, add the value to the nested array
+                    { $addToSet: { 'users':  id  } }, // If not found, add the value to the nested array
                     { new: true, upsert: true }, { session }, (err, doc) => {
                         if (err) {
                             console.log("could not find event with matching criteria: ", datetime);
@@ -24,13 +24,13 @@ exports.saveReminder = async (req, res) => {
             // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
              await User.updateOne({phone: phone}, 
                     {
-                        $set: { reminder: event }
+                        $addToSet: { 'reminder': event }
                     },{new: true},  { session });
           
                 await session.commitTransaction();
                 const { date } = event;
                 req.io.emit('created reminder', { reminder: date });
-                // console.log("Transaction successful: ", event._id);
+                console.log("Transaction successful: ", event);
                 return res.status(200).json({ date });
 
         } catch (error) {

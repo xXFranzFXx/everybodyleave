@@ -3,7 +3,7 @@ const mongoose =  require('mongoose');
 
 const SignedUpEventSchema = mongoose.Schema({
     timezone: String,
-    users:[{
+    usersAttending:[{
          type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
     }]
 })

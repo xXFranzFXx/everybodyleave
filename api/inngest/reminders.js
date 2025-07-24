@@ -1,4 +1,4 @@
-const { Inngest } = require('inngest');
+const { Inngest, NonRetriableError } = require('inngest');
 const inngest = new Inngest({ id: "weekly_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
@@ -21,6 +21,7 @@ const getFutureDate = (daysAhead) => {
   const firstGroup = newDate.setHours(17,0,0,0);
   console.log("firstGroup: ", firstGroup)
   const secondGroup = newDate.setHours(19,0,0.0);
+  
   return { firstGroup, secondGroup }
 }
 
@@ -89,15 +90,11 @@ const prepareReminders = inngest.createFunction(
 const sendBulkSms = inngest.createFunction(
   { id: "textbee-bulk-sms" },
   [
-    { cron: "TZ=America/Los_Angeles 45 16,18 * * 1,3,5"},
-    { cron: "TZ=America/New_York 45 16,18 * * 1,3,5"},
-    { cron: "TZ=America/Chicago 45 16,18 * * 1,3,5"},
-    { cron: "TZ=America/Denver 45 16,18 * * 1,3,5"},
-    { cron: "TZ=America/Anchorage 45 16,18 * * 1,3,5"},
-    { cron: "TZ=Pacific/Honolulu 45 16,18 * * 1,3,5"},
+    { cron: "TZ=America/Los_Angeles 45 13,14,15,16,17,19,21 * * 1,3,5"},
   ],
   async ({ step, event }) => {
-    const userDetails = await step.run(
+    const newTime = getFutureTime(15)
+    const userList = await step.run(
       "get-users",
       async () => {
         const datetime = new Date();
@@ -107,7 +104,7 @@ const sendBulkSms = inngest.createFunction(
         const agg = [
            {
               $match: {
-                'date': getFutureTime(15)
+                'date': newTime
               }
               },{
                 $lookup: {
@@ -122,45 +119,35 @@ const sendBulkSms = inngest.createFunction(
                   }
               }
         ];
-      const cursor = await Event.aggregate(agg);
+      const cursor = await SignedUpEvent.aggregate(agg);
       // console.log("cursor: ", cursor);
-      const result = await cursor[0].userDetails;
       const eventId = await cursor[0]._id;
-      console.log("result: ", result);
+
+      const result = await cursor[0].userDetails;
       const phoneList = await result.map(user => user.phone);
       const message = "This is your scheduled reminder from Everybodyleave. Respond with 1 if you will be participating, or 2 if you aren't."
       return { phoneList, message, eventId }
-        } catch (error) {
-          console.log("Failed to find event, please make sure both date and time are correct: ", error);
-          throw error
+        } catch (err) {
+           if (err.name === "TypeError") {
+          throw new NonRetriableError("No users signed up for this event");
         }
+        throw err;
+        } 
   });
-  if ( userDetails ) {
-  const { phoneList, message, eventId } = userDetails;
-    if (!isEmpty(phoneList)) {
+  
+
+  if(userList){
+    const { phoneList, message, eventId } = userList;
       await step.run("send-textbee-bulk-sms", 
         async () =>{
           console.log("sending phonelist to textBee")
           await textBeeBulkSms(message, phoneList);
-          });
-        } else {
-          await step.run("delete-ebl-event", 
-            async () => {
-              console.log("no users here.")
-              await Event.deleteOne({ _id: eventId })
-                .then((result) => {
-                      console.log("Deleted empty event: ", result);
-                  })
-                    .catch(err => {
-                      console.error("Error deleting event:  ", err);
-                });
-            })
-        }
+          })
     }
-  });
+  })
 
 const functions = [
-  prepareReminders,
+  // prepareReminders,
   sendBulkSms
 ];
 
