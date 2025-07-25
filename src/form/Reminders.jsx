@@ -5,14 +5,17 @@ import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
 import axios from 'axios';
+import { subscribe, useSnapshot } from 'valtio'
+
 
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 export const Reminders = () => {
     const { state } = useSocketContext();
+    const { snap } = useSnapshot(state);
     const { phone, timezone } = state;
     const { user, getAccessTokenSilently } = useAuth0();
     const { reminderDate, mongoId } = user;
-    const [ displayedDate, setDisplayedDate] = useState(null);
+    const [ displayedDate, setDisplayedDate] = useState([]);
     // const methods = useForm({ defaultValues: defaultValues || ""});
     // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const isBeforeNow = (date) =>  {
@@ -37,7 +40,7 @@ export const Reminders = () => {
                     }
                 })
                 const res = await response.data;
-                
+                setDisplayedDate([])
                 return res;
               } catch (err) {
                 console.log("Error cancelling reminder: ", err)
@@ -48,12 +51,28 @@ export const Reminders = () => {
     const onEdit = () => {
 
     };
+      useEffect(
+    () =>
+      subscribe(state, () => {
+        const callback = () =>{
+        if (state.reminder) {
+          // conditionally update local state
+          let newDate = [...displayedDate, state.reminder]
+          setDisplayedDate(newDate)
+        }
+      }
+      const unsubscribe = subscribe(state, callback)
+      callback()
+      return unsubscribe
+      }),
+    [],
+  )
     useEffect (() => {
       setDisplayedDate(reminderDate);
     },[reminderDate])
     return (
         <>
-        { displayedDate != null && 
+        { displayedDate.length  && 
                 <Paper
                     elevation={24}
                     style={{

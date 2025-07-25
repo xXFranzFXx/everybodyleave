@@ -24,6 +24,7 @@ export const socketEvents = ({ state }) => {
       console.log("socket reminder: ", reminder)
       let currentState = {...state};
       currentState.reminder = reminder;
+      console.log("currentState.reminder: ", currentState.reminder)
       
       return { state: currentState }
     })
