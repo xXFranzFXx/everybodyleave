@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useCallback, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ import { Reminders } from './Reminders';
 import axios from 'axios';
 const SimpleForm = () => {
     const { state } = useSocketContext();
-    const { type, phone, acceptTerms, default_timezone, otp, timezone, reminder } = state;
+    const { type, phone, acceptTerms, default_timezone, otp, timezone, reminder, scheduledReminder } = state;
     const defaultValues = {
         datetime:"",
         phone: phone || "",
@@ -31,6 +31,10 @@ const SimpleForm = () => {
     const methods = useForm({ defaultValues: defaultValues || ""});
     const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const [error, setError] = useState(false);
+     const setReminder = useCallback(() => {
+      state.scheduledReminder = true;
+    },[])
+    
     const saveReminder = async (datetime, phone, timezone) => {
      const token = await getAccessTokenSilently();
      console.log("mongoId: ", mongoId)
@@ -50,13 +54,15 @@ const SimpleForm = () => {
                 })
                 const res = await response.data;
                 saveUserReminder(res.date)
+                state.reminder = res.date
+                setReminder();
                 return res;
               } catch (err) {
                 console.log("Error saving reminder: ", err)
               }
           }
 
-  
+   
     const onSubmit = (data) => {
         const {datetime, message} = data;
         const zeroSeconds = new Date(datetime).setMilliseconds(0);
@@ -113,27 +119,31 @@ const SimpleForm = () => {
           </Grid2>
           </Grid2>
           {
-            role === 'basic' && new Date(reminderDate) > new Date() &&
-          <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
+            role === 'basic' && (new Date(reminderDate) > new Date() && scheduledReminder) ? 
+         ( <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
             <Typography variant="h6" align="center" margin="dense">
                 Upgrade now to schedule multiple reminders
-          </Typography>          </Grid2>  
-} 
-          <Box mt={3}>
+          </Typography>          </Grid2>  )
+          :
+
+          (<Box mt={3}>
             <Button
-            disabled={role === 'basic' && new Date(reminderDate) > new Date() ? true: false}
+            disabled={(role === 'basic' && (new Date(reminderDate) > new Date()) && scheduledReminder)? true: false}
               variant="contained"
               color="primary"
               onClick={handleSubmit(onSubmit)}
             >
               Save
             </Button>        
-          </Box>     
+          </Box>  )   
+}
         </Box>     
       </Paper>   
         
         </FormProvider>
+        {state.scheduledReminder &&
         <Reminders/>
+}
         </>
 
     )

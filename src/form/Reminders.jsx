@@ -15,7 +15,7 @@ export const Reminders = () => {
     const { phone, timezone } = state;
     const { user, getAccessTokenSilently } = useAuth0();
     const { reminderDate, mongoId } = user;
-    const [ displayedDate, setDisplayedDate] = useState([]);
+    const [ displayedDate, setDisplayedDate] = useState();
     // const methods = useForm({ defaultValues: defaultValues || ""});
     // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
     const isBeforeNow = (date) =>  {
@@ -40,7 +40,7 @@ export const Reminders = () => {
                     }
                 })
                 const res = await response.data;
-                setDisplayedDate([])
+                setDisplayedDate("")
                 return res;
               } catch (err) {
                 console.log("Error cancelling reminder: ", err)
@@ -55,10 +55,10 @@ export const Reminders = () => {
     () =>
       subscribe(state, () => {
         const callback = () =>{
-        if (state.reminder) {
+        if (state.scheduledReminder) {
           // conditionally update local state
-          let newDate = [...displayedDate, state.reminder]
-          setDisplayedDate(newDate)
+          // let newDate = [...displayedDate, state.reminder]
+          setDisplayedDate(state.reminder)
         }
       }
       const unsubscribe = subscribe(state, callback)
@@ -68,11 +68,12 @@ export const Reminders = () => {
     [],
   )
     useEffect (() => {
+      if(reminderDate)
       setDisplayedDate(reminderDate);
     },[reminderDate])
     return (
         <>
-        { displayedDate.length  && 
+        {  displayedDate  && 
                 <Paper
                     elevation={24}
                     style={{
@@ -96,6 +97,9 @@ export const Reminders = () => {
                   <Typography variant="h6" align="center" margin="dense">
                   { displayedDate ? 
                    (new Date(displayedDate).toLocaleDateString('en-EN', { weekday: 'long' })+' '+new Date(displayedDate).toLocaleDateString() +' ' +'@' + new Date(reminderDate).toLocaleTimeString())
+                   :
+                   typeof state.reminder != ''  ?  state.reminder
+                  //  (new Date(state.reminder[0]).toLocaleDateString('en-EN', { weekday: 'long' })+' '+new Date(state.reminder[0]).toLocaleDateString() +' ' +'@' + new Date(state.reminder[0]).toLocaleTimeString())
                    :
                    `There are no reminders.`
                   }
