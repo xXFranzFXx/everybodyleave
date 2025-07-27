@@ -72,7 +72,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-          { isAuthenticated  ? <><Calendar/><SimpleForm userInfo={userInfo}/></>
+          { isAuthenticated  ? <SimpleForm userInfo={userInfo}/>
               : <LoginButton/>
             }
     </ThemeProvider>
