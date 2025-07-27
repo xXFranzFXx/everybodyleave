@@ -8,7 +8,7 @@ import SimpleForm from './form/SimpleForm';
 import LoginButton from './components/LoginButton';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from './context/SocketProvider';
-
+import Calendar from './components/calendar/Calendar';
 function App() {
   const { isAuthenticated, user } = useAuth0();
   const [userInfo, setUserInfo] = useState('')
@@ -72,7 +72,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-          { isAuthenticated  ? <SimpleForm userInfo={userInfo}/>
+          { isAuthenticated  ? <><Calendar/><SimpleForm userInfo={userInfo}/></>
               : <LoginButton/>
             }
     </ThemeProvider>

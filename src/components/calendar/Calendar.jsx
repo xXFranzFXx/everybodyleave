@@ -4,6 +4,7 @@ import locale from "dayjs/locale/en";
 import weekdayPlugin from "dayjs/plugin/weekday";
 import objectPlugin from "dayjs/plugin/toObject";
 import isTodayPlugin from "dayjs/plugin/isToday";
+import { Box, Button } from "@mui/material";
 import './calendar.css';
 
 
@@ -69,7 +70,10 @@ const Calendar = () => {
 		}
 		return <div className="days row">{days}</div>;
 	};
-
+	const handleClick = (e) => {
+		e.preventDefault();
+		alert("clicked")
+	}
 	const getAllDays = () => {
 		let currentDate = currentMonth.startOf("month").weekday(0);
 		const nextMonth = currentMonth.add(1, "month").month();
@@ -108,15 +112,17 @@ const Calendar = () => {
 		arrayOfDays.forEach((week, index) => {
 			week.dates.forEach((d, i) => {
 				days.push(
-					<div
+					<Box
 						className={`col cell ${
 							!d.isCurrentMonth ? "disabled" : d.isCurrentDay ? "selected" : ""
 						}`}
 						key={i}
-					>
-						<span className="number">{d.day}</span>
-						<span className="bg">{d.day}</span>
-					</div>
+					>   
+					    <Button  sx={{width: '100%', height: '100%'}} onClick={(e) => handleClick(e)}>
+							<span className="number">{d.day}</span> 
+							<span className="bg">{d.day}</span> 
+						</Button>
+					</Box>
 				);
 			});
 			rows.push(
