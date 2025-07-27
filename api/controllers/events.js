@@ -12,10 +12,11 @@ exports.saveReminder = async (req, res) => {
             session.startTransaction();
             const tz =  `timezones.` + timezone;
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
-           
             const event = await SignedUpEvent.findOneAndUpdate(
                     { 
                         date: datetime,
+                        'count': { $lte: 50 },
+                        'usersAttending': { $ne: id }
                     },
                     {   
                         $set: { 'endsAt': endTime } ,
@@ -33,16 +34,25 @@ exports.saveReminder = async (req, res) => {
                             return res.status(401).json({ err })
                         }
                     });
+             if (event.count === 50) {
+                const eventId = new mongoose.Types.ObjectId(`${event._id}`);
+                await SignedUpEvent.updateOne({id: eventId}, 
+                    { $set: { 'status': 'closed'} }, 
+                    { new: true },
+                    { session }
+                )
+                console.log("Group is now closed")
+             }
             // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
              await User.updateOne({ phone: phone }, 
                     { $addToSet: { 'reminder': event } },
                     { new: true },  { session });
           
-                await session.commitTransaction();
-                const { date } = event;
-                req.io.emit('created reminder', { reminder: date });
-                console.log("Transaction successful: ", event);
-                return res.status(200).json({ date });
+            await session.commitTransaction();
+            const { date } = event;
+            req.io.emit('created reminder', { reminder: date });
+            console.log("Transaction successful: ", event);
+            return res.status(200).json({ date });
 
         } catch (error) {
             await session.abortTransaction();
@@ -63,10 +73,11 @@ exports.cancelReminder = async (req, res) => {
             session.startTransaction();
             const id = new mongoose.Types.ObjectId(`${mongoId}`)
 
-            const event = await Event.findOneAndUpdate({ date: datetime }, 
+            const event = await SignedUpEvent.findOneAndUpdate({ date: datetime }, 
                 { 
                     $pull: { 'usersAttending': { mongoId } },
-                    $inc: { 'count': -1 }
+                    $inc: { 'count': -1 },
+                    $set: { 'status': 'open' }
                 }, 
                 { new: true }, { session }); 
        

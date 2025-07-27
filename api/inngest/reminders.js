@@ -66,12 +66,12 @@ const prepareReminders = inngest.createFunction(
         const fri5 = getFutureDate(7).firstGroup;
         const fri7 = getFutureDate(7).secondGroup;
         const data = [
-          {date: mon5, users: []},  
-          {date: mon7, users: []},  
-          {date: wed5, users: []},  
-          {date: wed7, users: []},  
-          {date: fri5, users: []},
-          {date: fri7, users: []}  
+          {date: mon5, usersAttending: []},  
+          {date: mon7, usersAttending: []},  
+          {date: wed5, usersAttending: []},  
+          {date: wed7, usersAttending: []},  
+          {date: fri5, usersAttending: []},
+          {date: fri7, usersAttending: []}  
         ]
         await Event.insertMany(data)  
             .then((result) => {
@@ -109,7 +109,7 @@ const sendBulkSms = inngest.createFunction(
               },{
                 $lookup: {
                   'from': 'users', 
-                  'localField': 'users', 
+                  'localField': 'usersAttending', 
                   'foreignField': '_id', 
                   'as': 'userDetails'
                 }

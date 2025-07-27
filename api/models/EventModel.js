@@ -10,6 +10,10 @@ const EventSchema = mongoose.Schema({
         type: Date,
         required: true,
         unique: true
+    }, 
+    status: {
+        type: String,
+        default: 'open'
     }
 
 }, baseOptions);
