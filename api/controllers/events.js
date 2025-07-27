@@ -13,21 +13,30 @@ exports.saveReminder = async (req, res) => {
             const tz =  `timezones.` + timezone;
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
            
-            const event = await SignedUpEvent.findOneAndUpdate({ date: datetime },
-                    // Find the document and check if the value exists in the nested array
-                    { $set: { 'endsAt': endTime } ,
-                     $addToSet: { 'usersAttending':  id  } }, // If not found, add the value to the nested array
-                    { new: true, upsert: true }, { session }, (err, doc) => {
+            const event = await SignedUpEvent.findOneAndUpdate(
+                    { 
+                        date: datetime,
+                    },
+                    {   
+                        $set: { 'endsAt': endTime } ,
+                        $addToSet: { 'usersAttending':  id  },
+                        $inc:  { 'count': 1 } 
+                    },
+                    { 
+                        new: true, upsert: true 
+                    }, 
+                    { 
+                        session 
+                    }, (err, doc) => {
                         if (err) {
                             console.log("could not find event with matching criteria: ", datetime);
                             return res.status(401).json({ err })
                         }
                     });
             // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
-             await User.updateOne({phone: phone}, 
-                    {
-                        $addToSet: { 'reminder': event }
-                    },{new: true},  { session });
+             await User.updateOne({ phone: phone }, 
+                    { $addToSet: { 'reminder': event } },
+                    { new: true },  { session });
           
                 await session.commitTransaction();
                 const { date } = event;
@@ -55,14 +64,17 @@ exports.cancelReminder = async (req, res) => {
             const id = new mongoose.Types.ObjectId(`${mongoId}`)
 
             const event = await Event.findOneAndUpdate({ date: datetime }, 
-                { $pull: { 'usersAttending': { mongoId } } }, 
+                { 
+                    $pull: { 'usersAttending': { mongoId } },
+                    $inc: { 'count': -1 }
+                }, 
                 { new: true }, { session }); 
        
                 await User.updateOne({ phone: phone }, {
                         $pull: { 'reminder': event._id } 
                     }, { session } );
 
-                 await session.commitTransaction();
+                await session.commitTransaction();
                 req.io.emit('reminder cancelled', { date: event.date })
                 console.log("Transaction successful");
                 return res.status(200).json({ event });
