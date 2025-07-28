@@ -75,9 +75,10 @@ exports.cancelReminder = async (req, res) => {
 
             const event = await SignedUpEvent.findOneAndUpdate({ date: datetime }, 
                 { 
-                    $pull: { 'usersAttending': { mongoId } },
-                    $inc: { 'count': -1 },
-                    $set: { 'status': 'open' }
+                    $pull: { 'usersAttending': id },
+                   
+                    $set: { 'status': 'open' },
+                    $inc: { 'count': -1 }
                 }, 
                 { new: true }, { session }); 
        
