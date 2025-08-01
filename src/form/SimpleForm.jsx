@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
-import { FormProvider, Controller } from 'react-hook-form';
-import { useForm } from "react-hook-form";
+import { FormProvider,  useForm } from 'react-hook-form';
 import { useAuth0 } from '@auth0/auth0-react';
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputText } from '../form-components/FormInputText';
@@ -41,7 +40,7 @@ const SimpleForm = () => {
      try {
              const response = await   axios({
                     method: 'POST',
-                    url: `http://localhost:4000/api/events/save`,
+                    url: `http://localhost:4000/api/events/saveBucket`,
                     headers: {
                         Authorization: `Bearer ${token}`
                     },

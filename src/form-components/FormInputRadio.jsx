@@ -3,12 +3,12 @@ import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, } from "@m
 import { Controller } from "react-hook-form";
 const options = [
     {
-        label: "Radio Option 1",
-        value: "1",
+        label: "6:00pm",
+        value: 18,
     },
     {
-        label: "Radio Option 2",
-        value: "2",
+        label: "8:00pm",
+        value: 20,
     },
 ];
 export const FormInputRadio = ({ name, control, label }) => {

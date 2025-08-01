@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import dayjs from "dayjs";
 import locale from "dayjs/locale/en";
 import weekdayPlugin from "dayjs/plugin/weekday";
 import objectPlugin from "dayjs/plugin/toObject";
 import isTodayPlugin from "dayjs/plugin/isToday";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
+import FormDialog from "../../form-components/FormDialogue";
 import './calendar.css';
 
 
@@ -21,7 +22,7 @@ const Calendar = () => {
 	dayjs.extend(weekdayPlugin);
 	dayjs.extend(objectPlugin);
 	dayjs.extend(isTodayPlugin);
-
+	
 	const [currentMonth, setCurrentMonth] = useState(now);
 	const [arrayOfDays, setArrayOfDays] = useState([]);
 
@@ -30,13 +31,18 @@ const Calendar = () => {
 
 		setCurrentMonth(plus);
 	};
+	const dialogRef = useRef();
 
 	const prevMonth = () => {
 		const minus = currentMonth.subtract(1, "month");
 
 		setCurrentMonth(minus);
 	};
-
+    const isBeforeNow = (date) =>  {
+		console.log("d:", date)
+		console.log("dayjs.date: ", dayjs().date())
+    return date.day < dayjs().date();
+  }
 	const renderHeader = () => {
 		const dateFormat = "MMMM YYYY";
 
@@ -71,8 +77,8 @@ const Calendar = () => {
 		return <div className="days row">{days}</div>;
 	};
 	const handleClick = (e) => {
-		e.preventDefault();
-		alert("clicked")
+		// e.preventDefault();
+		dialogRef.current.handleClickOpen();
 	}
 	const getAllDays = () => {
 		let currentDate = currentMonth.startOf("month").weekday(0);
@@ -112,16 +118,15 @@ const Calendar = () => {
 		arrayOfDays.forEach((week, index) => {
 			week.dates.forEach((d, i) => {
 				days.push(
-					<Box
+					<Box onClick={(e) => handleClick(e)}
 						className={`col cell ${
-							!d.isCurrentMonth ? "disabled" : d.isCurrentDay ? "selected" : ""
+							isBeforeNow(d) ? "disabled" : !d.isCurrentMonth  ? "disabled" : d.isCurrentDay ? "selected" : ""
 						}`}
 						key={i}
 					>   
-					    <Button  sx={{width: '100%', height: '100%'}} onClick={(e) => handleClick(e)}>
-							<span className="number">{d.day}</span> 
-							<span className="bg">{d.day}</span> 
-						</Button>
+					<FormDialog ref={dialogRef} date={d} />
+							<Typography component="span" className="number">{d.day}</Typography> 
+							<Typography component="span" className="bg">{d.day}</Typography> 
 					</Box>
 				);
 			});

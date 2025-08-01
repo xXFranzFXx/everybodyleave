@@ -28,7 +28,7 @@ export const Reminders = () => {
      try {
              const response = await axios({
                     method: 'PUT',
-                    url: `http://localhost:4000/api/events/cancel`,
+                    url: `http://localhost:4000/api/events/remove`,
                     headers: {
                         Authorization: `Bearer ${token}`
                     },
