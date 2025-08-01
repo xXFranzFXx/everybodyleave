@@ -3,6 +3,7 @@ const inngest = new Inngest({ id: "weekly_reminders" });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
+const EventBucket = require('../models/EventBucketModel');
 const { textBeeBulkSms } = require('../helpers/textBee');
 /**
  * Timezones: 
@@ -18,9 +19,9 @@ const getFutureDate = (daysAhead) => {
   const today = new Date();
   const newDate = new Date(today.setDate(today.getDate() + daysAhead));
   console.log("newDate: ", newDate)
-  const firstGroup = newDate.setHours(17,0,0,0);
+  const firstGroup = newDate.setHours(18,0,0,0);
   console.log("firstGroup: ", firstGroup)
-  const secondGroup = newDate.setHours(19,0,0.0);
+  const secondGroup = newDate.setHours(20,0,0.0);
   
   return { firstGroup, secondGroup }
 }
@@ -50,12 +51,12 @@ const prepareReminders = inngest.createFunction(
   ],
   async ({ step, event }) => {
     // create event documents in mongo db
-    console.log("event: ", event)
-    const regex = /(?<=TZ=)([^\s]+)/gm;
-    const str = event.data.cron;
-    console.log("cron: ", str)
-    let tz = regex.exec(str)
-    console.log("tz", tz[0])
+    // console.log("event: ", event)
+    // const regex = /(?<=TZ=)([^\s]+)/gm;
+    // const str = event.data.cron;
+    // console.log("cron: ", str)
+    // let tz = regex.exec(str)
+    // console.log("tz", tz[0])
     const weeklyReminders = await step.run(
       "create-reminders",
       async () => {
@@ -119,7 +120,7 @@ const sendBulkSms = inngest.createFunction(
                   }
               }
         ];
-      const cursor = await SignedUpEvent.aggregate(agg);
+      const cursor = await EventBucket.aggregate(agg);
       // console.log("cursor: ", cursor);
       const eventId = await cursor[0]._id;
 
@@ -147,7 +148,7 @@ const sendBulkSms = inngest.createFunction(
   })
 
 const functions = [
-  // prepareReminders,
+  prepareReminders,
   sendBulkSms
 ];
 

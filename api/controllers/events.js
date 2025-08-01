@@ -1,8 +1,99 @@
 const Event = require('../models/EventModel');
 const User = require('../models/UserModel');
-const SignedUpEvent = require('../models/SignedUpEventModel')
+const SignedUpEvent = require('../models/SignedUpEventModel');
+const EventBucket = require('../models/EventBucketModel');
 const mongoose = require('mongoose');
 
+//This method puts a limit of 50 users per bucket. Use this if using free tier for textBee
+exports.saveToBucket = async (req, res) => {
+    const MAX_USERS_PER_BUCKET = process.env.MAX_USERS_PER_BUCKET; // Or whatever limit you choose
+    const { mongoId, phone, datetime, timezone } = req.body;
+    try {
+    // let newEvent;
+    // const event = await EventBucket.findOne({ date: datetime });
+  
+    // const eventID = new mongoose.Types.ObjectId(`${event?._id}`);
+    const userId =  new mongoose.Types.ObjectId(`${mongoId}`);
+    const start = new Date(datetime);
+    const endTime = start.setHours(start.getHours() + 1, 0, 0, 0)
+    
+        let latestBucket = await EventBucket.findOne({  date: datetime })
+            .sort({ bucketNumber: -1 })
+            .lean(); // Use lean() for performance if you're not modifying
+        console.log("latestBucket: ", latestBucket)
+        if (!latestBucket || latestBucket.usersAttending.length >= MAX_USERS_PER_BUCKET) {
+            // Create a new bucket
+            const newBucketNumber = latestBucket ? latestBucket.bucketNumber + 1 : 1;
+            let newEvent = await Event.create(
+                {   
+                    date: datetime,
+                    endsAt: endTime, 
+                    type: "EventBucket",
+                    usersAttending: [userId]
+                }          
+            );
+
+            await User.updateOne(
+                { phone: phone },
+                { $addToSet: { 'reminder': newEvent } },
+                { new: true, upsert: true },
+            )
+        await req.io.emit('created reminder', { reminder: datetime });
+        return res.status(200).json({ newEvent });
+
+        } else {
+            // Add to existing bucket
+            try {
+            const eventBucket = await EventBucket.updateOne(
+                { _id: latestBucket._id,
+                //   'usersAttending': { $ne: userId }
+                 },
+                { $addToSet: { 'usersAttending': userId } }
+            );
+            await User.updateOne(
+                { phone: phone },
+                { $addToSet: { 'reminder': eventBucket } },
+                { new: true, upsert: true },
+            )
+            await req.io.emit('created reminder', { reminder: datetime });
+            return res.status(200).json({ eventBucket });
+            } catch (error) {
+                req.io.emit('reminder failed', { message: "User is already registered"})
+                return res.status(401).json({ 'Error joining event for reminder': error })
+            }
+        }
+    } catch (error) {
+        req.io.emit('reminder failed', { message: "Failed to schedule reminder" })
+        res.status(401).json({'Error creating reminder': error });
+        throw error;
+    }
+}
+//for use with free tier of textbee
+exports.removeReminder = async (req, res) => {
+    const { mongoId, phone, datetime, timezone } = req.body;
+     try {
+            const id = new mongoose.Types.ObjectId(`${mongoId}`)
+            const event = await EventBucket.findOneAndUpdate({ date: datetime }, 
+                { $pull: { 'usersAttending': id } }, 
+                { new: true }); 
+       
+                await User.updateOne({ phone: phone }, {
+                        $pull: { 'reminder': event._id } 
+                    });
+
+                await req.io.emit('reminder cancelled', { date: event.date })
+                console.log("Transaction successful");
+                return res.status(200).json({ event });
+
+        } catch (error) {
+            await session.abortTransaction();
+            console.log("Transaction failed: ", error);
+            res.status(401).json({ error: 'Error cancelling reminder' });
+            throw error;
+    }
+
+}
+//old method
 exports.saveReminder = async (req, res) => {
      const { mongoId, phone, datetime, timezone } = req.body;
      const session = await mongoose.startSession();
@@ -12,39 +103,24 @@ exports.saveReminder = async (req, res) => {
             session.startTransaction();
             const tz =  `timezones.` + timezone;
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
+         
             const event = await SignedUpEvent.findOneAndUpdate(
                     { 
                         date: datetime,
-                        'count': { $lte: 50 },
+                        'count': { $lt: 50 },
                         'usersAttending': { $ne: id }
                     },
                     {   
-                        $set: { 'endsAt': endTime } ,
+                        $inc:  { 'count': 1 }, 
+                        $set: { 
+                            'endsAt': endTime, 
+                        },
                         $addToSet: { 'usersAttending':  id  },
-                        $inc:  { 'count': 1 } 
                     },
-                    { 
-                        new: true, upsert: true 
-                    }, 
-                    { 
-                        session 
-                    }, (err, doc) => {
-                        if (err) {
-                            console.log("could not find event with matching criteria: ", datetime);
-                            return res.status(401).json({ err })
-                        }
-                    });
-             if (event.count === 50) {
-                const eventId = new mongoose.Types.ObjectId(`${event._id}`);
-                await SignedUpEvent.updateOne({id: eventId}, 
-                    { $set: { 'status': 'closed'} }, 
-                    { new: true },
-                    { session }
-                )
-                console.log("Group is now closed")
-             }
+                    { new: true, upsert: true }, 
+                    { session })
             // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
-             await User.updateOne({ phone: phone }, 
+            await User.updateOne({ phone: phone }, 
                     { $addToSet: { 'reminder': event } },
                     { new: true },  { session });
           
@@ -64,6 +140,8 @@ exports.saveReminder = async (req, res) => {
 
 }
 
+
+//for use with pro version of textbee
 exports.cancelReminder = async (req, res) => {
     const { mongoId, phone, datetime, timezone } = req.body;
     const tz =  `timezones.` + timezone;
@@ -178,4 +256,43 @@ exports.getLatestTime = async (req, res) => {
         throw error;
     }
 
+}
+
+exports.getReminders = async (req, res) => {
+  const { mongoId, phone, datetime, timezone } = req.body;
+  const id = mongoose.Types.ObjectId(`${mongoId}`);
+  try {
+  const agg = 
+    [
+        {
+            $match: {
+                _id: id
+            }
+        },
+        {
+        $lookup: {
+            from: 'events',
+            localField: 'reminder',
+            foreignField: '_id',
+            as: 'eventDetails'
+        }
+        },
+        {
+        $project: {
+            _id: 0,
+            eventDates: '$eventDetails.date'
+        }
+        }
+    ]
+    
+    const cursor = await User.aggregate(agg);
+    console.log("cursor: ", cursor)
+    // const result = await cursor.toArray()[0].eventDates
+    req.io.emit("scheduled reminders", cursor);
+    return res.status(200).json({ cursor });
+    } catch (error) {
+        console.log("Error getting scheduled reminders: ", error);
+        res.status(401).json({ error: error.message });
+        throw error;
+  }
 }

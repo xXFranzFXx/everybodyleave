@@ -1,12 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const { checkJwt } = require('../jwt/checkJwt')
-const { saveReminder, cancelReminder, getAllDates, getDateRange, getLatestTime } = require('../controllers/events')
+const { 
+    saveReminder, 
+    cancelReminder, 
+    getAllDates, 
+    getDateRange, 
+    getLatestTime, 
+    saveToBucket, 
+    removeReminder, 
+    getReminders 
+} = require('../controllers/events')
 
-router.post('/events/save', checkJwt, saveReminder);
-router.put('/events/cancel', checkJwt, cancelReminder);
+router.post('/events/save', checkJwt, saveReminder);//old
+router.post('/events/saveBucket', checkJwt, saveToBucket);
+router.put('/events/cancel', checkJwt, cancelReminder); //old
+router.put('/events/remove', checkJwt, removeReminder);
 router.get('/events/allDates', getAllDates);
 router.get('/events/dateRange', getDateRange);
 router.get('/events/latestTime', getLatestTime);
+router.get('/events/getReminders', checkJwt, getReminders);
 
 module.exports = router ;
