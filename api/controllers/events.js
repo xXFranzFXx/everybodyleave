@@ -29,6 +29,7 @@ exports.saveToBucket = async (req, res) => {
                     date: datetime,
                     endsAt: endTime, 
                     type: "EventBucket",
+                    status: 'open',
                     usersAttending: [userId]
                 }          
             );
@@ -103,11 +104,33 @@ exports.saveReminder = async (req, res) => {
             session.startTransaction();
             const tz =  `timezones.` + timezone;
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
-         
-            const event = await SignedUpEvent.findOneAndUpdate(
+            let totalUsers = await SignedUpEvent.findOne({  date: datetime })
+                .sort({ usersAttending: -1 }, { session });
+            if(totalUsers.length === MAX_USERS_PER_BUCKET -1 && !totalUsers.includes(id)) {
+                const event = await SignedUpEvent.updateOne(
+                    { datetime },
+                    {
+                        $inc: { 'count': 1 },
+                        $addToSet: { 'usersAttending':  id },
+                        $set: { status: 'closed' } 
+                    },
+                    { new: true, upsert: true },  
+                    { session }
+                )
+                await User.updateOne({ phone: phone }, 
+                    { $addToSet: { 'reminder': event } },
+                    { new: true },  { session });   
+
+                 await session.commitTransaction();
+                 const { date } = event;
+                 req.io.emit('created reminder', { reminder: date });
+                 console.log("Transaction successful: ", event);
+                 return res.status(200).json({ date });
+            } else {
+                 const event = await SignedUpEvent.findOneAndUpdate(
                     { 
                         date: datetime,
-                        'count': { $lt: 50 },
+                        'count': { $lte: MAX_USERS_PER_BUCKET - 1 },
                         'usersAttending': { $ne: id }
                     },
                     {   
@@ -123,13 +146,13 @@ exports.saveReminder = async (req, res) => {
             await User.updateOne({ phone: phone }, 
                     { $addToSet: { 'reminder': event } },
                     { new: true },  { session });
-          
+
             await session.commitTransaction();
             const { date } = event;
             req.io.emit('created reminder', { reminder: date });
             console.log("Transaction successful: ", event);
             return res.status(200).json({ date });
-
+            }          
         } catch (error) {
             await session.abortTransaction();
             res.status(401).json({error: 'Error saving reminder'});
@@ -150,7 +173,6 @@ exports.cancelReminder = async (req, res) => {
         try {
             session.startTransaction();
             const id = new mongoose.Types.ObjectId(`${mongoId}`)
-
             const event = await SignedUpEvent.findOneAndUpdate({ date: datetime }, 
                 { 
                     $pull: { 'usersAttending': id },
@@ -259,7 +281,7 @@ exports.getLatestTime = async (req, res) => {
 }
 
 exports.getReminders = async (req, res) => {
-  const { mongoId, phone, datetime, timezone } = req.body;
+  const { mongoId } = req.body;
   const id = mongoose.Types.ObjectId(`${mongoId}`);
   try {
   const agg = 
