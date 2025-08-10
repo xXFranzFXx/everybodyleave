@@ -7,6 +7,10 @@ const CalendarReminderSchema = new mongoose.Schema({
    },
    user: {
       type: mongoose.Schema.Types.ObjectId, ref: 'User'
+   },
+   type: {
+      type: String,
+      enum: ['past', 'upcoming']
    }
    
 });
