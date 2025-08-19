@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback }from "react";
+import React, { useState, useMemo, useEffect, useCallback }from "react";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone'
@@ -28,7 +28,8 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     const [val, setVal] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
     const [currentTimezone, setCurrentTimezone] = React.useState('system');
-    const { events, latestTime } = useGetDates();
+    // const [times, setTimes] = useState([]);
+    const { events, latestTime, times } = useGetDates();
     const now = new Date()
     const currentHour = now.getHours()
     const errorMessage = useMemo(() => {
@@ -41,18 +42,23 @@ export const FormInputDateTime = ({ name, control, label  }) => {
           }
         }
       }, [errorMsg]);
-   
+    // useEffect(() => {
+    //   const hours = events?.map(event => dayjs(event.date).hour());
+    //   const hourSet = new Set(hours);
+    //   setTimes(Array.from(hourSet));
+    // },[events])
     const shouldDisableTime =(time, view) => {
-      const hours = events.map(event => dayjs(event.date).hour());
-      const hourSet = new Set(hours);
-        const selectedDay = dayjs(time).date();
-        const today = dayjs(now).date();
-        const selectedTime = dayjs(time).hour();
-          if ( view === "hours") {
-              return !hourSet.has(selectedTime)         
-          } else if (view === "minutes"){ 
-              return dayjs(time).minute() <= 0
-          }
+      // const hours = events.map(event => dayjs(event.date).hour());
+      // const hourSet = new Set(times);
+      // setTimes([...hourSet]);
+      const selectedDay = dayjs(time).date();
+      const today = dayjs(now).date();
+      const selectedTime = dayjs(time).hour();
+        if ( view === "hours") {
+            return !times.some(time => time === selectedTime && !(time < dayjs().hour()))   
+        } else if (view === "minutes"){ 
+            return dayjs(time).minute() <= 0
+        }
         return false;
     }
 
@@ -85,7 +91,8 @@ export const FormInputDateTime = ({ name, control, label  }) => {
               <DateTimePicker
                   timezone="system"
                   // disablePast={true}
-                
+                  minTime={dayjs().hour(times[0]- 1)}
+                  maxTime={dayjs().hour(times[2])}
                   minDate={new Date()}
                   maxDate={addOneWeek()}
                   label="Date/Time*"
@@ -105,7 +112,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   views={['year', 'day', 'hours']}
                   viewRenderers={{
                       hours: renderDigitalClockTimeView,
-                      minutes: renderDigitalClockTimeView,
+                      // minutes: renderDigitalClockTimeView,
                       // seconds: renderDigitalClockTimeView,
                   }} 
                   skipDisabled={true}             
@@ -120,7 +127,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   }}                    
                   shouldDisableDate={(date) => shouldDisableDay(date)}
                   shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
-                  referenceDate={currentHour < 16 ? dayjs().set("hours", 18).set("minutes", 0).set("seconds", 0) : dayjs().set("hours", 20).set("minutes", 0).set("seconds", 0)}
+                  referenceDate={currentHour < 16 ? dayjs().set("hours", times[0]).set("minutes", 0).set("seconds", 0) : dayjs().set("hours",times[2]).set("minutes", 0).set("seconds", 0)}
                   {...field}     
                 />
               );
