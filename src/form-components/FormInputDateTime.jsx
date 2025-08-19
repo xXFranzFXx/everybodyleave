@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback }from "react";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone'
+import weekOfYearPlugin from "dayjs/plugin/weekOfYear";
 import axios from 'axios';
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import MenuItem from "@mui/material/node/MenuItem";
@@ -11,6 +12,10 @@ import { Controller } from "react-hook-form";
 import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
 import useGetDates from "../hooks/useGetDates";
 import { format } from "date-fns";
+dayjs.extend(weekOfYearPlugin);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+// dayjs.tz.setDefault("America/Chicago")
 const DATE_FORMAT = "MM-DD-YYYY";
 const isInCurrentWeek = (date) => date.get('week') === dayjs().get('week');
 
@@ -22,6 +27,7 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 export const FormInputDateTime = ({ name, control, label  }) => {
     const [val, setVal] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
+    const [currentTimezone, setCurrentTimezone] = React.useState('system');
     const { events, latestTime } = useGetDates();
     const now = new Date()
     const currentHour = now.getHours()
@@ -37,11 +43,13 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       }, [errorMsg]);
    
     const shouldDisableTime =(time, view) => {
+      const hours = events.map(event => dayjs(event.date).hour());
+      const hourSet = new Set(hours);
         const selectedDay = dayjs(time).date();
         const today = dayjs(now).date();
         const selectedTime = dayjs(time).hour();
           if ( view === "hours") {
-              return selectedTime % 2 != 0 || (selectedDay === today && currentHour >= selectedTime)         
+              return !hourSet.has(selectedTime)         
           } else if (view === "minutes"){ 
               return dayjs(time).minute() <= 0
           }
@@ -49,20 +57,10 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     }
 
     const shouldDisableDay = (date) => {
-        //  disable every other day.  
-          const today = dayjs(now).date();
-          const selectedDay = dayjs(date).date();
-            for (let i = 0; i <= 6; i++) {
-                return dayjs(date).day() %2 === 0 || (selectedDay === today && currentHour >= 19)
-              }
-      // const dates = events.map(event => format(event.date, 'yyyy-MM-dd'))
-      
-      // // console.log("dates: ", dates)
-      // const localDate = new Date(latestTime).toLocaleString()
-      // console.log(new Date(localDate).getHours())
-      // const pickerDate = format(date, 'yyyy-MM-dd')
-      // return  !dates.some((eventDate) => eventDate === pickerDate )  ; 
-    
+      const dates = events.map(event => format(event.date, 'yyyy-MM-dd'))
+      const dateSet = new Set(dates)
+      const pickerDate = format(date, 'yyyy-MM-dd')
+      return !dateSet.has(pickerDate)
          
       };
 
@@ -85,10 +83,9 @@ export const FormInputDateTime = ({ name, control, label  }) => {
           render={({ field, fieldState: { error } }) => {
               return (
               <DateTimePicker
-                  // timezone="system"
+                  timezone="system"
                   // disablePast={true}
-                  minTime={new Date(0,0,0,17)}
-                  maxTime={new Date(0,0,0,21)}
+                
                   minDate={new Date()}
                   maxDate={addOneWeek()}
                   label="Date/Time*"
