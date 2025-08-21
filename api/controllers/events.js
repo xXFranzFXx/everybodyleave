@@ -96,6 +96,7 @@ exports.removeReminder = async (req, res) => {
 }
 //old method
 exports.saveReminder = async (req, res) => {
+     const MAX_USERS_PER_BUCKET = process.env.MAX_USERS_PER_BUCKET; // Or whatever limit you choose
      const { mongoId, phone, datetime, timezone } = req.body;
      const session = await mongoose.startSession();
      const start = new Date(datetime);
@@ -106,7 +107,7 @@ exports.saveReminder = async (req, res) => {
             const id = new mongoose.Types.ObjectId(`${mongoId}`);
             let totalUsers = await SignedUpEvent.findOne({  date: datetime })
                 .sort({ usersAttending: -1 }, { session });
-            if(totalUsers.length === MAX_USERS_PER_BUCKET -1 && !totalUsers.includes(id)) {
+            if(Array.isArray(totalUsers)  && totalUsers.length === MAX_USERS_PER_BUCKET -1 && !totalUsers.includes(id)) {
                 const event = await SignedUpEvent.updateOne(
                     { datetime },
                     {
@@ -282,7 +283,7 @@ exports.getLatestTime = async (req, res) => {
 
 exports.getReminders = async (req, res) => {
   const { mongoId } = req.body;
-  const id = mongoose.Types.ObjectId(`${mongoId}`);
+  const id = new mongoose.Types.ObjectId(`${mongoId}`);
   try {
   const agg = 
     [

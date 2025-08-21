@@ -91,8 +91,12 @@ const SimpleForm = () => {
         <Paper
             elevation={24}
             style={{
-                display: "grid",
+                display: "flex",
                 flexWrap: "wrap",
+                alignItems: "stretch",
+                justifyItems: "stretch",
+                flexDirection: "row",
+                justifyContent: "space-evenly",
                 gridRowGap: "20px",
                 padding: "20px",
                 margin: "auto",
@@ -100,23 +104,30 @@ const SimpleForm = () => {
                 maxWidth: "620px",
                 minWidth: "250px",
                 marginTop: "30px",
+                borderRadius: "5px",
+                border: "1px solid gray"
             
             }} 
         >
            <Typography variant="h6" align="center" margin="dense">
             Everybodyleave Weekly Reminders
           </Typography>
-        <Box px={3} py={2}>        
-          <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
-          <Grid2 item xs={12} sm={4}>
+
+        <Box px={3} py={2}  sx={{border: '2px solid black', borderRadius: '5px', width: '45%'}}>        
+                   <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
+
+         <Typography variant="h7" align="center" margin="dense">
+           Set Reminder
+          </Typography>
+          <Grid2 size={12} sx={{width: '100%'}}>
             { user &&          
               <FormInputTel name="phone" control={control} label="Your Phone" />
             }
           </Grid2>
-          <Grid2 item xs={12} sm={4}>
+          <Grid2 size={12}>
             <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
           </Grid2>
-          </Grid2>
+          
           {
             role === 'basic' && (new Date(reminderDate) > new Date() && scheduledReminder) ? 
          ( <Grid2 item xs={12} sm={4} style={{paddingTop: 15}} >
@@ -125,24 +136,33 @@ const SimpleForm = () => {
           </Typography>          </Grid2>  )
           :
 
-          (<Box mt={3}>
+          (<Grid2 item mt={3} size={12}>
             <Button
             disabled={(role === 'basic' && (new Date(reminderDate) > new Date()) && scheduledReminder)? true: false}
               variant="contained"
               color="primary"
               onClick={handleSubmit(onSubmit)}
+              sx={{width: '100%'}}
             >
               Save
             </Button>        
-          </Box>  )   
+          </Grid2>  )   
 }
-        </Box>     
+</Grid2>
+        </Box>  
+        <Box px={3} py={2}  sx={{border: '2px solid black', borderRadius: '5px', width: '45%'}}>   
+        <Grid2 container>
+        <Grid2 item>
+        <Reminders/>
+        </Grid2>
+        </Grid2>
+        </Box>
       </Paper>   
         
         </FormProvider>
-        {state.scheduledReminder &&
+        {/* {state.scheduledReminder &&
         <Reminders/>
-}
+} */}
         </>
 
     )

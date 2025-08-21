@@ -74,27 +74,31 @@ export const Reminders = () => {
     return (
         <>
         {  displayedDate  && 
-                <Paper
-                    elevation={24}
-                    style={{
-                        display: "grid",
-                        flexWrap: "wrap",
-                        gridRowGap: "20px",
-                        padding: "20px",
-                        margin: "auto",
-                        width: "auto",
-                        maxWidth: "620px",
-                        minWidth: "250px",
-                        marginTop: "30px"
-                    }} 
-                >
-                   <Typography variant="h6" align="center" margin="dense">
+                // <Paper
+                //     elevation={0}
+                //     style={{
+                //         display: "grid",
+                //         flexWrap: "wrap",
+                //         gridRowGap: "20px",
+                //         padding: "20px",
+                //         margin: "auto",
+                //         width: "auto",
+                //         maxWidth: "620px",
+                //         minWidth: "250px",
+                //         marginTop: "30px"
+                //     }} 
+                // >
+                 <Box px={1} py={2} sx={{width: '45%' }}>   
+                    <Grid2 container  spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
+                    <Grid2 item size={12} sx={{width: 'auto'}}>
+                   <Typography variant="h7"  >
                    { isBeforeNow(displayedDate) ? 'Past Reminders' : 'Upcoming Reminders' }
                   </Typography>
-                <Box px={3} py={2}>        
-                  <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
-              
-                  <Typography variant="h6" align="center" margin="dense">
+                                      </Grid2>
+
+                                  <Grid2 item size={3}>
+
+                  <Typography variant="h8" align="center" margin="dense">
                   { displayedDate ? 
                    (new Date(displayedDate).toLocaleDateString('en-EN', { weekday: 'long' })+' '+new Date(displayedDate).toLocaleDateString() +' ' +'@' + new Date(reminderDate).toLocaleTimeString())
                    :
@@ -104,6 +108,7 @@ export const Reminders = () => {
                    `There are no reminders.`
                   }
                   </Typography>
+                  </Grid2>
                   </Grid2>    
                   { displayedDate && !isBeforeNow(displayedDate) &&
                   <Box mt={3}>
@@ -125,7 +130,7 @@ export const Reminders = () => {
                   </Box>     
 }
                 </Box>     
-              </Paper>   
+              // </Paper>   
 }
               </>  
        
