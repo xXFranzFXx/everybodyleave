@@ -1,6 +1,8 @@
 import React from "react";
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, } from "@mui/material";
 import { Controller } from "react-hook-form";
+import useGetDates from "../hooks/useGetDates";
+import dayjs from "dayjs";
 const options = [
     {
         label: "6:00pm",
@@ -12,8 +14,18 @@ const options = [
     },
 ];
 export const FormInputRadio = ({ name, control, label }) => {
+    const { times } = useGetDates()
+   
+    const formattedTimes = times.map(time => { 
+         return { 
+                label: dayjs().hour(time).minute(0).second(0).millisecond(0).format('hh:mm A'), 
+                value: time 
+                }
+            })
+    
+    
     const generateRadioOptions = () => {
-        return options.map((singleOption) => (<FormControlLabel value={singleOption.value} label={singleOption.label} control={<Radio />}/>));
+        return formattedTimes.map((singleOption) => (<FormControlLabel value={singleOption.value} label={singleOption.label} control={<Radio />}/>));
     };
     return (
     <FormControl component="fieldset">

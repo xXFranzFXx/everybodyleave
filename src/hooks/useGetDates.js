@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
+import { format } from "date-fns";
+
 const useGetDates = () => {
   const [events, setEvents] = useState([]);
   const [latestTime, setLatestTime] = useState("");
   const [scheduled, setScheduled] = useState([]);
   const { getAccessTokenSilently, user } = useAuth0();
   const [times, setTimes] = useState([]);
+  const [dates, setDates] = useState([]);
 
 
   const getEvents = async () => {
@@ -65,16 +68,22 @@ const useGetDates = () => {
     getLatestTime();
     // getScheduledReminders();
   },[]) 
-  
+
    useEffect(() => {
       const hours = events?.map(event => dayjs(event.date).hour());
       const hourSet = new Set(hours);
       setTimes(Array.from(hourSet));
+
+      const dates = events?.map(event => format(event.date, 'yyyy-MM-dd'))
+      const dateSet = new Set(dates)
+      setDates(Array.from(dateSet));
+
     },[events])
 
   return {
     events,
     latestTime,
+    dates,
     // scheduled,
     times
   }

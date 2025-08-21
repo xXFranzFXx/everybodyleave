@@ -40,7 +40,7 @@ const SimpleForm = () => {
      try {
              const response = await   axios({
                     method: 'POST',
-                    url: `http://localhost:4000/api/events/saveBucket`,
+                    url: `http://localhost:4000/api/events/save`,
                     headers: {
                         Authorization: `Bearer ${token}`
                     },

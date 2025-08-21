@@ -5,9 +5,10 @@ import weekdayPlugin from "dayjs/plugin/weekday";
 import objectPlugin from "dayjs/plugin/toObject";
 import isTodayPlugin from "dayjs/plugin/isToday";
 import { Box, Button, Typography } from "@mui/material";
-import FormDialog from "../../form-components/FormDialogue";
-import './calendar.css';
-
+import FormDialog from "./FormDialogue";
+import { CalendarDrawer } from "./CalendarDrawer";
+import './calendar.css'
+import { daDK } from "@mui/x-date-pickers/locales";
 
 /**
  * 
@@ -25,13 +26,14 @@ const Calendar = () => {
 	
 	const [currentMonth, setCurrentMonth] = useState(now);
 	const [arrayOfDays, setArrayOfDays] = useState([]);
+	const [dayClicked, setDayClicked] = useState("");
 
 	const nextMonth = () => {
 		const plus = currentMonth.add(1, "month");
 
 		setCurrentMonth(plus);
 	};
-	const dialogRef = useRef();
+	
 
 	const prevMonth = () => {
 		const minus = currentMonth.subtract(1, "month");
@@ -76,10 +78,7 @@ const Calendar = () => {
 		}
 		return <div className="days row">{days}</div>;
 	};
-	const handleClick = (e) => {
-		// e.preventDefault();
-		dialogRef.current.handleClickOpen();
-	}
+	
 	const getAllDays = () => {
 		let currentDate = currentMonth.startOf("month").weekday(0);
 		const nextMonth = currentMonth.add(1, "month").month();
@@ -110,23 +109,29 @@ const Calendar = () => {
 	useEffect(() => {
 		getAllDays();
 	}, [currentMonth]);
-
+const dialogRef = useRef();
 	const renderCells = () => {
+		
 		const rows = [];
 		let days = [];
-
+const handleClick = (e) => {
+	console.log("e: ", e.currentTarget)
+		// setDayClicked(d.day)
+		// e.preventDefault();
+		dialogRef.current.toggleDrawer(true);
+		// dialogRef?.current.handleClickOpen();
+	}
 		arrayOfDays.forEach((week, index) => {
 			week.dates.forEach((d, i) => {
 				days.push(
-					<Box onClick={(e) => handleClick(e)}
+					<Box onClick={handleClick}
 						className={`col cell ${
-							isBeforeNow(d) ? "disabled" : !d.isCurrentMonth  ? "disabled" : d.isCurrentDay ? "selected" : ""
+						isBeforeNow(d) ? "disabled" : !d.isCurrentMonth  ? "disabled" : d.isCurrentDay ? "selected" : ""
 						}`}
-						key={i}
-					>   
-					<FormDialog ref={dialogRef} date={d} />
+						key={i}>					
 							<Typography component="span" className="number">{d.day}</Typography> 
 							<Typography component="span" className="bg">{d.day}</Typography> 
+							<CalendarDrawer ref={dialogRef} date={d} day={d.day} setDay={setDayClicked}/>
 					</Box>
 				);
 			});
@@ -156,11 +161,14 @@ const Calendar = () => {
 	};
 
 	return (
+		<>
 		<div className="calendar">
 			{renderHeader()}
 			{renderDays()}
 			{renderCells()}
 		</div>
+
+		</>
 	);
 };
 

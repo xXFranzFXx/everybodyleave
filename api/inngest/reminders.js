@@ -43,11 +43,11 @@ const prepareReminders = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
   [
     { cron: "TZ=America/Los_Angeles 0 0 * * 6"},
-    { cron: "TZ=America/New_York 0 0 * * 6"},
-    { cron: "TZ=America/Chicago 0 0 * * 6"},
-    { cron: "TZ=America/Denver 0 0 * * 6"},
-    { cron: "TZ=America/Anchorage 0 0 * * 6"},
-    { cron: "TZ=Pacific/Honolulu 0 0 * * 6"},
+    // { cron: "TZ=America/New_York 0 0 * * 6"},
+    // { cron: "TZ=America/Chicago 0 0 * * 6"},
+    // { cron: "TZ=America/Denver 0 0 * * 6"},
+    // { cron: "TZ=America/Anchorage 0 0 * * 6"},
+    // { cron: "TZ=Pacific/Honolulu 0 0 * * 6"},
   ],
   async ({ step, event }) => {
     // create event documents in mongo db
@@ -91,7 +91,7 @@ const prepareReminders = inngest.createFunction(
 const sendBulkSms = inngest.createFunction(
   { id: "textbee-bulk-sms" },
   [
-    { cron: "TZ=America/Los_Angeles 45 13,14,15,16,17,19,21 * * 1,3,5"},
+    { cron: "TZ=America/Los_Angeles 45 16,17,19 * * 1,3,5"},
   ],
   async ({ step, event }) => {
     const newTime = getFutureTime(15)
@@ -120,7 +120,7 @@ const sendBulkSms = inngest.createFunction(
                   }
               }
         ];
-      const cursor = await EventBucket.aggregate(agg);
+      const cursor = await SignedUpEvent.aggregate(agg);
       // console.log("cursor: ", cursor);
       const eventId = await cursor[0]._id;
 
@@ -148,7 +148,7 @@ const sendBulkSms = inngest.createFunction(
   })
 
 const functions = [
-  prepareReminders,
+  // prepareReminders,
   sendBulkSms
 ];
 
