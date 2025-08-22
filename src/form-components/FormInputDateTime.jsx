@@ -11,7 +11,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { Controller } from "react-hook-form";
 import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
 import useGetDates from "../hooks/useGetDates";
-import { format } from "date-fns";
+import { format, milliseconds } from "date-fns";
 dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -42,20 +42,13 @@ export const FormInputDateTime = ({ name, control, label  }) => {
           }
         }
       }, [errorMsg]);
-    // useEffect(() => {
-    //   const hours = events?.map(event => dayjs(event.date).hour());
-    //   const hourSet = new Set(hours);
-    //   setTimes(Array.from(hourSet));
-    // },[events])
+  
     const shouldDisableTime =(time, view) => {
-      // const hours = events.map(event => dayjs(event.date).hour());
-      // const hourSet = new Set(times);
-      // setTimes([...hourSet]);
       const selectedDay = dayjs(time).date();
       const today = dayjs(now).date();
       const selectedTime = dayjs(time).hour();
         if ( view === "hours") {
-            return !times.some(time => time === selectedTime && !(time < dayjs().hour()))   
+            return !times.some(time => time === selectedTime )   //&& !(time < dayjs().hour())
         } else if (view === "minutes"){ 
             return dayjs(time).minute() <= 0
         }
@@ -79,7 +72,9 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       }
       return oneWeek;
     }
-  
+  useEffect(() => {
+    console.log("maxtime: ", dayjs().set('hour', times[2]).set('minute', 0).set('second', 0).set('millisecond', 0).date())
+  },[])
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Controller
