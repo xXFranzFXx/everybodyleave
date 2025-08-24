@@ -87,8 +87,8 @@ export const Reminders = () => {
   }, [reminderDate]);
   return (
     <>
-      <Box px={1} py={2} sx={{ width: '45%' }}>
-        <Typography variant="h8">Scheduled Reminders</Typography>
+      <Box xs={12} md={6} px={1} py={2} sx={{ width: '100%', p: 1 }}>
+        <Typography variant="h8">{displayedDate ? 'Scheduled Reminders' : 'No Upcoming Reminders'}</Typography>
         {displayedDate &&
           displayedDate.map((date, idx) => (
             <>
