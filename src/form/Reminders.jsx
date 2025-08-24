@@ -8,20 +8,13 @@ import { FormProvider, Controller } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { subscribe, useSnapshot } from 'valtio';
+import useCalendar from '../hooks/useCalendar';
+
 
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 
 export const Reminders = () => {
-  dayjs.extend(calendar);
-  const currentDate = dayjs();
-  const customFormat = {
-    sameDay: '[Today at] h:mm A',
-    nextDay: '[Tomorrow at] h:mm A',
-    nextWeek: '[Next] dddd [at] h:mm A',
-    lastDay: '[Yesterday at] h:mm A',
-    lastWeek: '[Last] dddd [at] h:mm A',
-    sameElse: 'DD[th of] MMMM YYYY [at] h:mm A',
-  };
+  const { isBeforeNow, formatReminder } = useCalendar();
   const { state } = useSocketContext();
   const { snap } = useSnapshot(state);
   const { phone, timezone } = state;
@@ -32,9 +25,7 @@ export const Reminders = () => {
   const [upcomingReminders, setUpcomingReminders] = useState([]);
   // const methods = useForm({ defaultValues: defaultValues || ""});
   // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
-  const isBeforeNow = (date) => {
-    return new Date(date) < new Date();
-  };
+ 
   const onDelete = async () => {
     const token = await getAccessTokenSilently();
 
@@ -96,7 +87,7 @@ export const Reminders = () => {
                 <Grid2 key={idx} item size={12} sx={{ width: 'auto' }}>
                   <Typography variant="h7">
                     {/* {isBeforeNow(date) ? 'Past Reminders' : 'Upcoming Reminders'} */}
-                    {dayjs(date).calendar(currentDate, customFormat)}
+                    {formatReminder(date)}
                   </Typography>
                 </Grid2>
                 {displayedDate && !isBeforeNow(date) && (
