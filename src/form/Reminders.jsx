@@ -20,7 +20,7 @@ export const Reminders = () => {
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
   const { reminderDate, mongoId } = user;
-  const [displayedDate, setDisplayedDate] = useState();
+  const [displayedDate, setDisplayedDate] = useState([]);
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
   // const methods = useForm({ defaultValues: defaultValues || ""});
@@ -73,14 +73,17 @@ export const Reminders = () => {
     let reminders = [];
     if (Array.isArray(reminderDate) && reminderDate.length) {
       reminders = reminderDate.map(({ eventDate }) => eventDate);
-      setDisplayedDate(reminders);
+      setDisplayedDate(reminders)
+    } else {
+      setUpcomingReminders(reminderDate.eventDate)
     }
+
   }, [reminderDate]);
   return (
     <>
       <Box xs={12} md={6} px={1} py={2} sx={{ width: '100%', p: 1 }}>
         <Typography variant="h8">{displayedDate ? 'Scheduled Reminders' : 'No Upcoming Reminders'}</Typography>
-        {displayedDate &&
+        { Array.isArray(displayedDate) &&
           displayedDate.map((date, idx) => (
             <>
               <Grid2 container spacing={{ xs: 2, md: 3 }}>
@@ -107,6 +110,7 @@ export const Reminders = () => {
               </Grid2>
             </>
           ))}
+          
       </Box>
     </>
   );

@@ -12,9 +12,11 @@ import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { MetadataContext } from '../context/MetadataProvider';
 import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
 import { Reminders } from './Reminders';
+import useCalendar from '../hooks/useCalendar';
 import axios from 'axios';
 const SimpleForm = () => {
   const { state } = useSocketContext();
+  const { isBeforeNow } = useCalendar();
   const { type, phone, acceptTerms, default_timezone, otp, timezone, reminder, scheduledReminder } = state;
   const defaultValues = {
     datetime: '',
@@ -131,9 +133,9 @@ const SimpleForm = () => {
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
 
-              {role === 'basic' && new Date(reminderDate) > new Date() && scheduledReminder ? (
+              {role === 'basic' && (new Date(reminderDate[0].eventDate) > new Date() || scheduledReminder) ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
-                  <Typography variant="h6" align="center" margin="dense">
+                  <Typography variant="h8" align="center" margin="dense">
                     Upgrade now to schedule multiple reminders
                   </Typography>
                 </Grid2>
@@ -141,7 +143,7 @@ const SimpleForm = () => {
                 <Grid2 item mt={3} size={12}>
                   <Button
                     disabled={
-                      role === 'basic' && new Date(reminderDate) > new Date() && scheduledReminder ? true : false
+                      role === 'basic' && new Date(reminderDate[0].eventDate) > new Date() ? true : false
                     }
                     variant="contained"
                     color="primary"
