@@ -11,6 +11,23 @@ const CalendarReminderSchema = new mongoose.Schema({
    type: {
       type: String,
       enum: ['past', 'upcoming']
+   },
+   day: {
+      type: String, 
+   },
+   month: {
+      type: String
+   },
+   year: {
+      type: String
+   }, 
+   completed: {
+      type: Boolean,
+      default: false
+   },
+   color: {
+      type: String,
+      default: 'black'
    }
    
 });

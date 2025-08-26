@@ -82,7 +82,7 @@ export const  CalendarDrawer = forwardRef((props, ref) => {
         anchor={"right"}
         >
         <Typography>
-            {props.date.month}-{props.day}-{props.date.year} 
+          Schedule a Reminder
         </Typography>
             <FormInputText control={control} name="intention" label="intention"/>
              <Divider sx={{ my: 2 }} />
