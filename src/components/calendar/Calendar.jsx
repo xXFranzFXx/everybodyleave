@@ -1,175 +1,76 @@
-import React, { useEffect, useState, useRef } from "react";
-import dayjs from "dayjs";
-import locale from "dayjs/locale/en";
-import weekdayPlugin from "dayjs/plugin/weekday";
-import objectPlugin from "dayjs/plugin/toObject";
-import isTodayPlugin from "dayjs/plugin/isToday";
-import { Box, Button, Typography } from "@mui/material";
-import FormDialog from "./FormDialogue";
-import { CalendarDrawer } from "./CalendarDrawer";
-import './calendar.css'
-import { daDK } from "@mui/x-date-pickers/locales";
-
+import React from 'react';
+import MonthCalendar from './MonthCalendar';
 /**
  * 
- * credit to: Pavlináč Zapletal
- * https://medium.com/@kapaak/custom-calendar-with-react-and-dayjs-dcdbba89e577
+ *  Thanks to: https://github.com/evanbrooks0629/react-mui-calendar
  */
-const Calendar = () => {
-	const now = dayjs().locale({
-		...locale,
-	});
+const Calendar = (props) => {
+    const currMonth = new Date().getMonth()+1;
+    const thisYear = new Date().getFullYear();
 
-	dayjs.extend(weekdayPlugin);
-	dayjs.extend(objectPlugin);
-	dayjs.extend(isTodayPlugin);
-	
-	const [currentMonth, setCurrentMonth] = useState(now);
-	const [arrayOfDays, setArrayOfDays] = useState([]);
-	const [dayClicked, setDayClicked] = useState("");
+    const [monthIndex, setMonthIndex] = React.useState(currMonth); 
+    const [arrayOfDays, setArrayOfDays] = React.useState([]);
+    const [currYear, setCurrYear] = React.useState(thisYear);
 
-	const nextMonth = () => {
-		const plus = currentMonth.add(1, "month");
+    const setDayArray = (newArray) => {
+        setArrayOfDays(newArray);
+    }
 
-		setCurrentMonth(plus);
-	};
-	
+    const setMonth = (newMonth) => {
+        setMonthIndex(newMonth);
+    }
 
-	const prevMonth = () => {
-		const minus = currentMonth.subtract(1, "month");
+    const setYear = (newYear) => {
+        setCurrYear(newYear);
+    }
 
-		setCurrentMonth(minus);
-	};
-    const isBeforeNow = (date) =>  {
-		console.log("d:", date)
-		console.log("dayjs.date: ", dayjs().date())
-    return date.day < dayjs().date();
-  }
-	const renderHeader = () => {
-		const dateFormat = "MMMM YYYY";
+    if (typeof props.primaryColor !== 'undefined' && typeof props.primaryColor !== 'string') {
+        console.log('Error: primaryColor prop must be of type string.');
+        return;
+    }
 
-		return (
-			<div className="header row flex-middle">
-				<div className="col col-start">
-					<div className="icon" onClick={() => prevMonth()}>
-						chevron_left
-					</div>
-				</div>
-				<div className="col col-center">
-					<span>{currentMonth.format(dateFormat)}</span>
-				</div>
-				<div className="col col-end" onClick={() => nextMonth()}>
-					<div className="icon">chevron_right</div>
-				</div>
-			</div>
-		);
-	};
+    if (typeof props.secondaryColor !== 'undefined' && typeof props.secondaryColor !== 'string') {
+        console.log('Error: secondaryColor prop must be of type string.');
+        return;
+    }
 
-	const renderDays = () => {
-		const dateFormat = "dddd";
-		const days = [];
+    if (typeof props.data !== 'undefined' && typeof props.data !== 'object') {
+        console.log('Error: data prop must be of type array (object).');
+        return;
+    }
 
-		for (let i = 0; i < 7; i++) {
-			days.push(
-				<div className="col col-center" key={i}>
-					{now.weekday(i).format(dateFormat)}
-				</div>
-			);
-		}
-		return <div className="days row">{days}</div>;
-	};
-	
-	const getAllDays = () => {
-		let currentDate = currentMonth.startOf("month").weekday(0);
-		const nextMonth = currentMonth.add(1, "month").month();
+    if (typeof props.dataDisplay !== 'undefined' && typeof props.dataDisplay !== 'string') {
+        console.log('Error: dataDisplay prop must be of type string.');
+        return;
+    }
 
-		let allDates = [];
-		let weekDates = [];
+    if (typeof props.handleClickDay !== 'undefined' && typeof props.handleClickDay !== 'function') {
+        console.log('Error: handleClickDay prop must be of type function.');
+        return;
+    }
 
-		let weekCounter = 1;
-
-		while (currentDate.weekday(0).toObject().months !== nextMonth) {
-			const formated = formateDateObject(currentDate);
-
-			weekDates.push(formated);
-
-			if (weekCounter === 7) {
-				allDates.push({ dates: weekDates });
-				weekDates = [];
-				weekCounter = 0;
-			}
-
-			weekCounter++;
-			currentDate = currentDate.add(1, "day");
-		}
-
-		setArrayOfDays(allDates);
-	};
-
-	useEffect(() => {
-		getAllDays();
-	}, [currentMonth]);
-const dialogRef = useRef();
-	const renderCells = () => {
-		
-		const rows = [];
-		let days = [];
-const handleClick = (e) => {
-	console.log("e: ", e.currentTarget)
-		// setDayClicked(d.day)
-		// e.preventDefault();
-		dialogRef.current.toggleDrawer(true);
-		// dialogRef?.current.handleClickOpen();
-	}
-		arrayOfDays.forEach((week, index) => {
-			week.dates.forEach((d, i) => {
-				days.push(
-					<Box onClick={handleClick}
-						className={`col cell ${
-						isBeforeNow(d) ? "disabled" : !d.isCurrentMonth  ? "disabled" : d.isCurrentDay ? "selected" : ""
-						}`}
-						key={i}>					
-							<Typography component="span" className="number">{d.day}</Typography> 
-							<Typography component="span" className="bg">{d.day}</Typography> 
-							<CalendarDrawer ref={dialogRef} date={d} day={d.day} setDay={setDayClicked}/>
-					</Box>
-				);
-			});
-			rows.push(
-				<div className="row" key={index}>
-					{days}
-				</div>
-			);
-			days = [];
-		});
-
-		return <div className="body">{rows}</div>;
-	};
-
-	const formateDateObject = date => {
-		const clonedObject = { ...date.toObject() };
-
-		const formatedObject = {
-			day: clonedObject.date,
-			month: clonedObject.months,
-			year: clonedObject.years,
-			isCurrentMonth: clonedObject.months === currentMonth.month(),
-			isCurrentDay: date.isToday(),
-		};
-
-		return formatedObject;
-	};
-
-	return (
-		<>
-		<div className="calendar">
-			{renderHeader()}
-			{renderDays()}
-			{renderCells()}
-		</div>
-
-		</>
-	);
-};
+    const primaryColor = props.primaryColor ? props.primaryColor : "#000000";
+    const secondaryColor = props.secondaryColor ? props.secondaryColor : "#FFFFFF";
+    const data = props.data ? props.data : [];
+    const dataDisplay = props.data && props.dataDisplay ? props.dataDisplay : "";
+    const handleClickDay = props.handleClickDay ? props.handleClickDay : () => {};
+    const handleDayClick = props.handleDayClick ? props.handleDayClick : () => {};
+    return (
+        <MonthCalendar 
+            month={monthIndex} 
+            year={currYear} 
+            dayArray={arrayOfDays} 
+            setDayArray={setDayArray} 
+            setMonth={setMonth} 
+            setYear={setYear} 
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            data={data}
+            dataDisplay={dataDisplay}
+            handleClickDay={handleClickDay}
+            handleDayClick={handleDayClick}
+        />
+    );
+}
 
 export default Calendar;

@@ -5,6 +5,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
     "@hookform/resolvers": "^3.9.1",
+    "@mui/icons-material": "^6.3.0",
     "@mui/material": "^6.3.0",
     "@mui/x-date-pickers": "^7.23.3",
     "axios": "^1.9.0",
