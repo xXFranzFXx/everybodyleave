@@ -5,77 +5,76 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DaysOfWeek from './DOW';
-import { useSocketContext } from '../../context/SocketProvider';
 
 const MonthBlock = (props) => {
-    let newName = props.name;
+    let newIntention = props.intention;
 
     if (window.innerWidth < 400) {
         // mobile
-        if (props.name.length >= 4) {
-            newName = props.name.substr(0, 4) + "...";
+        if (props.intention.length >= 4) {
+            newIntention = props.intention.substr(0, 4) + "...";
         }
     } else if (window.innerWidth < 600) {
         // xs view
-        if (props.name.length >= 10) {
-            newName = props.name.substr(0, 10) + "...";
+        if (props.intention.length >= 10) {
+            newIntention = props.intention.substr(0, 10) + "...";
         }
     } else if (window.innerWidth < 800) {
         // sm view
-        if (props.name.length >= 12) {
-            newName = props.name.substr(0, 12) + "...";
+        if (props.intention.length >= 12) {
+            newIntention = props.intention.substr(0, 12) + "...";
         }
     } else if (window.innerWidth < 1100) {
         // sm view
-        if (props.name.length >= 18) {
-            newName = props.name.substr(0, 18) + "...";
+        if (props.intention.length >= 18) {
+            newIntention = props.intention.substr(0, 18) + "...";
         }
     } else if (window.innerWidth < 1400) {
-        if (props.name.length >= 22) {
-            newName = props.name.substr(0, 22) + "...";
+        if (props.intention.length >= 22) {
+            newIntention = props.intention.substr(0, 22) + "...";
         }
     } else {
-        if (props.name.length >= 30) {
-            newName = props.name.substr(0, 30) + "...";
+        if (props.intention.length >= 30) {
+            newIntention = props.intention.substr(0, 30) + "...";
         }
     }
 
-    const [name, setName] = React.useState(newName);
+    const [intention, setIntention] = React.useState(newIntention);
 
     const updateDimensions = () => {
 
-        let newName = props.name;
+        let newIntention = props.intention;
 
         if (window.innerWidth < 400) {
             // mobile
-            if (props.name.length >= 4) {
-                newName = props.name.substr(0, 4) + "...";
+            if (props.intention.length >= 4) {
+                newIntention = props.intention.substr(0, 4) + "...";
             }
         } else if (window.innerWidth < 600) {
             // xs view
-            if (props.name.length >= 12) {
-                newName = props.name.substr(0, 10) + "...";
+            if (props.intention.length >= 12) {
+                newIntention = props.intention.substr(0, 10) + "...";
             }
         } else if (window.innerWidth < 800) {
             // sm view
-            if (props.name.length >= 12) {
-                newName = props.name.substr(0, 12) + "...";
+            if (props.intention.length >= 12) {
+                newIntention = props.intention.substr(0, 12) + "...";
             }
         } else if (window.innerWidth < 1100) {
             // sm view
-            if (props.name.length >= 18) {
-                newName = props.name.substr(0, 18) + "...";
+            if (props.intention.length >= 18) {
+                newIntention = props.intention.substr(0, 18) + "...";
             }
         } else if (window.innerWidth < 1400) {
-            if (props.name.length >= 22) {
-                newName = props.name.substr(0, 22) + "...";
+            if (props.intention.length >= 22) {
+                newIntention = props.intention.substr(0, 22) + "...";
             }
         } else {
-            if (props.name.length >= 30) {
-                newName = props.name.substr(0, 30) + "...";
+            if (props.intention.length >= 30) {
+                newIntention = props.intention.substr(0, 30) + "...";
             }
         }
-        setName(newName);
+        setIntention(newIntention);
     }
 
     React.useEffect(() => {
@@ -94,9 +93,9 @@ const MonthBlock = (props) => {
     } else if (props.dataDisplay === "list") {
         return (
             <Grid2
-                style={{paddingLeft: '1px', paddingRight: '2px', paddingBottom: '1px',  overflow: 'hidden', textOverflow: 'clip'}}
+                sx={{paddingLeft: '1px', paddingRight: '2px', paddingBottom: '1px',  overflow: 'hidden', textOverflow: 'clip'}}
                 size={12}>
-                <Typography noWrap sx={{fontSize: { xs: '10px' } }} style={{paddingLeft: '2px', color: '#ffffff', backgroundColor: props.color ? props.color : "#000000", textAlign: 'left', textDecoration: props.completed ? 'line-through' : 'none', borderRadius: '2px'}}>{props.name ? name : ""}</Typography>
+                <Typography noWrap sx={{fontSize: { xs: '10px' } }} style={{paddingLeft: '2px', color: '#ffffff', backgroundColor: props.color ? props.color : "#000000", textAlign: 'left', textDecoration: props.completed ? 'line-through' : 'none', borderRadius: '2px'}}>{props.intention ? intention : ""}</Typography>
             </Grid2>
         );
     } else {
@@ -142,7 +141,7 @@ const CalendarItem = (props) => {
             <Grid2 container sx={{ marginTop: { xs: '0px', sm: '0px' } }} style={{width: '100%'}}>
             {
                 props.data ? props.data.map((block, index) => (
-                    block.day === dateNum && props.day.isInMonth && block.month === props.monthIndex && block.year === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} name={block.name} hours={block.hours} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
+                    block.day === dateNum && props.day.isInMonth && block.month === props.monthIndex && block.year === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.hours} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
                 )) : null
             }
             </Grid2>

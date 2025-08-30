@@ -1,23 +1,17 @@
-import React, { useEffect, useCallback, useState, useContext, useRef } from 'react';
+import { useCallback, useState, useContext } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAuth0 } from '@auth0/auth0-react';
 import { FormInputTel } from '../form-components/FormInputTel';
-import { FormInputText } from '../form-components/FormInputText';
-import { FormInputDate } from '../form-components/FormInputDate';
-import { TimePick } from '../form-components/FormInputTime';
-import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
-import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
 import { MetadataContext } from '../context/MetadataProvider';
-import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
+import { Typography, Button, Grid2, Box, Paper } from '@mui/material';
 import { Reminders } from './Reminders';
-import useCalendar from '../hooks/useCalendar';
 import axios from 'axios';
 const SimpleForm = () => {
   const { state } = useSocketContext();
-  const { isBeforeNow } = useCalendar();
-  const { type, phone, acceptTerms, default_timezone, otp, timezone, reminder, scheduledReminder } = state;
+  
+  const {  phone,  timezone,  scheduledReminder } = state;
   const defaultValues = {
     datetime: '',
     phone: phone || '',
@@ -32,11 +26,7 @@ const SimpleForm = () => {
   const methods = useForm({ defaultValues: defaultValues || '' });
   const {
     handleSubmit,
-    register,
-    getValues,
-    reset,
     control,
-    setValue,
     formState: { errors },
   } = methods;
   const [error, setError] = useState(false);
@@ -75,25 +65,12 @@ const SimpleForm = () => {
     const { datetime, message } = data;
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
-    console.log(date.getTime());
-    console.log(date.toISOString());
     state['utcdate'] = date.toUTCString();
-    data.utcdate = date.toUTCString();
-    // const reminder = {
-    //   event: datetime,
-    //   message: message
-    // }
-    data.timezone = timezone;
     saveReminder(zeroSeconds, phone, timezone);
-    // textBeeSms(data)
-    // logout();
-    // cronTextBeeSms(data)
-    // textBeeSms(data);
   };
+
   const handleChange = () => {};
-  //  useEffect(() => {
-  // console.log(getValues("reminder"))
-  //  },[getValues("reminder")])
+
   return (
     <>
       <FormProvider {...methods}>
