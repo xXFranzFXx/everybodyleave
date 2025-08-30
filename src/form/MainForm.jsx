@@ -8,12 +8,11 @@ import { FormInputText } from '../form-components/FormInputText';
 import { FormInputDate } from '../form-components/FormInputDate';
 import { TimePick } from '../form-components/FormInputTime';
 import { FormInputMultiCheckbox } from '../form-components/FormInputMultiCheckbox';
-import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { FormAcceptTerms } from '../form-components/FormAcceptTerms';
 import { FormInputEmail } from '../form-components/FormInputEmail';
 import { FormTimeZoneSelect } from '../form-components/FormTimeZoneSelect';
-import { twilioSms, textBeeSms, cronTextBeeSms } from '../sockets/emit';
-import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
+import { cronTextBeeSms } from '../sockets/emit';
+import {  Typography, Button, Grid2, Box, Paper } from '@mui/material';
 const MainForm = () => {
     const { state } = useSocketContext();
 
@@ -32,13 +31,9 @@ const MainForm = () => {
     const { type, acceptTerms } = state;
     const onSubmit = (data) => {
         console.log(data);      
-        // console.log(data.time);
         cronTextBeeSms(data)
-        // textBeeSms(data);
     }
-//  useEffect(() => {
-// console.log(getValues("reminder"))
-//  },[getValues("reminder")])
+
     return (
         <FormProvider {...methods}>
         <Paper
@@ -81,7 +76,6 @@ const MainForm = () => {
             <FormInputDate name="date" control={control} label="Date*" />
           </Grid2>
           <Grid2 item xs={12} sm={4}>
-            {/* <FormLabel>Time*</FormLabel> */}
             <TimePick name="time" control={control} label="Time*" />
             </Grid2>
 

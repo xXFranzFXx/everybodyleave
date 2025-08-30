@@ -1,17 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
-import { FormInputDropdown } from '../form-components/FormInputDropdown';
 import { useSocketContext } from '../context/SocketProvider';
-import { FormProvider, Controller } from 'react-hook-form';
-import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { subscribe, useSnapshot } from 'valtio';
 import useCalendar from '../hooks/useCalendar';
-
-
-import { TextField, FormControlLabel, Typography, Checkbox, Button, Grid2, Box, Paper } from '@mui/material';
+import { Typography, Button, Grid2, Box } from '@mui/material';
 
 export const Reminders = () => {
   const { isBeforeNow, formatReminder } = useCalendar();
@@ -23,8 +16,7 @@ export const Reminders = () => {
   const [displayedDate, setDisplayedDate] = useState([]);
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
-  // const methods = useForm({ defaultValues: defaultValues || ""});
-  // const {  handleSubmit, register,  getValues, reset, control, setValue, formState: {errors} } = methods;
+ 
  
   const onDelete = async () => {
     const token = await getAccessTokenSilently();
@@ -77,7 +69,6 @@ export const Reminders = () => {
     } else {
       setUpcomingReminders(reminderDate.eventDate)
     }
-
   }, [reminderDate]);
   return (
     <>
