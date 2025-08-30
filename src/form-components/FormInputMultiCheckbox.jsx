@@ -45,11 +45,27 @@ export const FormInputMultiCheckbox = ({ name, control, setValue, label, }) => {
 
       <div>
         {options.map((option) => {
-            return (<FormControlLabel control={<Controller name={name} 
-            render={({fieldState: {error}}) => {
-                        return (<Checkbox checked={selectedItems.includes(option.value)} onChange={() => handleSelect(option.value)}/>);
-                    }} control={control}/>} label={option.label} key={option.value}  />);
-        })}
+            return (
+                <FormControlLabel 
+                    control={
+                        <Controller 
+                            name={name} 
+                            render={({fieldState: {error}}) => {
+                                return (
+                                    <Checkbox 
+                                        checked={selectedItems.includes(option.value)} 
+                                        onChange={() => handleSelect(option.value)}
+                                    />
+                                    );
+                                }} 
+                            control={control}
+                            />
+                        } 
+                    label={option.label} 
+                    key={option.value}  
+                    />
+                );
+            })}
       </div>
     </FormControl>);
 };

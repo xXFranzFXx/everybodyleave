@@ -143,19 +143,23 @@ const CalendarComponent = () => {
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions]= React.useState([])
+  
   const getTimes = (day, month, year) => {
      return dtMap.get(`${year}-${month}-${day}`);
   }
+  
   const handleClick = ({ day, month, year }) => {
     setClickedDay(day);
     if (daysOfMonth?.includes(day)) {
-        setRadioOptions(getTimes(day, month,year))
+        setRadioOptions(getTimes(day, month, year))
         setOpen(true);
     }
   };
+
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
   const changePrimaryColor = (color) => {
     setPrimaryColor(color.hex);
   };
@@ -167,9 +171,11 @@ const CalendarComponent = () => {
   const changeDataDisplay = (e) => {
     setDataDisplay(e.target.value);
   };
+
   const onSubmit = (data) => {
     setOpen(false);
   };
+  
   return (
     <div align="left">
       <FormProvider {...methods}>
