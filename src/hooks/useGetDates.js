@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import { format } from "date-fns";
+dayjs.extend(isSameOrBefore)
 
 const useGetDates = () => {
   const [events, setEvents] = useState([]);
@@ -11,8 +13,10 @@ const useGetDates = () => {
   const { getAccessTokenSilently, user } = useAuth0();
   const [times, setTimes] = useState([]);
   const [dates, setDates] = useState([]);
-
-
+  const [daysOfMonth, setDaysOfMonth] = useState([]);
+  const [availableDT, setAvailableDT] = useState([]);
+  const [dtMap, setDtMap] = useState(new Map());
+  
   const getEvents = async () => {
               try {
                 const response = await axios({
@@ -68,11 +72,26 @@ const useGetDates = () => {
     getLatestTime();
     // getScheduledReminders();
   },[]) 
-
+ const now = dayjs()
    useEffect(() => {
       const hours = events?.map(event => dayjs(event.date).hour());
       const hourSet = new Set(hours);
       setTimes(Array.from(hourSet));
+      const available =  events?.filter(event => (dayjs().hour() < dayjs(event.date).hour() && dayjs().isBefore(event.date)));
+      setAvailableDT(available);
+      const dateTimeMap = new Map();
+      const days = available?.map(event => dayjs(event.date).date())
+      available.forEach(event => {
+        dateTimeMap.set(dayjs(event.date).format('YYYY-MM-DD'),[])
+      })
+      available.forEach(event => {
+        const key = dayjs(event.date).format('YYYY-MM-DD')
+        dateTimeMap.get(key).push(dayjs(event.date).hour())
+      })
+      setDtMap(dateTimeMap);
+      console.log("dateTimeMap: ", dtMap)
+      const daysSet = new Set(days);
+      setDaysOfMonth(Array.from(daysSet));
 
       const dates = events?.map(event => format(event.date, 'yyyy-MM-dd'))
       const dateSet = new Set(dates)
@@ -84,6 +103,9 @@ const useGetDates = () => {
     events,
     latestTime,
     dates,
+    daysOfMonth,
+    availableDT,
+    dtMap,
     // scheduled,
     times
   }

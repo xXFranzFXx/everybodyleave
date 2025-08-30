@@ -3,7 +3,7 @@ const User = require('../models/UserModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
 const mongoose = require('mongoose');
-
+const dayjs =  require('dayjs');
 //This method puts a limit of 50 users per bucket. Use this if using free tier for textBee
 exports.saveToBucket = async (req, res) => {
   const MAX_USERS_PER_BUCKET = process.env.MAX_USERS_PER_BUCKET; // Or whatever limit you choose
@@ -216,6 +216,37 @@ exports.getDateRange = async (req, res) => {
   } catch (error) {
     console.log('Error getting date range: ', error);
     res.status(401).json('Error: ', error.message);
+    throw error;
+  }
+};
+/*
+ * Requires the MongoDB Node.js Driver
+ * https://mongodb.github.io/node-mongodb-native
+ */
+exports.getAllOpenDates = async (req, res) => {
+  const today = dayjs().format();
+  console.log("dayjs today: ", today)
+  try {
+    const filter = {
+      $and: [
+        {
+          date: {
+            $gte: today,
+          },
+        },
+        {
+          status: 'open',
+        },
+      ],
+    };
+    const cursor = await Event.find(filter);
+    // const result = await cursor.toArray();
+    console.log('open dates: ', cursor);
+    req.io.emit('all open dates', cursor);
+    return res.status(200).json({ cursor });
+  } catch (error) {
+    console.log('Error getting open dates: ', error);
+    res.status(401).json({ error: error.message });
     throw error;
   }
 };

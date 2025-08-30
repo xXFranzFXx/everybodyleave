@@ -3,20 +3,20 @@ import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, } from "@m
 import { Controller } from "react-hook-form";
 import useGetDates from "../hooks/useGetDates";
 import dayjs from "dayjs";
-const options = [
-    {
-        label: "6:00pm",
-        value: 18,
-    },
-    {
-        label: "8:00pm",
-        value: 20,
-    },
-];
-export const FormInputRadio = ({ name, control, label }) => {
-    const { times } = useGetDates()
+// const options = [
+//     {
+//         label: "6:00pm",
+//         value: 18,
+//     },
+//     {
+//         label: "8:00pm",
+//         value: 20,
+//     },
+// ];
+export const FormInputRadio = ({ name, control, label, radioOptions }) => {
    
-    const formattedTimes = times.map(time => { 
+   
+    const formattedTimes = radioOptions.map(time => { 
          return { 
                 label: dayjs().hour(time).minute(0).second(0).millisecond(0).format('hh:mm A'), 
                 value: time 

@@ -5,6 +5,7 @@ const {
     saveReminder, 
     cancelReminder, 
     getAllDates, 
+    getAllOpenDates,
     getDateRange, 
     getLatestTime, 
     saveToBucket, 
@@ -20,5 +21,5 @@ router.get('/events/allDates', getAllDates);
 router.get('/events/dateRange', getDateRange);
 router.get('/events/latestTime', getLatestTime);
 router.get('/events/getReminders', checkJwt, getReminders);
-
+router.get('/events/allOpenDates', getAllOpenDates);
 module.exports = router ;
