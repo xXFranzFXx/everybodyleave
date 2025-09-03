@@ -140,6 +140,7 @@ const CalendarComponent = () => {
     handleSubmit,
     register,
     getValues,
+    
     reset,
     control,
     setValue,
@@ -152,13 +153,8 @@ const CalendarComponent = () => {
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions]= React.useState([])
-//  useEffect(() => {
-//    console.log("daysOfMonth: ", daysOfMonth)
-//    if ( radioOptions ) {
-//     setOpen(true)
-//    } 
+
    
-//   }, [radioOptions]);
   const radioRef = useRef();
   
   
@@ -191,7 +187,10 @@ const CalendarComponent = () => {
   const onSubmit = (data) => {
     setOpen(false);
   };
-
+  const handleCancel = () => {
+    setValue("time", "");
+    setOpen(false)
+  }
   return (
     <div align="left">
       <FormProvider {...methods}>
@@ -235,7 +234,7 @@ const CalendarComponent = () => {
           <Button sx={{ my: 1 }} variant="outlined" onClick={handleSubmit(onSubmit)}>
             Save
           </Button>
-          <Button variant="outlined" onClick={() => setOpen(false)}>
+          <Button variant="outlined" onClick={handleCancel}>
             Cancel
           </Button>
         </Drawer>
