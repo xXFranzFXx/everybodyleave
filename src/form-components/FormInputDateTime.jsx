@@ -10,7 +10,7 @@ import { LocalizationProvider }  from "@mui/x-date-pickers/LocalizationProvider"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { Controller } from "react-hook-form";
 import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
-import useGetDates from "../hooks/useGetDates";
+import { useCalendarContext } from "../context/CalendarProvider";
 import { format, milliseconds } from "date-fns";
 dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
@@ -29,7 +29,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [currentTimezone, setCurrentTimezone] = React.useState('system');
     // const [times, setTimes] = useState([]);
-    const { events, latestTime, times } = useGetDates();
+    const { events, latestTime, times } = useCalendarContext();
     const now = new Date()
     const currentHour = now.getHours()
     const errorMessage = useMemo(() => {
@@ -101,6 +101,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                       textField: {
                         error: !!error,
                         helperText: error ? errorMessage : null,
+                        fullWidth: true,
                         }
                       }}
                   minutesStep={60}
@@ -123,7 +124,9 @@ export const FormInputDateTime = ({ name, control, label  }) => {
                   shouldDisableDate={(date) => shouldDisableDay(date)}
                   shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
                   referenceDate={currentHour < 16 ? dayjs().set("hours", times[0]).set("minutes", 0).set("seconds", 0) : dayjs().set("hours",times[2]).set("minutes", 0).set("seconds", 0)}
-                  {...field}     
+                  
+                  {...field}   
+
                 />
               );
            }}

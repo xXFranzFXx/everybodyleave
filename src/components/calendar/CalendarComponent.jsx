@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { FormInputRadio } from '../../form-components/FormInputRadio';
 import { FormInputText } from '../../form-components/FormInputText';
 // import Calendar from 'react-mui-calendar';
+import { useAuth0 } from '@auth0/auth0-react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Grid2, Box, Drawer, Typography, Divider, Button } from '@mui/material';
 import Calendar from './Calendar';
-import useGetDates from '../../hooks/useGetDates';
+import { useCalendarContext } from '../../context/CalendarProvider';
 const testData = [
   {
     day: 3,
     month: 12,
     year: 2022,
-    name: 'Meeting',
+    intention: 'Meeting',
     completed: true,
     color: 'red',
   },
@@ -19,7 +20,7 @@ const testData = [
     day: 8,
     month: 12,
     year: 2025,
-    name: 'Class',
+    intention: 'Class',
     completed: true,
     color: 'purple',
   },
@@ -27,7 +28,7 @@ const testData = [
     day: 10,
     month: 12,
     year: 2025,
-    name: 'Event',
+    intention: 'Event',
     completed: false,
     color: 'blue',
   },
@@ -35,7 +36,7 @@ const testData = [
     day: 10,
     month: 12,
     year: 2025,
-    name: 'Party',
+    intention: 'Party',
     completed: false,
     color: 'red',
   },
@@ -43,7 +44,7 @@ const testData = [
     day: 11,
     month: 12,
     year: 2025,
-    name: 'Meeting',
+    intention: 'Meeting',
     completed: true,
     color: 'green',
   },
@@ -51,7 +52,7 @@ const testData = [
     day: 13,
     month: 12,
     year: 2025,
-    name: 'Work',
+    intention: 'Work',
     completed: false,
     color: 'orange',
   },
@@ -59,7 +60,7 @@ const testData = [
     day: 13,
     month: 12,
     year: 2025,
-    name: 'Event',
+    intention: 'Event',
     completed: false,
     color: 'lightblue',
   },
@@ -67,7 +68,7 @@ const testData = [
     day: 13,
     month: 12,
     year: 2025,
-    name: 'Class',
+    intention: 'Class',
     completed: false,
     color: 'purple',
   },
@@ -75,7 +76,7 @@ const testData = [
     day: 16,
     month: 12,
     year: 2025,
-    name: 'Dance',
+    intention: 'Dance',
     completed: true,
     color: 'darkgreen',
   },
@@ -83,7 +84,7 @@ const testData = [
     day: 19,
     month: 12,
     year: 2025,
-    name: 'Class',
+    intention: 'Class',
     completed: true,
     color: 'blue',
   },
@@ -91,7 +92,7 @@ const testData = [
     day: 19,
     month: 12,
     year: 2025,
-    name: 'Meeting',
+    intention: 'Meeting',
     completed: false,
     color: 'red',
   },
@@ -99,7 +100,7 @@ const testData = [
     day: 22,
     month: 12,
     year: 2025,
-    name: 'Meeting',
+    intention: 'Meeting',
     completed: true,
     color: 'red',
   },
@@ -107,7 +108,7 @@ const testData = [
     day: 23,
     month: 12,
     year: 2025,
-    name: 'Class',
+    intention: 'Class',
     completed: false,
     color: 'blue',
   },
@@ -115,17 +116,25 @@ const testData = [
     day: 25,
     month: 12,
     year: 2025,
-    name: 'Christmas',
+    intention: 'Christmas',
     completed: false,
     color: 'red',
   },
 ];
 
 const CalendarComponent = () => {
+  const { user: { mongoId } } = useAuth0();
   const defaultValues = {
     intention: '',
     time: '',
+    day: '',
+    month: '',
+    year: '',
+    status: 'upcoming',
+    completed: false,
+    color: '#0000FF'
   };
+
   const methods = useForm({ defaultValues: defaultValues || '' });
   const {
     handleSubmit,
@@ -136,26 +145,33 @@ const CalendarComponent = () => {
     setValue,
     formState: { errors },
   } = methods;
-  const {  dates, events, times, daysOfMonth, availableDT, dtMap } = useGetDates();
+  const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes  } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
-  const [dataDisplay, setDataDisplay] = React.useState('circle');
+  const [dataDisplay, setDataDisplay] = React.useState('list');
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions]= React.useState([])
+//  useEffect(() => {
+//    console.log("daysOfMonth: ", daysOfMonth)
+//    if ( radioOptions ) {
+//     setOpen(true)
+//    } 
+   
+//   }, [radioOptions]);
+  const radioRef = useRef();
   
-  const getTimes = (day, month, year) => {
-     return dtMap.get(`${year}-${month}-${day}`);
-  }
   
   const handleClick = ({ day, month, year }) => {
     setClickedDay(day);
+    const { times } = getTimes(day, month, year);
+    setRadioOptions(times)
     if (daysOfMonth?.includes(day)) {
-        setRadioOptions(getTimes(day, month, year))
-        setOpen(true);
+     setOpen(true)
     }
+    
   };
-
+ 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -175,7 +191,7 @@ const CalendarComponent = () => {
   const onSubmit = (data) => {
     setOpen(false);
   };
-  
+
   return (
     <div align="left">
       <FormProvider {...methods}>
@@ -195,7 +211,7 @@ const CalendarComponent = () => {
             <Grid2 container>
               <Grid2 item size={6}>
                 <Typography variant="h5" sx={{ pb: 3, mt: 8 }}>
-             {Array.isArray(radioOptions) && radioOptions.length ?  'Schedule a Reminder' : 'There are no events today'}
+                    Schedule a Reminder
                 </Typography>
               </Grid2>
               <Grid2 item size={6}>
@@ -211,7 +227,7 @@ const CalendarComponent = () => {
               <FormInputText control={control} name="intention" label="intention" />
             </Grid2>
             <Grid2 item size={12} sx={{ my: 4 }}>
-              <FormInputRadio radioOptions={radioOptions} control={control} name="time" label="time" />
+              <FormInputRadio ref={radioRef} clickedDay={clickedDay} control={control} name="time" label="time" />
             </Grid2>
           </Grid2>
 

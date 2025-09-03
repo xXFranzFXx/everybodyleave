@@ -1,4 +1,4 @@
-import { useCallback, useState, useContext } from 'react';
+import { useCallback, useState, useContext, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -7,10 +7,12 @@ import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { MetadataContext } from '../context/MetadataProvider';
 import { Typography, Button, Grid2, Box, Paper } from '@mui/material';
 import { Reminders } from './Reminders';
+import FormDialog from '../form-components/FormDialog';
 import axios from 'axios';
 const SimpleForm = () => {
   const { state } = useSocketContext();
-  
+  const formDialogRef = useRef();
+
   const {  phone,  timezone,  scheduledReminder } = state;
   const defaultValues = {
     datetime: '',
@@ -19,6 +21,8 @@ const SimpleForm = () => {
     utcdate: '',
     timezone: '',
     message: '',
+    saveToCalendar: false,
+    rememberSetting: false
   };
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const { role, reminderDate, mongoId } = user;
@@ -66,6 +70,7 @@ const SimpleForm = () => {
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
+    formDialogRef.current.handleClickOpen();
     saveReminder(zeroSeconds, phone, timezone);
   };
 
@@ -74,8 +79,9 @@ const SimpleForm = () => {
   return (
     <>
       <FormProvider {...methods}>
+      <FormDialog ref={formDialogRef} control={control} />
         <Paper
-          elevation={24}
+          elevation={2}
           style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -86,20 +92,28 @@ const SimpleForm = () => {
             gridRowGap: '20px',
             padding: '20px',
             margin: 'auto',
-            width: 'auto',
-            maxWidth: '620px',
-            minWidth: '250px',
+            width: '100%',
+            maxWidth: '800px',
+            minWidth: '415px',
             marginTop: '30px',
             borderRadius: '5px',
             border: '1px solid gray',
           }}
         >
-          <Typography variant="h6" align="center" margin="dense">
+           <Typography variant="h6" align="center" margin="dense">
             Everybodyleave Weekly Reminders
           </Typography>
+        <Box sx={{
+          display: 'inline-flex', 
+          flexDirection:'row', 
+          flexWrap: 'wrap',
+          alignContent: 'stretch',
+          justifyContent: 'space-around',
+          alignItems: 'stretch'}}>
+       
 
-          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: '45%' }}>
-            <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
+          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: '45%', minWidth: '25%' }}>
+            <Grid2 container spacing={{ xs: 2, md: 3 }} >
               <Typography variant="h7" align="center" margin="dense">
                 Set Reminder
               </Typography>
@@ -110,7 +124,7 @@ const SimpleForm = () => {
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
 
-              {role === 'basic' && (new Date(reminderDate[0].eventDate) > new Date() || scheduledReminder) ? (
+              {role === 'basic' &&  scheduledReminder ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
                   <Typography variant="h8" align="center" margin="dense">
                     Upgrade now to schedule multiple reminders
@@ -120,7 +134,7 @@ const SimpleForm = () => {
                 <Grid2 item mt={3} size={12}>
                   <Button
                     disabled={
-                      role === 'basic' && new Date(reminderDate[0].eventDate) > new Date() ? true : false
+                      role === 'basic'  ? true : false
                     }
                     variant="contained"
                     color="primary"
@@ -140,6 +154,8 @@ const SimpleForm = () => {
               </Grid2>
             </Grid2>
           </Box>
+                  </Box>
+
         </Paper>
       </FormProvider>
       {/* {state.scheduledReminder &&

@@ -22,6 +22,7 @@ export const FormInputTel = ({ name, control, label }) => {
             helperText={fieldState.invalid ? "enter valid number ex: 123 555 5555" : ""}
             error={fieldState.invalid}
             label={label}
+            fullWidth
           />
         )}
       />   

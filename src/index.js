@@ -5,14 +5,17 @@ import App from './App';
 import SocketProvider from './context/SocketProvider';
 import reportWebVitals from './reportWebVitals';
 import Auth0ProviderWithHistory from './context/Auth0ProviderWithHistory';
-import MetaDataProvider  from './context/MetadataProvider'
+import MetaDataProvider  from './context/MetadataProvider';
+import CalendarProvider from './context/CalendarProvider';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Auth0ProviderWithHistory>
     <MetaDataProvider>
    <SocketProvider>
+   <CalendarProvider>
       <App />
+      </CalendarProvider>
     </SocketProvider> 
     </MetaDataProvider>
     </Auth0ProviderWithHistory>

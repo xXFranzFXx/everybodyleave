@@ -63,12 +63,12 @@ export const Reminders = () => {
   );
   useEffect(() => {
     let reminders = [];
-    if (Array.isArray(reminderDate) && reminderDate.length) {
-      reminders = reminderDate.map(({ eventDate }) => eventDate);
-      setDisplayedDate(reminders)
-    } else {
-      setUpcomingReminders(reminderDate.eventDate)
-    }
+    // if (Array.isArray(reminderDate) && reminderDate.length > 0) {
+    //   reminders = reminderDate.map(({ eventDate }) => eventDate);
+    //   setDisplayedDate(reminders)
+    // } else {
+    //   setUpcomingReminders(reminderDate.eventDate)
+    // }
   }, [reminderDate]);
   return (
     <>
