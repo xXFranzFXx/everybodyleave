@@ -7,6 +7,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { Grid2, Box, Drawer, Typography, Divider, Button } from '@mui/material';
 import Calendar from './Calendar';
 import { useCalendarContext } from '../../context/CalendarProvider';
+import useCalendar from '../../hooks/useCalendar';
 const testData = [
   {
     day: 3,
@@ -146,6 +147,7 @@ const CalendarComponent = () => {
     setValue,
     formState: { errors },
   } = methods;
+  const { formatDateTime } = useCalendar();
   const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes  } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
@@ -160,8 +162,10 @@ const CalendarComponent = () => {
   
   const handleClick = ({ day, month, year }) => {
     setClickedDay(day);
-    const { times } = getTimes(day, month, year);
-    setRadioOptions(times)
+    setValue("day", day);
+    setValue("month", month);
+    setValue("year", year);
+    
     if (daysOfMonth?.includes(day)) {
      setOpen(true)
     }
@@ -185,10 +189,15 @@ const CalendarComponent = () => {
   };
 
   const onSubmit = (data) => {
+    const dateString = `${data.year}-${data.month}-${data.day}`
+    const time = data.time;
+    const dateTime = formatDateTime(dateString, time)
+    console.log("dateTime: ", dateTime)
     setOpen(false);
   };
   const handleCancel = () => {
     setValue("time", "");
+    setValue("intention", "")
     setOpen(false)
   }
   return (

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
+import utc from 'dayjs/plugin/utc';
 
 const useCalendar = () => {
+  dayjs.extend(utc)
   dayjs.extend(calendar);
   const currentDate = dayjs();
   const customFormat = {
@@ -14,6 +14,7 @@ const useCalendar = () => {
     lastWeek: '[Last] dddd [at] h:mm A',
     sameElse: 'DD[th of] MMMM YYYY [at] h:mm A',
   };
+
   const now = dayjs();
 
   const isBeforeNow = (date) => {  
@@ -28,11 +29,15 @@ const useCalendar = () => {
   const formatReminder = (date) => {
     return dayjs(date).calendar(currentDate, customFormat);
   }
-  
+  const formatDateTime = (date, hour) => {
+   const dateTime = dayjs(date).hour(hour);
+   return dateTime.utc().format();
+  } 
   return {
     isBeforeNow,
     isBetween,
-    formatReminder
+    formatReminder,
+    formatDateTime
   }
 }
 
