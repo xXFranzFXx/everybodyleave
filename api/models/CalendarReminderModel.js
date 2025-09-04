@@ -32,5 +32,4 @@ const CalendarReminderSchema = new mongoose.Schema({
    
 });
 
-eventModel.discriminator('CalendarReminder', CalendarReminderSchema);
-module.exports = mongoose.model('CalendarReminder');
+module.exports = mongoose.model('CalendarReminder', CalendarReminderSchema);
