@@ -11,6 +11,7 @@ import Calendar from './Calendar';
 import { useCalendarContext } from '../../context/CalendarProvider';
 import useCalendar from '../../hooks/useCalendar';
 import useFetch from '../../hooks/useFetch';
+import { DataThresholdingTwoTone } from '@mui/icons-material';
 const testData = [
   {
     day: 3,
@@ -127,7 +128,7 @@ const testData = [
 ];
 
 const CalendarComponent = () => {
-  const { user: { mongoId } } = useAuth0();
+  const { user } = useAuth0();
   const defaultValues = {
     intention: '',
     receiveText: false,
@@ -153,16 +154,16 @@ const CalendarComponent = () => {
   } = methods;
   const { saveCalendarReminder } = useFetch();
   const { formatDateTime } = useCalendar();
-  const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes  } = useCalendarContext();
+  const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes, calendarData  } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
-  const [dataDisplay, setDataDisplay] = React.useState('circle');
+  const [dataDisplay, setDataDisplay] = React.useState('list');
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions]= React.useState([])
   const [dayName, setDayName] = React.useState("")
 
-   
+ 
   const radioRef = useRef();
   
   
@@ -259,7 +260,7 @@ const CalendarComponent = () => {
       <Calendar
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
-        data={testData}
+        data={calendarData??testData}
         dataDisplay={dataDisplay}
         handleClickDay={handleClick}
       />

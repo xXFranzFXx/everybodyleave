@@ -141,7 +141,7 @@ const CalendarItem = (props) => {
             <Grid2 container sx={{ marginTop: { xs: '0px', sm: '0px' } }} style={{width: '100%'}}>
             {
                 props.data ? props.data.map((block, index) => (
-                    block.day === dateNum && props.day.isInMonth && block.month === props.monthIndex && block.year === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.hours} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
+                    parseInt(block.day) === dateNum && props.day.isInMonth && parseInt(block.month) === props.monthIndex && parseInt(block.year) === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.hours} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
                 )) : null
             }
             </Grid2>

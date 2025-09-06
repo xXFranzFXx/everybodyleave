@@ -10,8 +10,8 @@ dayjs.extend(isSameOrBefore);
   export const CalendarContext = createContext();
   const CalendarProvider = ({ children }) => {
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const auth0Id = user?.sub; 
   const [events, setEvents] = useState([]);
+  const [calendarData, setCalendarData] = useState([]);
   const [latestTime, setLatestTime] = useState('');
   const [scheduled, setScheduled] = useState([]);
   const [times, setTimes] = useState([]);
@@ -76,8 +76,33 @@ dayjs.extend(isSameOrBefore);
       console.log('Error retrieving dates: ', err);
     }
   };
+
+   const getCalendarReminders = async () => {
+    const token = await getAccessTokenSilently();
+    const name =  user?.name;
+    try {
+        const response = await axios({
+        method: 'GET',
+        url: `http://localhost:4000/api/calendarReminders/getReminders`,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        data: {
+            phone: name
+        },
+        });
+        const calendarReminders = await response.data;
+        console.log("calendar reminders: ", calendarReminders.result)
+        setCalendarData(calendarReminders.result)
+        return calendarReminders;
+    } catch (err) {
+        console.log('Error saving calendar reminder: ', err);
+    }
+    };
+    
   useEffect(() => {
     getEvents();
+    getCalendarReminders();
     // getLatestTime();
     // getScheduledReminders();
   }, []);
@@ -116,6 +141,8 @@ dayjs.extend(isSameOrBefore);
       console.log('Error retrieving schedule: ', err);
     }
   };
+
+ 
   const getTimes = useCallback(async (day, month, year) => {
        const times = await dtMap?.get(`${year}-${month}-${day}`);
        setRadioOptions(times)
@@ -137,6 +164,7 @@ dayjs.extend(isSameOrBefore);
             availableDT,
             dtMap,
             simpleDtMap,
+            calendarData,
             getTimes
         }}
       >
@@ -154,7 +182,8 @@ export function useCalendarContext() {
             availableDT,
             getTimes,
             dtMap,
-            simpleDtMap
+            simpleDtMap,
+            calendarData
              } = useContext(CalendarContext)
   return { events,
             latestTime,
@@ -165,6 +194,7 @@ export function useCalendarContext() {
             availableDT,
             getTimes,
             dtMap,
-            simpleDtMap };
+            simpleDtMap, 
+            calendarData };
 }
 export default CalendarProvider;

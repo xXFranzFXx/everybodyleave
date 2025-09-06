@@ -48,13 +48,14 @@ exports.saveCalendarReminder = async (req, res) => {
       );
       const calendarReminderId =  new mongoose.Types.ObjectId(`${event._id}`);
       console.log("calendarReminderId: ", calendarReminderId)
-      const updateUser = await User.updateOne({ phone: phone }, { $addToSet: { "calendarEvents": calendarReminderId } }, { new: true, upsert: true }, { session });
+      await User.updateOne({ phone: phone }, { $addToSet: { "calendarEvents": calendarReminderId } }, { new: true, upsert: true }, { session });
       
       await session.commitTransaction();
       req.io.emit('created calendar reminder', { calendar: event });
-      console.log('Transaction successful: ', updateUser );
-      return res.status(200).json({ updateUser });
+      console.log('Transaction successful: ', event );
+      return res.status(200).json({ event });
   } catch (error) {
+    if (error)
     await session.abortTransaction();
     res.status(401).json({ error: 'Error saving calendar reminder' });
     throw error;
@@ -64,36 +65,33 @@ exports.saveCalendarReminder = async (req, res) => {
 };
 
 exports.getCalendarReminders = async (req, res) => {
-    const { mongoId } = req.body;
-    const id = new mongoose.Types.ObjectId(`${mongoId}`);
+    const { phone } = req.body;
       try {
         const agg = [
           {
-            $match: {
-              _id: id,
-            },
-          },
-          {
-            $lookup: {
-              from: 'calendarreminders',
-              localField: 'calendarEvents',
-              foreignField: '_id',
-              as: 'calendarReminders',
-            },
-          },
-          {
-            $project: {
-              _id: 0,
-              calendarReminders: '$calendarReminders',
-            },
-          },
+    $match: {
+      phone: '+18583827385'
+    }
+  }, {
+    $lookup: {
+      from: 'calendarreminders', 
+      localField: 'calendarEvents', 
+      foreignField: '_id', 
+      as: 'calendarreminders'
+    }
+  }, {
+    $project: {
+      'calendarreminders': 1, 
+      '_id': 0
+    }
+  }
         ];
     
         const cursor = await User.aggregate(agg);
-        console.log('calendar reminders: ', cursor);
-        const result = await cursor.toArray()[0].calendarReminders;
-        req.io.emit('calendar reminders', cursor);
-        return res.status(200).json({ cursor });
+        console.log('successfully fetched calendar reminders: ', cursor);
+        const result = await cursor[0].calendarreminders;
+        req.io.emit('fetched calendar reminders', cursor);
+        return res.status(200).json({ result });
       } catch (error) {
         console.log('Error getting calendar reminders: ', error);
         res.status(401).json({ error: error.message });

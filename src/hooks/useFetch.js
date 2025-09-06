@@ -8,7 +8,7 @@ const useFetch = () => {
   const { role, reminderDate, mongoId, name } = user;
   const { formatDateTime } = useCalendar();
   
-    const saveCalendarReminder = async (data) => {
+  const saveCalendarReminder = async (data) => {
     const { year, month, day, time, intention, receiveText } = data;
     const dateString = `${year}-${month}-${day}`
     
@@ -23,8 +23,8 @@ const useFetch = () => {
             Authorization: `Bearer ${token}`,
         },
         data: {
-            mongoId: mongoId,
-            phone: name,
+            mongoId: await mongoId,
+            phone: await name,
             datetime: new Date(dateTime),
         //   timezone: timezone,
             intention: intention,
@@ -45,10 +45,16 @@ const useFetch = () => {
     }
     };
     
+
+
+
+    
     return {
-        saveCalendarReminder
+        saveCalendarReminder,
 
     }
+
+    
 }
 
 export default useFetch;
