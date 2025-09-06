@@ -48,7 +48,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       const today = dayjs(now).date();
       const selectedTime = dayjs(time).hour();
         if ( view === "hours") {
-            return !times.some(time => time === selectedTime  || (today === selectedDay && !(time < dayjs().hour())))
+            return !times.some(time => time === selectedTime  || (today === selectedDay && !(time > dayjs().hour())))
         } else if (view === "minutes"){ 
             return dayjs(time).minute() <= 0
         }

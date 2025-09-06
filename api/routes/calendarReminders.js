@@ -4,8 +4,9 @@ const { checkJwt } = require('../jwt/checkJwt')
 
 const { 
     saveCalendarReminder, 
+    getCalendarReminders,
 } = require('../controllers/calendar')
 
-router.post('/calendarReminders/save', checkJwt, saveCalendarReminder);
-
+router.post('/calendarReminders/saveReminder', checkJwt, saveCalendarReminder);
+router.get('/calendarReminders/getReminders', checkJwt, getCalendarReminders)
 module.exports = router;

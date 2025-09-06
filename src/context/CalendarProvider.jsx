@@ -32,7 +32,7 @@ dayjs.extend(isSameOrBefore);
       const res = await response.data;
       setEvents(res.cursor);
       const result = await res.cursor;
-      const hours = await result.map((event) => dayjs(event.date).hour());
+      const hours = await result?.map((event) => dayjs(event.date).hour());
       const hourSet = new Set(hours);
       setTimes(Array.from(hourSet));
       // events.forEach(event => {
@@ -43,7 +43,7 @@ dayjs.extend(isSameOrBefore);
       );
       setAvailableDT(available);
       console.log('available: ', available);
-      const dates = await result.map((event) => format(event.date, 'yyyy-MM-dd'));
+      const dates = await result?.map((event) => format(event.date, 'yyyy-MM-dd'));
       const dateSet = new Set(dates);
       setDates(Array.from(dateSet));
       const dateTimeMap = new Map();

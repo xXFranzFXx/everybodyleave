@@ -17,10 +17,17 @@ const UserSchema = mongoose.Schema({
     optOut: {
         type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
     },
+    calendarEvents: {
+        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'CalendarReminder'}]
+    },
     role: {
         type: String,
         default: 'basic'
     },
+    credit: {
+        type: Number,
+        default: 3,
+    }
 });
 
 module.exports = mongoose.model('User', UserSchema);

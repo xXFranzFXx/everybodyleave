@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const eventModel = require('./EventModel');
 
 const CalendarReminderSchema = new mongoose.Schema({
+   date: {
+      type: Date
+   },
    intention : {
       type: String
    },
@@ -21,6 +24,9 @@ const CalendarReminderSchema = new mongoose.Schema({
    year: {
       type: String
    }, 
+   time: {
+      type: String
+   },
    completed: {
       type: Boolean,
       default: false

@@ -5,17 +5,13 @@ import { Checkbox, FormControl, FormControlLabel, FormLabel, } from "@mui/materi
 import { Controller } from "react-hook-form";
 const options = [
     {
-        label: "Email",
-        value: "email",
+        label: "I would like to receive an sms reminder",
+        value: "saveCalendar",
     },
-    {
-        label: "SMS",
-        value: "sms",
-    },
-    {
-        label: "Voice Call",
-        value: "voice",
-    },
+    // {
+    //     label: "Remember this choice",
+    //     value: "saveChoice",
+    // }
 ];
 export const FormInputMultiCheckbox = ({ name, control, setValue, label, }) => {
     const [selectedItems, setSelectedItems] = useState([]);

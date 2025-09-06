@@ -3,15 +3,18 @@ import { FormInputRadio } from '../../form-components/FormInputRadio';
 import { FormInputText } from '../../form-components/FormInputText';
 // import Calendar from 'react-mui-calendar';
 import { useAuth0 } from '@auth0/auth0-react';
+import dayjs from 'dayjs';
+import { FormInputMultiCheckbox } from '../../form-components/FormInputMultiCheckbox';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Grid2, Box, Drawer, Typography, Divider, Button } from '@mui/material';
 import Calendar from './Calendar';
 import { useCalendarContext } from '../../context/CalendarProvider';
 import useCalendar from '../../hooks/useCalendar';
+import useFetch from '../../hooks/useFetch';
 const testData = [
   {
     day: 3,
-    month: 12,
+    month: 9,
     year: 2022,
     intention: 'Meeting',
     completed: true,
@@ -19,7 +22,7 @@ const testData = [
   },
   {
     day: 8,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Class',
     completed: true,
@@ -27,7 +30,7 @@ const testData = [
   },
   {
     day: 10,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Event',
     completed: false,
@@ -51,7 +54,7 @@ const testData = [
   },
   {
     day: 13,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Work',
     completed: false,
@@ -59,15 +62,15 @@ const testData = [
   },
   {
     day: 13,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Event',
     completed: false,
     color: 'lightblue',
   },
   {
-    day: 13,
-    month: 12,
+    day: 3,
+    month: 9,
     year: 2025,
     intention: 'Class',
     completed: false,
@@ -75,7 +78,7 @@ const testData = [
   },
   {
     day: 16,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Dance',
     completed: true,
@@ -83,23 +86,23 @@ const testData = [
   },
   {
     day: 19,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Class',
     completed: true,
     color: 'blue',
   },
   {
-    day: 19,
-    month: 12,
+    day: 21,
+    month: 9,
     year: 2025,
     intention: 'Meeting',
     completed: false,
     color: 'red',
   },
   {
-    day: 22,
-    month: 12,
+    day: 2,
+    month: 9,
     year: 2025,
     intention: 'Meeting',
     completed: true,
@@ -107,7 +110,7 @@ const testData = [
   },
   {
     day: 23,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Class',
     completed: false,
@@ -115,7 +118,7 @@ const testData = [
   },
   {
     day: 25,
-    month: 12,
+    month: 9,
     year: 2025,
     intention: 'Christmas',
     completed: false,
@@ -127,6 +130,7 @@ const CalendarComponent = () => {
   const { user: { mongoId } } = useAuth0();
   const defaultValues = {
     intention: '',
+    receiveText: false,
     time: '',
     day: '',
     month: '',
@@ -147,14 +151,16 @@ const CalendarComponent = () => {
     setValue,
     formState: { errors },
   } = methods;
+  const { saveCalendarReminder } = useFetch();
   const { formatDateTime } = useCalendar();
   const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes  } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
-  const [dataDisplay, setDataDisplay] = React.useState('list');
+  const [dataDisplay, setDataDisplay] = React.useState('circle');
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions]= React.useState([])
+  const [dayName, setDayName] = React.useState("")
 
    
   const radioRef = useRef();
@@ -165,7 +171,7 @@ const CalendarComponent = () => {
     setValue("day", day);
     setValue("month", month);
     setValue("year", year);
-    
+    setDayName(dayjs(`${year}-${month}-${day}`).format('dddd'));
     if (daysOfMonth?.includes(day)) {
      setOpen(true)
     }
@@ -189,15 +195,13 @@ const CalendarComponent = () => {
   };
 
   const onSubmit = (data) => {
-    const dateString = `${data.year}-${data.month}-${data.day}`
-    const time = data.time;
-    const dateTime = formatDateTime(dateString, time)
-    console.log("dateTime: ", dateTime)
+    saveCalendarReminder(data);
     setOpen(false);
   };
   const handleCancel = () => {
     setValue("time", "");
     setValue("intention", "")
+    setValue("receiveText", "")
     setOpen(false)
   }
   return (
@@ -206,7 +210,7 @@ const CalendarComponent = () => {
         <Drawer
           PaperProps={{
             sx: {
-              width: '50vw',
+              width: '35vw',
               pt: 10,
               px: 5,
             },
@@ -218,18 +222,18 @@ const CalendarComponent = () => {
           <Box>
             <Grid2 container>
               <Grid2 item size={6}>
-                <Typography variant="h5" sx={{ pb: 3, mt: 8 }}>
-                    Schedule a Reminder
+                <Typography variant="h3" sx={{ pb: 1, mt: 8 }}>
+                   { dayName }
                 </Typography>
               </Grid2>
               <Grid2 item size={6}>
-                <Typography variant="h1" sx={{ pb: 3, justifySelf: 'flex-end' }}>
+                <Typography variant="h1" sx={{ pb: 1, justifySelf: 'flex-end', fontSize: '9rem' }}>
                   {clickedDay || ''}
                 </Typography>
               </Grid2>
             </Grid2>
           </Box>
-          <Divider sx={{ my: 5 }} />
+          <Divider sx={{ mb: 5 }} />
           <Grid2 container direction="column">
             <Grid2 item size={12}>
               <FormInputText control={control} name="intention" label="intention" />
@@ -237,8 +241,11 @@ const CalendarComponent = () => {
             <Grid2 item size={12} sx={{ my: 4 }}>
               <FormInputRadio ref={radioRef} clickedDay={clickedDay} control={control} name="time" label="time" />
             </Grid2>
+            <Grid2 item size={12}>
+                <FormInputMultiCheckbox name="receiveText" label="receive text" control={control} setValue={setValue}/>
+            </Grid2>
           </Grid2>
-
+        
           <Divider sx={{ my: 2 }} />
           <Button sx={{ my: 1 }} variant="outlined" onClick={handleSubmit(onSubmit)}>
             Save

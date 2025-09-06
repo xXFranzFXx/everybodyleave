@@ -70,7 +70,7 @@ const SimpleForm = () => {
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    formDialogRef.current.handleClickOpen();
+    // formDialogRef.current.handleClickOpen();
     saveReminder(zeroSeconds, phone, timezone);
   };
 
@@ -133,9 +133,9 @@ const SimpleForm = () => {
               ) : (
                 <Grid2 item mt={3} size={12}>
                   <Button
-                    disabled={
-                      role === 'basic'  ? true : false
-                    }
+                    // disabled={
+                    //   role === 'basic'  ? true : false
+                    // }
                     variant="contained"
                     color="primary"
                     onClick={handleSubmit(onSubmit)}

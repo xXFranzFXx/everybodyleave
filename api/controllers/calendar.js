@@ -7,9 +7,9 @@ const dayjs =  require('dayjs');
 exports.saveCalendarReminder = async (req, res) => {
  
   const { 
+    datetime,
     phone,
-    mongoId,  
-    datetime,  
+    mongoId,    
     intention,
     time,
     day,
@@ -17,17 +17,18 @@ exports.saveCalendarReminder = async (req, res) => {
     year,
     status,
     completed,
+    receiveText,
     color } = req.body;
   const session = await mongoose.startSession();
-  const start = new Date(datetime);
-  const endTime = start.setHours(start.getHours() + 1, 0, 0, 0);
+//   const start = new Date(dateTime);
+//   const endTime = start.setHours(start.getHours() + 1, 0, 0, 0);
   try {
     session.startTransaction();
-    const tz = `timezones.` + timezone;
+    // const tz = `timezones.` + timezone;
     const id = new mongoose.Types.ObjectId(`${mongoId}`);
   
       const event = await CalendarReminder.findOneAndUpdate(
-        { datetime },
+        { date: datetime },
         {
           $set: { 
             user: mongoId,
@@ -36,6 +37,7 @@ exports.saveCalendarReminder = async (req, res) => {
             month: month,
             year: year,
             time: time,
+            receiveText: receiveText,
             status: status,
             completed: completed,
             color: color
@@ -44,15 +46,14 @@ exports.saveCalendarReminder = async (req, res) => {
         { new: true, upsert: true },
         { session }
       );
-      await User.updateOne(
-        { phone: phone }, 
-        { $addToSet: { calendar: event },
-        }, { new: true }, { session });
-
+      const calendarReminderId =  new mongoose.Types.ObjectId(`${event._id}`);
+      console.log("calendarReminderId: ", calendarReminderId)
+      const updateUser = await User.updateOne({ phone: phone }, { $addToSet: { "calendarEvents": calendarReminderId } }, { new: true, upsert: true }, { session });
+      
       await session.commitTransaction();
       req.io.emit('created calendar reminder', { calendar: event });
-      console.log('Transaction successful: ', event);
-      return res.status(200).json({ event });
+      console.log('Transaction successful: ', updateUser );
+      return res.status(200).json({ updateUser });
   } catch (error) {
     await session.abortTransaction();
     res.status(401).json({ error: 'Error saving calendar reminder' });
@@ -61,3 +62,41 @@ exports.saveCalendarReminder = async (req, res) => {
     session.endSession();
   }
 };
+
+exports.getCalendarReminders = async (req, res) => {
+    const { mongoId } = req.body;
+    const id = new mongoose.Types.ObjectId(`${mongoId}`);
+      try {
+        const agg = [
+          {
+            $match: {
+              _id: id,
+            },
+          },
+          {
+            $lookup: {
+              from: 'calendarreminders',
+              localField: 'calendarEvents',
+              foreignField: '_id',
+              as: 'calendarReminders',
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              calendarReminders: '$calendarReminders',
+            },
+          },
+        ];
+    
+        const cursor = await User.aggregate(agg);
+        console.log('calendar reminders: ', cursor);
+        const result = await cursor.toArray()[0].calendarReminders;
+        req.io.emit('calendar reminders', cursor);
+        return res.status(200).json({ cursor });
+      } catch (error) {
+        console.log('Error getting calendar reminders: ', error);
+        res.status(401).json({ error: error.message });
+        throw error;
+      }
+}
