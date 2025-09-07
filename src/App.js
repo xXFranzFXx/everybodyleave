@@ -11,11 +11,14 @@ function App() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
   const [userInfo, setUserInfo] = useState('')
   const { state } = useSocketContext();
-
+ 
   useEffect(() => {
-    if( !user || !isAuthenticated) {
-      loginWithRedirect()
+    if(!isAuthenticated) {
+      loginWithRedirect();
     }
+  },[])
+  useEffect(() => {
+   
     const name = user?.name;
     // const reminderDate = user?.reminderDate
     // if(Array.isArray(reminderDate)) {
@@ -30,7 +33,7 @@ function App() {
     setUserInfo(name)
     state.phone = name;
    
-  },[user] );
+  },[user]);
 
   const theme = createTheme({
     palette: {
@@ -73,8 +76,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-          { isAuthenticated  && <><SimpleForm userInfo={userInfo}/></> }
-         
+          { isAuthenticated  && <><SimpleForm userInfo={userInfo}/></> }     
     </ThemeProvider>
   );
 }
