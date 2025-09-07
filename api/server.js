@@ -49,8 +49,8 @@ const socketIO = require("socket.io")(http, {
     allowEIO3: true,
     transports: ['websocket', 'polling', 'flashSocket'],
     cors: {
-      origin: ["https://everybodyleave-1.onrender.com", "http://localhost:3000", "http://localhost:3001"],
-      'Access-Control-Allow-Origin': ["https://everybodyleave-1.onrender.com", "http://localhost:3000", "http://localhost:3001"],
+      origin: ["https://everybodyleave-1.onrender.com", "https://everybodyleave-2.onrender.com","http://localhost:3000", "http://localhost:3001"],
+      'Access-Control-Allow-Origin': ["https://everybodyleave-1.onrender.com", "https://everybodyleave-1.onrender.com", "http://localhost:3000", "http://localhost:3001"],
       methods: ["OPTIONS", "GET", "POST"]
     },
     pingTimeout: 60000,
