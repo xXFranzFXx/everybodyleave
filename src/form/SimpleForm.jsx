@@ -12,10 +12,8 @@ import axios from 'axios';
 const SimpleForm = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const { state } = useSocketContext();
   const formDialogRef = useRef();
-
   const {  phone,  timezone,  scheduledReminder } = state;
   const defaultValues = {
     datetime: '',
@@ -47,7 +45,8 @@ const SimpleForm = () => {
     try {
       const response = await axios({
         method: 'POST',
-        url: `http://localhost:4000/api/events/save`,
+        // url: `http://localhost:4000/api/events/save`,
+        url:`https://everybodyleave.onrender.com/api/events/save`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -161,9 +160,7 @@ const SimpleForm = () => {
 
         </Paper>
       </FormProvider>
-      {/* {state.scheduledReminder &&
-        <Reminders/>
-} */}
+   
     </>
   );
 };

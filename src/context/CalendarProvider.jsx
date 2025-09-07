@@ -126,7 +126,9 @@ dayjs.extend(isSameOrBefore);
       const { mongoId } = user;
       const response = await axios({
         method: 'GET',
-        url: `http://localhost:4000/api/events/getReminders`,
+        // url: `http://localhost:4000/api/events/getReminders`,
+       url:`https://everybodyleave.onrender.com/api/events/getReminders`,
+
         headers: {
           Authorization: `Bearer ${token}`,
         },

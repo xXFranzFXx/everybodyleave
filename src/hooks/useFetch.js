@@ -18,7 +18,8 @@ const useFetch = () => {
     try {
         const response = await axios({
         method: 'POST',
-        url: `http://localhost:4000/api/calendarReminders/saveReminder`,
+        // url: `http://localhost:4000/api/calendarReminders/saveReminder`,
+       url:`https://everybodyleave.onrender.com/api/calendarReminders/saveReminder`,
         headers: {
             Authorization: `Bearer ${token}`,
         },
