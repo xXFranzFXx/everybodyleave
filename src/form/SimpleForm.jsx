@@ -7,7 +7,7 @@ import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { MetadataContext } from '../context/MetadataProvider';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
-import FormDialog from '../form-components/FormDialog';
+// import FormDialog from '../form-components/FormDialog';
 import axios from 'axios';
 const SimpleForm = () => {
   const theme = useTheme();
@@ -81,7 +81,7 @@ const SimpleForm = () => {
   return (
     <>
       <FormProvider {...methods}>
-      <FormDialog ref={formDialogRef} control={control} />
+      {/* <FormDialog ref={formDialogRef} control={control} /> */}
         <Paper
           elevation={2}
           style={{
