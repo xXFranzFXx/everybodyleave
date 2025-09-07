@@ -5,11 +5,14 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { MetadataContext } from '../context/MetadataProvider';
-import { Typography, Button, Grid2, Box, Paper } from '@mui/material';
+import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
 import FormDialog from '../form-components/FormDialog';
 import axios from 'axios';
 const SimpleForm = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { state } = useSocketContext();
   const formDialogRef = useRef();
 
@@ -105,14 +108,14 @@ const SimpleForm = () => {
           </Typography>
         <Box sx={{
           display: 'inline-flex', 
-          flexDirection:'row', 
+          flexDirection: isMobile ? 'column': 'row', 
           flexWrap: 'wrap',
-          alignContent: 'stretch',
+          alignContent: isMobile ? 'space-around' : 'stretch',
           justifyContent: 'space-around',
           alignItems: 'stretch'}}>
        
 
-          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: '45%', minWidth: '25%' }}>
+          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%', minHeight: '250px', marginTop: '10%' }}>
             <Grid2 container spacing={{ xs: 2, md: 3 }} >
               <Typography variant="h7" align="center" margin="dense">
                 Set Reminder
@@ -124,7 +127,7 @@ const SimpleForm = () => {
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
 
-              {role === 'basic' &&  scheduledReminder ? (
+              {/* {role === 'basic' &&  scheduledReminder ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
                   <Typography variant="h8" align="center" margin="dense">
                     Upgrade now to schedule multiple reminders
@@ -144,10 +147,10 @@ const SimpleForm = () => {
                     Save
                   </Button>
                 </Grid2>
-              )}
-            </Grid2>
+              )}*/}
+            </Grid2> 
           </Box>
-          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: '45%' }}>
+          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile? '100%' :'45%' }}>
             <Grid2 container>
               <Grid2 item>
                 <Reminders />

@@ -10,7 +10,7 @@ const { inngest, functions } = require("./inngest/reminders");
 const  connectDb  = require('./db/config/dbConfig');
 const { dbConnection } = connectDb;
 
-const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
+// const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
 const { textBeeSms } = require('./helpers/textBee');
 const app = express();
 const http = require("http").Server(app);
@@ -71,30 +71,30 @@ socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
     console.log(process.env.USER);
    
-  socket.on('sendTwilioSms', async (data) => {
-    const { sid } = await cronJobTwilio(data);
-    socket.emit('twilioSms', sid);
-  });
+  // socket.on('sendTwilioSms', async (data) => {
+  //   const { sid } = await cronJobTwilio(data);
+  //   socket.emit('twilioSms', sid);
+  // });
 
-  socket.on('sendTwilioVoice', async (data) => {
-    const { sid } = await sendScheduledVoice(data);
-    socket.emit('twilioVoice', sid);
-  });
+  // socket.on('sendTwilioVoice', async (data) => {
+  //   const { sid } = await sendScheduledVoice(data);
+  //   socket.emit('twilioVoice', sid);
+  // });
   
-  socket.on('sendTextBeeCronSms', async (data) => {
-    const { job } = await cronJobTextBee(data);
-    socket.emit('textBeeSms', job);
-  });
+  // socket.on('sendTextBeeCronSms', async (data) => {
+  //   const { job } = await cronJobTextBee(data);
+  //   socket.emit('textBeeSms', job);
+  // });
 
-  socket.on('sendEmailCron', async (data) => {
-    const { job } = await cronJobEmail(data);
-    socket.emit('email', job);
-  });
+  // socket.on('sendEmailCron', async (data) => {
+  //   const { job } = await cronJobEmail(data);
+  //   socket.emit('email', job);
+  // });
 
-  socket.on('sendTest', async (data) => {
-    const { test } = await cronJobTest(data);
-    socket.emit('test', test)
-  });
+  // socket.on('sendTest', async (data) => {
+  //   const { test } = await cronJobTest(data);
+  //   socket.emit('test', test)
+  // });
   
   socket.on('sendTextBeeSms', async (data) => {
     // const smsMsg = 'this is your reminder';
