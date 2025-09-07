@@ -13,6 +13,9 @@ function App() {
   const { state } = useSocketContext();
 
   useEffect(() => {
+    if( !user || !isAuthenticated) {
+      loginWithRedirect()
+    }
     const name = user?.name;
     // const reminderDate = user?.reminderDate
     // if(Array.isArray(reminderDate)) {
@@ -70,9 +73,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-          { isAuthenticated  ? <><SimpleForm userInfo={userInfo}/></>
-              : loginWithRedirect()
-            }
+          { isAuthenticated  && <><SimpleForm userInfo={userInfo}/></> }
+         
     </ThemeProvider>
   );
 }
