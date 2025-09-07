@@ -114,7 +114,7 @@ const SimpleForm = () => {
           alignItems: 'stretch'}}>
        
 
-          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%', minHeight: '250px', marginTop: '10%' }}>
+          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%', marginTop: '10%' }}>
             <Grid2 container spacing={{ xs: 2, md: 3 }} >
               <Typography variant="h7" align="center" margin="dense">
                 Set Reminder
