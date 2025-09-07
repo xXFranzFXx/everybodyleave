@@ -3,7 +3,9 @@ import './App.css';
 import { ThemeProvider } from '@mui/material/node/styles';
 import { CssBaseline } from '@mui/material/node';
 import { createTheme } from '@mui/material/node/styles'; 
+import MainForm from './form/MainForm';
 import SimpleForm from './form/SimpleForm';
+import LoginButton from './components/LoginButton';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from './context/SocketProvider';
 import CalendarComponent from './components/calendar/CalendarComponent';
@@ -11,14 +13,8 @@ function App() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
   const [userInfo, setUserInfo] = useState('')
   const { state } = useSocketContext();
- 
+
   useEffect(() => {
-    if(!isAuthenticated) {
-      loginWithRedirect();
-    }
-  },[])
-  useEffect(() => {
-   
     const name = user?.name;
     // const reminderDate = user?.reminderDate
     // if(Array.isArray(reminderDate)) {
@@ -33,7 +29,7 @@ function App() {
     setUserInfo(name)
     state.phone = name;
    
-  },[user]);
+  },[user] );
 
   const theme = createTheme({
     palette: {
@@ -76,7 +72,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
             <CssBaseline/>
-          { isAuthenticated  && <><SimpleForm userInfo={userInfo}/></> }     
+          { isAuthenticated  ? <><SimpleForm userInfo={userInfo}/></>
+              : <LoginButton/>
+            }
     </ThemeProvider>
   );
 }
