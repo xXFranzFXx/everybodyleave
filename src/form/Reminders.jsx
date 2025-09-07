@@ -25,7 +25,8 @@ export const Reminders = () => {
     try {
       const response = await axios({
         method: 'PUT',
-        url: `http://localhost:4000/api/events/remove`,
+        // url: `http://localhost:4000/api/events/remove`,
+        url: `https://everybodyleave.onrender.com/api/events/remove`,
         headers: {
           Authorization: `Bearer ${token}`,
         },

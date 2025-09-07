@@ -27,7 +27,8 @@ dayjs.extend(isSameOrBefore);
     try {
       const response = await axios({
         method: 'GET',
-        url: `http://localhost:4000/api/events/allDates`,
+        // url: `http://localhost:4000/api/events/allDates`,
+        url: `https://everybodyleave.onrender.com/api/events/allDates`,
       });
       const res = await response.data;
       setEvents(res.cursor);
@@ -83,7 +84,8 @@ dayjs.extend(isSameOrBefore);
     try {
         const response = await axios({
         method: 'GET',
-        url: `http://localhost:4000/api/calendarReminders/getReminders`,
+        // url: `http://localhost:4000/api/calendarReminders/getReminders`,
+        url: `https://everybodyleave.onrender.com/api/calendarReminders/getReminders`,
         headers: {
             Authorization: `Bearer ${token}`,
         },
@@ -110,7 +112,8 @@ dayjs.extend(isSameOrBefore);
     try {
       const response = await axios({
         method: 'GET',
-        url: `http://localhost:4000/api/events/latestTime`,
+        // url: `http://localhost:4000/api/events/latestTime`,
+        url: `https://everybodyleave.onrender.com/api/events/latestTime`,
       });
       const res = await response.data;
       setLatestTime(res.cursor[0].latest_date);
