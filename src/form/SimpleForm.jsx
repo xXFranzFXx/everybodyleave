@@ -132,7 +132,7 @@ const SimpleForm = () => {
                     Upgrade now to schedule multiple reminders
                   </Typography>
                 </Grid2>
-              ) : (
+              ) : (*/}
                 <Grid2 item mt={3} size={12}>
                   <Button
                     // disabled={
@@ -146,7 +146,7 @@ const SimpleForm = () => {
                     Save
                   </Button>
                 </Grid2>
-              )}*/}
+              {/* )} */}
             </Grid2> 
           </Box>
           <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile? '100%' :'45%' }}>
