@@ -149,13 +149,13 @@ const SimpleForm = () => {
               {/* )} */}
             </Grid2> 
           </Box>
-          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile? '100%' :'45%', height: '100%' }}>
+          {/* <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile? '100%' :'45%', height: '100%' }}>
             <Grid2 container>
               <Grid2 item>
                 <Reminders />
               </Grid2>
             </Grid2>
-          </Box>
+          </Box> */}
                   </Box>
 
         </Paper>
