@@ -125,8 +125,8 @@ export const Reminders = () => {
               upcomingReminders.length &&
               upcomingReminders?.map((date, idx) => (
                 <>
-                  <Grid2 container spacing={{ xs: 2, md: 3 }}>
-                    <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
+                  <Grid2 container spacing={{ xs: 2, md: 3 }} >
+                    <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1}}>
                       <Typography variant="h7">{formatReminder(date)}</Typography>
 
                       {!isBeforeNow(date) && (

@@ -337,7 +337,7 @@ exports.getReminders = async (req, res) => {
     const cursor = await User.aggregate(agg);
     console.log('cursor: ', cursor);
     const result = await cursor[0].eventDates
-    req.io.emit('scheduleReminders', result);
+    req.io.emit('scheduleReminders',  { scheduledReminders: result } );
     return res.status(200).json({ result });
   } catch (error) {
     console.log('Error getting scheduled reminders: ', error);

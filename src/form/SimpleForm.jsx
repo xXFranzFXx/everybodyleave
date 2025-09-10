@@ -72,7 +72,7 @@ const SimpleForm = () => {
       const res = await response.data;
       console.log("res.date: ", res.date)
       saveUserReminder(res.date);
-      state.reminder = res.date;
+      // state.reminder = res.date;
       setReminder();
       setSaveSuccess(true);
       return res;
@@ -176,7 +176,9 @@ const SimpleForm = () => {
                 borderRadius: '5px',
                 width: isMobile ? '100%' : '45%',
                 height: '100%',
+                maxHeight: 275,
                 my: isMobile ? 3 : 0,
+                overflowY: 'scroll'
               }}
             >
               <Grid2 item>

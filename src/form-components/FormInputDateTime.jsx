@@ -12,7 +12,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { Controller } from "react-hook-form";
 import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
 import { useCalendarContext } from "../context/CalendarProvider";
-import { format, milliseconds } from "date-fns";
+import useFetch from "../hooks/useFetch";
 dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -26,6 +26,7 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 */
 
 export const FormInputDateTime = ({ name, control, label  }) => {
+    const { scheduledReminders } = useFetch();
     const [val, setVal] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
     const [currentTimezone, setCurrentTimezone] = React.useState('system');
@@ -45,12 +46,16 @@ export const FormInputDateTime = ({ name, control, label  }) => {
       }, [errorMsg]);
   
     const shouldDisableTime =(time, view) => {
+      const reminders = scheduledReminders?.result;
+      const scheduled = reminders.map(result => dayjs(result).date())
+      console.log("reminders: ",scheduled)
       const selectedDay = dayjs(time).date();
-      const pickerDate = format(selectedDay, 'yyyy-MM-dd')
+      console.log("selectedDay: ", selectedDay)
+      // const pickerDate = dayjs(selectedDay).format('yyyy-MM-dd')
       const today = dayjs().date();
       const selectedTime = dayjs(time).hour();
         if ( view === "hours") {
-            return dates.includes(pickerDate) || !times.some(t => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
+            return dates.includes(selectedDay) || scheduled.includes(selectedDay) || !times.some(t => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
         } else if (view === "minutes"){ 
             return dayjs(time).minute() <= 0
         }
@@ -58,10 +63,13 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     }
 
     const shouldDisableDay = (date) => {
-      const datesArr = events.map(event => format(event.date, 'yyyy-MM-dd'))
+      const reminders = scheduledReminders?.result;
+      const scheduled = reminders.map(result => dayjs(result).date())
+      const dayDate = dayjs(date).date()
+      const datesArr = events.map(event => dayjs(event.date).format('yyyy-MM-dd'))
       const dateSet = new Set(datesArr)
-      const pickerDate = format(date, 'yyyy-MM-dd')
-      return  !dateSet.has(pickerDate) 
+      const pickerDate = dayjs(date).format('yyyy-MM-dd')
+      return  scheduled.includes(dayDate) || !dateSet.has(pickerDate)
          
       };
 
