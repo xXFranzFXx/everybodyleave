@@ -8,9 +8,12 @@ const SocketProvider = ({ children }) => {
             phone: "",
             short_timezone: new Date().toLocaleDateString(undefined, {day:'2-digit',timeZoneName: 'short' }).substring(4),
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            reminder:"",
+            currentReminder: "",
+            reminders:[],
             acceptTerms: false,
             scheduledEvent: false,
+            drawerOpen: false,
+
 
 })).current
 

@@ -23,21 +23,31 @@ export const socketEvents = ({ state }) => {
       
       console.log("socket reminder: ", reminder)
       let currentState = {...state};
-      currentState.reminder = reminder;
+      currentState.currentReminder = reminder;
       currentState.scheduledReminder = true;
-      console.log("currentState.reminder: ", currentState.reminder)
+      console.log("currentState.currentReminder: ", currentState.currentReminder)
       
       return { state: currentState }
     })
     socket.on('reminder cancelled', ({ date }) => {
       console.log("state: ", state)
-      let  reminder = state.reminder;
-      if(Array.isArray(state.reminder)) {
-      reminder.filter(event => event !== date);
+      let  reminders = state.reminders;
+      if(Array.isArray(state.reminders) && reminders.includes(date)) {
+      reminders.filter(event => event !== date);
+      return { ...state }
       } else {
-        state.reminder = ""
+        state.currentReminder = ""
         state.scheduledReminder = false;
       }
       return { ...state };
     })
+    socket.on('scheduledReminders', (data) => {
+      const { result } = data;
+      const currentState = { ...state };
+      currentState.reminders = result;
+      console.log("socket context reminders: ", currentState.reminders);
+      return { state: currentState };
+    })
+    
 }
+

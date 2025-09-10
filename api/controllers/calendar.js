@@ -70,7 +70,7 @@ exports.getCalendarReminders = async (req, res) => {
         const agg = [
           {
     $match: {
-      phone: '+18583827385'
+      phone: phone
     }
   }, {
     $lookup: {

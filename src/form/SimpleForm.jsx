@@ -1,4 +1,4 @@
-import { useCallback, useState, useContext, useRef } from 'react';
+import { useCallback, useState, useContext, useRef, useEffect } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -7,14 +7,15 @@ import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { MetadataContext } from '../context/MetadataProvider';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
-// import FormDialog from '../form-components/FormDialog';
+import FormDialog from '../form-components/FormDialog';
+import LogoutButton from '../components/LogoutButton';
 import axios from 'axios';
 const SimpleForm = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { state } = useSocketContext();
   const formDialogRef = useRef();
-  const {  phone,  timezone,  scheduledReminder } = state;
+  const { phone, timezone, scheduledReminder } = state;
   const defaultValues = {
     datetime: '',
     phone: phone || '',
@@ -23,7 +24,7 @@ const SimpleForm = () => {
     timezone: '',
     message: '',
     saveToCalendar: false,
-    rememberSetting: false
+    rememberSetting: false,
   };
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const { role, reminderDate, mongoId } = user;
@@ -32,9 +33,20 @@ const SimpleForm = () => {
   const {
     handleSubmit,
     control,
+    setValue,
+    getValues,
     formState: { errors },
   } = methods;
   const [error, setError] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [ savedEvent, setSavedEvent] = useState("")
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSaveSuccess(false);
+    setValue("datetime", "")
+  }
   const setReminder = useCallback(() => {
     state.scheduledReminder = true;
   }, []);
@@ -46,7 +58,7 @@ const SimpleForm = () => {
       const response = await axios({
         method: 'POST',
         // url: `http://localhost:4000/api/events/save`,
-        url:`https://everybodyleave.onrender.com/api/events/save`,
+        url: `https://everybodyleave.onrender.com/api/events/save`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,15 +70,17 @@ const SimpleForm = () => {
         },
       });
       const res = await response.data;
+      console.log("res.date: ", res.date)
       saveUserReminder(res.date);
       state.reminder = res.date;
       setReminder();
+      setSaveSuccess(true);
       return res;
     } catch (err) {
       console.log('Error saving reminder: ', err);
     }
   };
-
+  
   const onSubmit = (data) => {
     const { datetime, message } = data;
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
@@ -75,20 +89,29 @@ const SimpleForm = () => {
     // formDialogRef.current.handleClickOpen();
     saveReminder(zeroSeconds, phone, timezone);
   };
+  useEffect(() => {
+    if (saveSuccess) {
+      setDialogOpen(true)
+    }
+  },[saveSuccess])
 
   const handleChange = () => {};
 
   return (
     <>
+             <LogoutButton sx={{position: 'absolute', right: 0, mr: '5%'}}/>
+
       <FormProvider {...methods}>
-      {/* <FormDialog ref={formDialogRef} control={control} /> */}
-        <Paper
-          elevation={2}
+        <FormDialog ref={formDialogRef} control={control} dialogOpen={dialogOpen} handleDialogClose={handleDialogClose} getValues={getValues}/>
+        
+        <Box
           style={{
             display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
             flexWrap: 'wrap',
+            alignContent: isMobile ? 'space-around' : 'stretch',
             alignItems: 'stretch',
-            justifyItems: 'stretch',
+            justifyItems: isMobile ? 'space-around' : 'stretch',
             flexDirection: 'row',
             justifyContent: 'space-evenly',
             gridRowGap: '20px',
@@ -98,31 +121,28 @@ const SimpleForm = () => {
             maxWidth: '800px',
             minWidth: '415px',
             marginTop: '30px',
-            borderRadius: '5px',
-            border: '1px solid gray',
+            // borderRadius: '5px',
+            // border: '1px solid gray',
           }}
         >
-           <Typography variant="h6" align="center" margin="dense">
+          <Typography variant="h6" align="center" margin="dense">
             Everybodyleave Weekly Reminders
           </Typography>
-        <Box sx={{
-          display: 'inline-flex', 
-          flexDirection: isMobile ? 'column': 'row', 
-          flexWrap: 'wrap',
-          alignContent: isMobile ? 'space-around' : 'stretch',
-          justifyContent: 'space-around',
-          alignItems: 'stretch'}}>
-       
 
-          <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%' }}>
-            <Grid2 container spacing={{ xs: 2, md: 3 }} >
-              <Typography variant="h7" align="center" margin="dense">
-                Set Reminder
+          <Grid2 container spacing={{ xs: 2, md: 3 }} sx={{ width: '800px' }}>
+          
+            <Box
+              px={3}
+              py={2}
+              sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%' }}
+            >
+              <Typography variant="h6" align="left" margin="dense">
+                Schedule a Reminder
               </Typography>
-              <Grid2 size={12} sx={{ width: '100%' }}>
+              <Grid2 size={12} sx={{ width: '100%', my: 2 }}>
                 {user && <FormInputTel name="phone" control={control} label="Your Phone" />}
               </Grid2>
-              <Grid2 size={12}>
+              <Grid2 size={12} sx={{ my: 1 }}>
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
 
@@ -133,34 +153,39 @@ const SimpleForm = () => {
                   </Typography>
                 </Grid2>
               ) : (*/}
-                <Grid2 item mt={3} size={12}>
-                  <Button
-                    // disabled={
-                    //   role === 'basic'  ? true : false
-                    // }
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit(onSubmit)}
-                    sx={{ width: '100%' }}
-                  >
-                    Save
-                  </Button>
-                </Grid2>
+              <Grid2 item mt={3} size={12}>
+                <Button
+                  // disabled={
+                  //   role === 'basic'  ? true : false
+                  // }
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSubmit(onSubmit)}
+                  sx={{ width: '100%' }}
+                >
+                  Save
+                </Button>
+              </Grid2>
               {/* )} */}
-            </Grid2> 
-          </Box>
-          {/* <Box px={3} py={2} sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile? '100%' :'45%', height: '100%' }}>
-            <Grid2 container>
+            </Box>
+            <Box
+              px={3}
+              py={2}
+              sx={{
+                border: '2px solid black',
+                borderRadius: '5px',
+                width: isMobile ? '100%' : '45%',
+                height: '100%',
+                my: isMobile ? 3 : 0,
+              }}
+            >
               <Grid2 item>
                 <Reminders />
               </Grid2>
-            </Grid2>
-          </Box> */}
-                  </Box>
-
-        </Paper>
+            </Box>
+          </Grid2>
+        </Box>
       </FormProvider>
-   
     </>
   );
 };

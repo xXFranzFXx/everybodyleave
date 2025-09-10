@@ -57,7 +57,7 @@ exports.saveToBucket = async (req, res) => {
     throw error;
   }
 };
-//for use with free tier of textbee
+
 exports.removeReminder = async (req, res) => {
   const { mongoId, phone, datetime, timezone } = req.body;
   try {
@@ -108,7 +108,12 @@ exports.saveReminder = async (req, res) => {
         { new: true, upsert: true },
         { session }
       );
-      await User.updateOne({ phone: phone }, { $addToSet: { reminder: event } }, { new: true }, { session });
+      await User.updateOne(
+        { phone: phone }, 
+        { $addToSet: { reminder: event },
+          $inc: { credit: -1 } 
+        
+        }, { new: true }, { session });
 
       await session.commitTransaction();
       const { date } = event;
@@ -304,13 +309,13 @@ exports.getLatestTime = async (req, res) => {
 };
 
 exports.getReminders = async (req, res) => {
-  const { mongoId } = req.body;
-  const id = new mongoose.Types.ObjectId(`${mongoId}`);
+  const { id } = req.query;
+  console.log("req: ", req)
   try {
     const agg = [
       {
         $match: {
-          _id: id,
+          _id: new mongoose.Types.ObjectId(`${id}`),
         },
       },
       {
@@ -331,9 +336,9 @@ exports.getReminders = async (req, res) => {
 
     const cursor = await User.aggregate(agg);
     console.log('cursor: ', cursor);
-    // const result = await cursor.toArray()[0].eventDates
-    req.io.emit('scheduled reminders', cursor);
-    return res.status(200).json({ cursor });
+    const result = await cursor[0].eventDates
+    req.io.emit('scheduleReminders', result);
+    return res.status(200).json({ result });
   } catch (error) {
     console.log('Error getting scheduled reminders: ', error);
     res.status(401).json({ error: error.message });

@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from '../context/SocketProvider';
+import { useMetadataContext } from '../context/MetadataProvider';
+import useFetch from '../hooks/useFetch';
 import axios from 'axios';
 import { subscribe, useSnapshot } from 'valtio';
 import useCalendar from '../hooks/useCalendar';
 import { Typography, Button, Grid2, Box } from '@mui/material';
-
+import { useCalendarContext } from '../context/CalendarProvider';
 export const Reminders = () => {
+  // const { reminders } = useMetadataContext();
   const { isBeforeNow, formatReminder } = useCalendar();
+  const { scheduledReminders } = useFetch();
   const { state } = useSocketContext();
   const { snap } = useSnapshot(state);
   const { phone, timezone } = state;
@@ -16,9 +20,8 @@ export const Reminders = () => {
   const [displayedDate, setDisplayedDate] = useState([]);
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
- 
- 
-  const onDelete = async () => {
+
+  const onDelete = async (date) => {
     const token = await getAccessTokenSilently();
 
     console.log('mongoId: ', mongoId);
@@ -26,34 +29,64 @@ export const Reminders = () => {
       const response = await axios({
         method: 'PUT',
         // url: `http://localhost:4000/api/events/remove`,
-        url: `https://everybodyleave.onrender.com/api/events/remove`,
+        url: `https://everybodyleave.onrender.com/api/events/cancel`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
         data: {
           mongoId: mongoId,
           phone: phone,
-          datetime: new Date(reminderDate),
+          datetime: new Date(date),
           timezone: timezone,
         },
       });
       const res = await response.data;
       setDisplayedDate('');
+      let upcoming = [...upcomingReminders];
+      upcoming.filter((dates) => dates !== date);
+      setUpcomingReminders(upcoming);
       return res;
     } catch (err) {
       console.log('Error cancelling reminder: ', err);
     }
   };
-
+  useEffect(() => {
+    let past = [];
+    let current = [];
+    let scheduled = scheduledReminders.result;
+    scheduled?.forEach((reminder) => {
+      if (isBeforeNow(reminder)) {
+        past.push(reminder);
+      } else {
+        current.push(reminder);
+      }
+      setPastReminders(past);
+      setUpcomingReminders(current);
+    });
+  }, [scheduledReminders]);
   const onEdit = () => {};
+
   useEffect(
     () =>
       subscribe(state, () => {
         const callback = () => {
-          if (state.scheduledReminder) {
-            // conditionally update local state
-            // let newDate = [...displayedDate, state.reminder]
-            setDisplayedDate(state.reminder);
+          let past = [];
+          let current = [];
+          if (state.reminders.length) {
+            state.reminders?.forEach((reminder) => {
+              if (isBeforeNow(reminder)) {
+                past.push(reminder);
+              } else {
+                current.push(reminder);
+              }
+              setPastReminders(past);
+              setUpcomingReminders(current);
+            });
+            if (state.currentReminder) {
+              // conditionally update local state
+              let newDate = [...displayedDate, state.reminder];
+              setDisplayedDate(state.currentReminder);
+            }
           }
         };
         const unsubscribe = subscribe(state, callback);
@@ -62,47 +95,65 @@ export const Reminders = () => {
       }),
     []
   );
-  useEffect(() => {
-    let reminders = [];
-    // if (Array.isArray(reminderDate) && reminderDate.length > 0) {
-    //   reminders = reminderDate.map(({ eventDate }) => eventDate);
-    //   setDisplayedDate(reminders)
-    // } else {
-    //   setUpcomingReminders(reminderDate.eventDate)
-    // }
-  }, [reminderDate]);
+
   return (
     <>
-      <Box xs={12} md={6} px={1} py={2} sx={{ width: '100%', p: 1 }}>
-        <Typography variant="h8">{displayedDate ? 'Scheduled Reminders' : 'No Upcoming Reminders'}</Typography>
-        { Array.isArray(displayedDate) &&
+      <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1 }}>
+        {Array.isArray(displayedDate) &&
           displayedDate.map((date, idx) => (
             <>
               <Grid2 container spacing={{ xs: 2, md: 3 }}>
                 <Grid2 key={idx} item size={12} sx={{ width: 'auto' }}>
-                  <Typography variant="h7">
-                    {/* {isBeforeNow(date) ? 'Past Reminders' : 'Upcoming Reminders'} */}
-                    {formatReminder(date)}
-                  </Typography>
+                  <Typography variant="h7">{formatReminder(date)}</Typography>
                 </Grid2>
                 {displayedDate && !isBeforeNow(date) && (
                   <Box mt={3}>
                     <Button variant="contained" color="primary" onClick={onDelete}>
-                      Delete
+                     Cancel
                     </Button>
-                    {/* <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>     */}
                   </Box>
                 )}
               </Grid2>
             </>
           ))}
-          
+        {!upcomingReminders?.length ? (
+          <Typography variant="h6"> No Reminders </Typography>
+        ) : (
+          <>
+            <Typography variant="h6">Upcoming Reminders </Typography>
+            {Array.isArray(upcomingReminders) &&
+              upcomingReminders.length &&
+              upcomingReminders?.map((date, idx) => (
+                <>
+                  <Grid2 container spacing={{ xs: 2, md: 3 }}>
+                    <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
+                      <Typography variant="h7">{formatReminder(date)}</Typography>
+
+                      {!isBeforeNow(date) && (
+                        <Grid2 item size={4}>
+                          <Button variant="contained" color="primary" onClick={() => onDelete(date)}>
+                            Cancel
+                          </Button>
+                        </Grid2>
+                      )}
+                    </Grid2>
+                  </Grid2>
+                </>
+              ))}
+          </>
+        )}
+        {Array.isArray(pastReminders) &&
+          pastReminders.length &&
+          pastReminders?.map((date, idx) => (
+            <>
+              <Typography variant="h6">Past Reminders </Typography>
+              <Grid2 container spacing={{ xs: 2, md: 3 }}>
+                <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
+                  <Typography variant="h7">{formatReminder(date)}</Typography>
+                </Grid2>
+              </Grid2>
+            </>
+          ))}
       </Box>
     </>
   );

@@ -22,6 +22,7 @@ dayjs.extend(isSameOrBefore);
   const [dtMap, setDtMap] = useState(new Map());
   const [simpleDtMap, setSimpleDtMap] = useState(new Map());
   const now = dayjs();
+//get all SMS reminders
 
   const getEvents = async () => {
     try {
@@ -106,7 +107,6 @@ dayjs.extend(isSameOrBefore);
     getEvents();
     getCalendarReminders();
     // getLatestTime();
-    // getScheduledReminders();
   }, []);
   const getLatestTime = async () => {
     try {
@@ -123,29 +123,6 @@ dayjs.extend(isSameOrBefore);
     }
   };
 
-  const getScheduledReminders = async () => {
-    try {
-      const token = await getAccessTokenSilently();
-      const { mongoId } = user;
-      const response = await axios({
-        method: 'GET',
-        // url: `http://localhost:4000/api/events/getReminders`,
-       url:`https://everybodyleave.onrender.com/api/events/getReminders`,
-
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: {
-          mongoId: mongoId,
-        },
-      });
-      const res = await response.data;
-      setScheduled(res.cursor[0].eventDates);
-      return res.cursor[0].eventDates;
-    } catch (err) {
-      console.log('Error retrieving schedule: ', err);
-    }
-  };
 
  
   const getTimes = useCallback(async (day, month, year) => {

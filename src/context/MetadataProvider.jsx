@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from 'axios'; 
+import { userMetadata } from "../sockets/emit";
 
   export const MetadataContext = createContext();
   const MetadataProvider = ({ children }) => {
@@ -24,13 +25,16 @@ import axios from 'axios';
           const response = await axios(config);
           const metadata = await response.data;
           const { reminder } = metadata["user_metadata"];
-          
+          userMetadata(reminder)
+          setReminders(reminder)
         } catch (err) {
           console.log("Error fetching user metadata", err);
         } 
    
     };
+  
   const saveUserReminder = async (reminder) => {
+    const allReminders = [...reminders, reminder]
     const accessToken = await getAccessTokenSilently();
     const config = {
       method: 'patch',
@@ -41,7 +45,7 @@ import axios from 'axios';
     },
     data: JSON.stringify({
       "user_metadata": {
-        "reminder": reminder,
+        "reminder": allReminders,
       }
     })
 }

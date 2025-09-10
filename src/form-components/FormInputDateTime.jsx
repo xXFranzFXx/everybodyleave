@@ -4,6 +4,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone'
 import weekOfYearPlugin from "dayjs/plugin/weekOfYear";
 import axios from 'axios';
+import { useMetadataContext } from "../context/MetadataProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import MenuItem from "@mui/material/node/MenuItem";
 import { LocalizationProvider }  from "@mui/x-date-pickers/LocalizationProvider";
@@ -29,7 +30,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [currentTimezone, setCurrentTimezone] = React.useState('system');
     // const [times, setTimes] = useState([]);
-    const { events, latestTime, times } = useCalendarContext();
+    const { events, latestTime, times, dates } = useCalendarContext();
     const now = new Date()
     const currentHour = now.getHours()
     const errorMessage = useMemo(() => {
@@ -45,10 +46,11 @@ export const FormInputDateTime = ({ name, control, label  }) => {
   
     const shouldDisableTime =(time, view) => {
       const selectedDay = dayjs(time).date();
-      const today = dayjs(now).date();
+      const pickerDate = format(selectedDay, 'yyyy-MM-dd')
+      const today = dayjs().date();
       const selectedTime = dayjs(time).hour();
         if ( view === "hours") {
-            return !times.some(time => time === selectedTime  || (today === selectedDay && !(time > dayjs().hour())))
+            return dates.includes(pickerDate) || !times.some(t => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
         } else if (view === "minutes"){ 
             return dayjs(time).minute() <= 0
         }
@@ -56,10 +58,10 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     }
 
     const shouldDisableDay = (date) => {
-      const dates = events.map(event => format(event.date, 'yyyy-MM-dd'))
-      const dateSet = new Set(dates)
+      const datesArr = events.map(event => format(event.date, 'yyyy-MM-dd'))
+      const dateSet = new Set(datesArr)
       const pickerDate = format(date, 'yyyy-MM-dd')
-      return !dateSet.has(pickerDate)
+      return  !dateSet.has(pickerDate) 
          
       };
 
@@ -74,6 +76,7 @@ export const FormInputDateTime = ({ name, control, label  }) => {
     }
   useEffect(() => {
     console.log("maxtime: ", dayjs().set('hour', times[2]).set('minute', 0).set('second', 0).set('millisecond', 0).date())
+    console.log("times: ", times)
   },[])
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -85,9 +88,9 @@ export const FormInputDateTime = ({ name, control, label  }) => {
               return (
               <DateTimePicker
                   timezone="system"
-                  // disablePast={true}
-                  minTime={dayjs().hour(times[0]- 1)}
-                  maxTime={dayjs().hour(times[2])}
+                  disablePast={true}
+                  // minTime={dayjs().hour(times[0]- 1)}
+                  // maxTime={dayjs().hour(times[2])}
                   minDate={new Date()}
                   maxDate={addOneWeek()}
                   label="Date/Time*"
