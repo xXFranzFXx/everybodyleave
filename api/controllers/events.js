@@ -315,7 +315,7 @@ exports.getReminders = async (req, res) => {
     const agg = [
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(`${id}`),
+          _id: `${id}`,
         },
       },
       {
