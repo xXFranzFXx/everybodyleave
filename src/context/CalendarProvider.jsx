@@ -105,7 +105,7 @@ dayjs.extend(isSameOrBefore);
     
   useEffect(() => {
     getEvents();
-    getCalendarReminders();
+    // getCalendarReminders();
     // getLatestTime();
   }, []);
   const getLatestTime = async () => {

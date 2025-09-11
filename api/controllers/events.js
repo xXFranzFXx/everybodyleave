@@ -310,12 +310,13 @@ exports.getLatestTime = async (req, res) => {
 
 exports.getReminders = async (req, res) => {
   const { id } = req.query;
+  const mongoId = new mongoose.Types.ObjectId(`${id}`)
   console.log("req: ", req)
   try {
     const agg = [
       {
         $match: {
-          _id: `${id}`,
+          _id: mongoId,
         },
       },
       {

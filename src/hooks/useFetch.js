@@ -61,7 +61,7 @@ const useFetch = () => {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          id: `${mongoId}`,
+          id: await mongoId,
         },
       });
       let reminders = [];
