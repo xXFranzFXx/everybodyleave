@@ -49,6 +49,7 @@ const SimpleForm = () => {
     setSaveSuccess(false);
     setValue('datetime', '');
   };
+  
   const setReminder = useCallback(() => {
     state.scheduledReminder = true;
   }, []);
@@ -84,11 +85,7 @@ const SimpleForm = () => {
       console.log('Error saving reminder: ', err);
     }
   };
-  useEffect(() => {
-    if (saveSuccess) {
-      smsVerification(phone, dateScheduled);
-    }
-  }, [saveSuccess]);
+ 
 
   const onSubmit = (data) => {
     const { datetime, message } = data;
@@ -101,6 +98,7 @@ const SimpleForm = () => {
   useEffect(() => {
     if (saveSuccess) {
       setDialogOpen(true);
+       smsVerification(phone, dateScheduled)
     }
   }, [saveSuccess]);
 
@@ -116,7 +114,7 @@ const SimpleForm = () => {
           control={control}
           dialogOpen={dialogOpen}
           handleDialogClose={handleDialogClose}
-          getValues={getValues}
+          reminder={scheduledReminder}
         />
 
         <Box
@@ -196,7 +194,7 @@ const SimpleForm = () => {
               }}
             >
               <Grid2 item>
-                <Reminders />
+                <Reminders dateScheduled={dateScheduled}/>
               </Grid2>
             </Box>
           </Grid2>

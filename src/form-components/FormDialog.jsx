@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { FormInputMultiCheckbox } from './FormInputMultiCheckbox';
 import Typography from '@mui/material/Typography';
 
-const FormDialog = ({ control, dialogOpen, handleDialogClose, getValues }, props) => {
+const FormDialog = ({ control, dialogOpen, handleDialogClose, reminder }, props) => {
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
     setOpen(true);
@@ -24,7 +24,7 @@ const FormDialog = ({ control, dialogOpen, handleDialogClose, getValues }, props
       <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <Box sx={{ display: 'inline-flex' }}>
           <DialogTitle> You Have Scheduled an SMS Reminder !</DialogTitle>
-          <DialogTitle align="right">        { getValues("datetime")}
+          <DialogTitle align="right">        { reminder}
 </DialogTitle>
         </Box>
         <Divider sx={{ my: 1 }} />

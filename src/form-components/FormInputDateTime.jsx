@@ -27,6 +27,8 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 
 export const FormInputDateTime = ({ name, control, label }) => {
   const { scheduledReminders } = useFetch();
+  const weekDayArr = [0, 2, 4, 6, 7];
+
   const [val, setVal] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
@@ -49,22 +51,26 @@ export const FormInputDateTime = ({ name, control, label }) => {
     let scheduled = [];
     const selectedDay = dayjs(time).date();
     const today = dayjs().date();
+    const weekday = dayjs(time).day();
+    console.log('selectedDay: ', selectedDay);
     const selectedTime = dayjs(time).hour();
     if (scheduledReminders.result.length > 0 && view === 'hours') {
       const reminders = scheduledReminders.result;
       scheduled = reminders.map((result) => dayjs(result).date());
       return (
+        weekDayArr.includes(weekday) ||
         dates.includes(selectedDay) ||
         scheduled.includes(selectedDay) ||
         !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
       );
     } else if (view === 'hours') {
       return (
+        weekDayArr.includes(weekday) ||
         dates.includes(selectedDay) ||
         !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
       );
     } else if (view === 'minutes') {
-      return dayjs(time).minute() <= 0;
+      return weekDayArr.includes(weekday) || dayjs(time).minute() <= 0;
     }
     return false;
   };
@@ -72,15 +78,25 @@ export const FormInputDateTime = ({ name, control, label }) => {
   const shouldDisableDay = (date) => {
     let scheduled = [];
     const dayDate = dayjs(date).date();
-    const datesArr = events.map((event) => dayjs(event.date).format('yyyy-MM-dd'));
+    console.log('dayDate: ', dayDate);
+    const weekday = dayjs(date).day();
+    console.log('weekday: ', weekday);
+    const datesArr = events.map((event) => dayjs(event.date).date());
     const dateSet = new Set(datesArr);
-    const pickerDate = dayjs(date).format('yyyy-MM-dd');
+    console.log('dateSet: ', dateSet);
+    const pickerDate = dayjs.utc(date).format();
+    console.log('pickerDate: ', pickerDate);
     if (scheduledReminders.result.length > 0) {
       const reminders = scheduledReminders.result;
+      console.log('reminders: ', reminders);
       scheduled = reminders.map((result) => dayjs(result).date());
-      return scheduled.includes(dayDate) || !dateSet.has(pickerDate);
+      console.log('scheduled: ', scheduled);
+      return (
+        (reminders.includes(`${pickerDate}`) || scheduled.includes(dayDate) || !dateSet.has(dayDate)) &&
+        weekDayArr.includes(weekday)
+      );
     } else {
-      return !dateSet.has(pickerDate);
+      return weekDayArr.includes(weekday) || !dateSet.has(dayDate);
     }
   };
 

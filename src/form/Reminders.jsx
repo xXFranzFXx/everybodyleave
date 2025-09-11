@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from '../context/SocketProvider';
 import { useMetadataContext } from '../context/MetadataProvider';
@@ -8,7 +8,7 @@ import { subscribe, useSnapshot } from 'valtio';
 import useCalendar from '../hooks/useCalendar';
 import { Typography, Button, Grid2, Box } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
-export const Reminders = () => {
+export const Reminders = ({ dateScheduled }) => {
   // const { reminders } = useMetadataContext();
   const { isBeforeNow, formatReminder } = useCalendar();
   const { scheduledReminders } = useFetch();
@@ -20,7 +20,20 @@ export const Reminders = () => {
   const [displayedDate, setDisplayedDate] = useState([]);
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
+  useEffect(() => {
+    if(dateScheduled) {
+      let upcoming = [...upcomingReminders];
+      upcoming = [...upcoming, dateScheduled];
+      setUpcomingReminders(upcoming);
+    }
+  },[dateScheduled]);
 
+  const handleDeleteDate = useCallback((date) => {
+     let upcoming = [...upcomingReminders];
+      upcoming.filter((dates) => dates !== date);
+      setUpcomingReminders(upcoming);
+  },[])
+  
   const onDelete = async (date) => {
     const token = await getAccessTokenSilently();
 
@@ -41,10 +54,8 @@ export const Reminders = () => {
         },
       });
       const res = await response.data;
+      handleDeleteDate(date)
      
-      let upcoming = [...upcomingReminders];
-      upcoming.filter((dates) => dates !== date);
-      setUpcomingReminders(upcoming);
       return res;
     } catch (err) {
       console.log('Error cancelling reminder: ', err);
@@ -116,10 +127,8 @@ export const Reminders = () => {
               </Grid2>
             </>
           ))}
-        {!upcomingReminders?.length ? (
-          <Typography variant="h6"> No Reminders </Typography>
-        ) : (
-          <>
+        {/* {upcomingReminders.length ? ( */}
+           <>
             <Typography variant="h6">Upcoming Reminders </Typography>
             {Array.isArray(upcomingReminders) &&
               upcomingReminders.length &&
@@ -141,8 +150,11 @@ export const Reminders = () => {
                 </>
               ))}
           </>
-        )}
+        {/* ) */}
          
+         {/* : (
+          <Typography variant="h6"> No Reminders </Typography>) */}
+{/* } */}
         {Array.isArray(pastReminders) &&
           pastReminders.length  &&  
           <Typography variant="h6">Past Reminders </Typography> }
