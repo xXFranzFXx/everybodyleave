@@ -7,6 +7,7 @@ import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { MetadataContext } from '../context/MetadataProvider';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
+import { smsVerification } from '../sockets/emit';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import axios from 'axios';
@@ -37,16 +38,17 @@ const SimpleForm = () => {
     getValues,
     formState: { errors },
   } = methods;
+  const [dateScheduled, setDateScheduled] = useState('');
   const [error, setError] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
-  const [ savedEvent, setSavedEvent] = useState("")
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [savedEvent, setSavedEvent] = useState('');
 
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSaveSuccess(false);
-    setValue("datetime", "")
-  }
+    setValue('datetime', '');
+  };
   const setReminder = useCallback(() => {
     state.scheduledReminder = true;
   }, []);
@@ -54,6 +56,7 @@ const SimpleForm = () => {
   const saveReminder = async (datetime, phone, timezone) => {
     const token = await getAccessTokenSilently();
     console.log('mongoId: ', mongoId);
+    const newDate = new Date(datetime);
     try {
       const response = await axios({
         method: 'POST',
@@ -65,22 +68,28 @@ const SimpleForm = () => {
         data: {
           mongoId: mongoId,
           phone: phone,
-          datetime: new Date(datetime),
+          datetime: newDate,
           timezone: timezone,
         },
       });
       const res = await response.data;
-      console.log("res.date: ", res.date)
+      console.log('res.date: ', res.date);
       saveUserReminder(res.date);
       // state.reminder = res.date;
       setReminder();
+      setDateScheduled(newDate);
       setSaveSuccess(true);
       return res;
     } catch (err) {
       console.log('Error saving reminder: ', err);
     }
   };
-  
+  useEffect(() => {
+    if (saveSuccess) {
+      smsVerification(phone, dateScheduled);
+    }
+  }, [saveSuccess]);
+
   const onSubmit = (data) => {
     const { datetime, message } = data;
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
@@ -91,19 +100,25 @@ const SimpleForm = () => {
   };
   useEffect(() => {
     if (saveSuccess) {
-      setDialogOpen(true)
+      setDialogOpen(true);
     }
-  },[saveSuccess])
+  }, [saveSuccess]);
 
   const handleChange = () => {};
 
   return (
     <>
-             <LogoutButton sx={{position: 'absolute', right: 0, mr: '5%'}}/>
+      <LogoutButton sx={{ position: 'absolute', right: 0, mr: '5%' }} />
 
       <FormProvider {...methods}>
-        <FormDialog ref={formDialogRef} control={control} dialogOpen={dialogOpen} handleDialogClose={handleDialogClose} getValues={getValues}/>
-        
+        <FormDialog
+          ref={formDialogRef}
+          control={control}
+          dialogOpen={dialogOpen}
+          handleDialogClose={handleDialogClose}
+          getValues={getValues}
+        />
+
         <Box
           style={{
             display: 'flex',
@@ -130,7 +145,6 @@ const SimpleForm = () => {
           </Typography>
 
           <Grid2 container spacing={{ xs: 2, md: 3 }} sx={{ width: '800px' }}>
-          
             <Box
               px={3}
               py={2}
@@ -178,7 +192,7 @@ const SimpleForm = () => {
                 height: '100%',
                 maxHeight: 275,
                 my: isMobile ? 3 : 0,
-                overflowY: 'scroll'
+                overflowY: 'scroll',
               }}
             >
               <Grid2 item>

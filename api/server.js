@@ -96,9 +96,10 @@ socketIO.on("connection", socket => {
   //   socket.emit('test', test)
   // });
   
-  socket.on('sendTextBeeSms', async (data) => {
-    // const smsMsg = 'this is your reminder';
-    const { phone, message } = data;
+  socket.on('sendSMSVerificaton', async (data) => {
+    const { phone, dateScheduled } = data;
+    const message = `You have scheduled a reminder on ${dateScheduled}.`;
+    
     const { result } = await textBeeSms(message, phone);
     socket.emit('textBeeSms',result);
   });

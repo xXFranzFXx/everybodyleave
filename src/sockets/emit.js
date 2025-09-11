@@ -10,8 +10,8 @@ export const twilioVoice = (data) => {
   socket.emit('sendTwilioSms', data);
 }
 
-export const textBeeSms = (data) =>{
-  socket.emit('sendTextBeeSms', data);
+export const smsVerification = (data) =>{
+  socket.emit('sendSMSVerification', data);
 }
 export const cronTextBeeSms = (data) => {
   socket.emit('sendTextBeeCronSms', data)
