@@ -11,7 +11,7 @@ const  connectDb  = require('./db/config/dbConfig');
 const { dbConnection } = connectDb;
 
 // const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
-const { textBeeSms } = require('./helpers/textBee');
+// const { textBeeSms } = require('./helpers/textBee');
 const app = express();
 const http = require("http").Server(app);
 const corsOptions = {
@@ -23,6 +23,7 @@ const corsOptions = {
 const userRoutes = require('./routes/user');
 const eventRoutes = require('./routes/events');
 const calendarRoutes = require('./routes/calendarReminders');
+const textBeeRoutes = require('./routes/textBee');
 
 app.use(cors());
 app.use(express.urlencoded({
@@ -65,6 +66,7 @@ app.use((req, res, next) => {
 app.use('/api', userRoutes);
 app.use('/api', eventRoutes);
 app.use('/api', calendarRoutes);
+app.use('/api', textBeeRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
 socketIO.on("connection", socket => {
@@ -96,13 +98,13 @@ socketIO.on("connection", socket => {
   //   socket.emit('test', test)
   // });
   
-  socket.on('sendSMSVerificaton', async (data) => {
-    const { phone, dateScheduled } = data;
-    const message = `You have scheduled a reminder on ${dateScheduled}.`;
+  // socket.on('sendSMSVerificaton', async (data) => {
+  //   const { phone, dateScheduled } = data;
+  //   const message = `You have scheduled a reminder on ${dateScheduled}.`;
     
-    const { result } = await textBeeSms(message, phone);
-    socket.emit('textBeeSms',result);
-  });
+  //   const { result } = await textBeeSms(message, phone);
+  //   socket.emit('textBeeSms',result);
+  // });
 
   socket.on("disconnect", () => {
     socket.disconnect();

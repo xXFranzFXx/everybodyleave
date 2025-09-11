@@ -8,6 +8,7 @@ import { MetadataContext } from '../context/MetadataProvider';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
 import { smsVerification } from '../sockets/emit';
+import useFetch from '../hooks/useFetch';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import axios from 'axios';
@@ -38,6 +39,7 @@ const SimpleForm = () => {
     getValues,
     formState: { errors },
   } = methods;
+  const { sendVerificationSMS } = useFetch();
   const [dateScheduled, setDateScheduled] = useState('');
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -98,7 +100,7 @@ const SimpleForm = () => {
   useEffect(() => {
     if (saveSuccess) {
       setDialogOpen(true);
-       smsVerification(phone, dateScheduled)
+      sendVerificationSMS(phone, dateScheduled)
     }
   }, [saveSuccess]);
 

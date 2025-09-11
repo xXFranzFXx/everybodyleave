@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useSocketContext } from "./SocketProvider";
 import axios from 'axios'; 
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -10,6 +11,8 @@ dayjs.extend(isSameOrBefore);
   export const CalendarContext = createContext();
   const CalendarProvider = ({ children }) => {
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { state } = useSocketContext();
+  const { phone } = state;
   const [events, setEvents] = useState([]);
   const [calendarData, setCalendarData] = useState([]);
   const [latestTime, setLatestTime] = useState('');
@@ -79,35 +82,10 @@ dayjs.extend(isSameOrBefore);
     }
   };
 
-   const getCalendarReminders = async () => {
-    const token = await getAccessTokenSilently();
-    const id =  user?.mongoId;
-    try {
-        const response = await axios({
-        method: 'GET',
-        // url: `http://localhost:4000/api/calendarReminders/getReminders`,
-        url: `https://everybodyleave.onrender.com/api/calendarReminders/getReminders`,
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        params: {
-            id: id
-        },
-        });
-        const calendarReminders = await response.data;
-        console.log("calendar reminders: ", calendarReminders.result)
-        setCalendarData(calendarReminders.result)
-        return calendarReminders;
-    } catch (err) {
-        console.log('Error saving calendar reminder: ', err);
-    }
-    };
-    
   useEffect(() => {
     getEvents();
-    // getCalendarReminders();
     // getLatestTime();
-  }, []);
+  }, [phone]);
   const getLatestTime = async () => {
     try {
       const response = await axios({
