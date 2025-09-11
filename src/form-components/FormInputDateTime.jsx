@@ -92,7 +92,7 @@ export const FormInputDateTime = ({ name, control, label }) => {
       scheduled = reminders.map((result) => dayjs(result).date());
       console.log('scheduled: ', scheduled);
       return (
-        weekDayArr.includes(weekday) && (reminders.includes(`${pickerDate}`) || scheduled.includes(dayDate) || !dateSet.has(dayDate)) 
+        (weekDayArr.includes(weekday) || reminders.includes(`${pickerDate}`)) || (scheduled.includes(dayDate) || !dateSet.has(dayDate)) 
         
       );
     } else {
