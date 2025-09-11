@@ -41,7 +41,7 @@ export const Reminders = () => {
         },
       });
       const res = await response.data;
-      setDisplayedDate('');
+     
       let upcoming = [...upcomingReminders];
       upcoming.filter((dates) => dates !== date);
       setUpcomingReminders(upcoming);
@@ -142,18 +142,21 @@ export const Reminders = () => {
               ))}
           </>
         )}
+         
         {Array.isArray(pastReminders) &&
-          pastReminders.length &&
-          pastReminders?.map((date, idx) => (
+          pastReminders.length  &&  
+          <Typography variant="h6">Past Reminders </Typography> }
+         { pastReminders?.map((date, idx) => (
             <>
-              <Typography variant="h6">Past Reminders </Typography>
               <Grid2 container spacing={{ xs: 2, md: 3 }}>
                 <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
                   <Typography variant="h7">{formatReminder(date)}</Typography>
                 </Grid2>
               </Grid2>
             </>
-          ))}
+         ))}          
+          
+
       </Box>
     </>
   );

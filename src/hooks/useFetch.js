@@ -64,7 +64,8 @@ const useFetch = () => {
           id: `${mongoId}`,
         },
       });
-      const reminders = await response.data;
+      let reminders = [];
+      reminders = await response.data;
       console.log('getReminders: ', reminders);
       setScheduledReminders(reminders);
       return reminders;

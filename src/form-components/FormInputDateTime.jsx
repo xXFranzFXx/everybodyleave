@@ -1,23 +1,23 @@
-import React, { useState, useMemo, useEffect, useCallback }from "react";
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone'
-import weekOfYearPlugin from "dayjs/plugin/weekOfYear";
+import timezone from 'dayjs/plugin/timezone';
+import weekOfYearPlugin from 'dayjs/plugin/weekOfYear';
 import axios from 'axios';
-import { useMetadataContext } from "../context/MetadataProvider";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import MenuItem from "@mui/material/node/MenuItem";
-import { LocalizationProvider }  from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import { Controller } from "react-hook-form";
-import { renderDigitalClockTimeView } from "@mui/x-date-pickers";
-import { useCalendarContext } from "../context/CalendarProvider";
-import useFetch from "../hooks/useFetch";
+import { useMetadataContext } from '../context/MetadataProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import MenuItem from '@mui/material/node/MenuItem';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { Controller } from 'react-hook-form';
+import { renderDigitalClockTimeView } from '@mui/x-date-pickers';
+import { useCalendarContext } from '../context/CalendarProvider';
+import useFetch from '../hooks/useFetch';
 dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 // dayjs.tz.setDefault("America/Chicago")
-const DATE_FORMAT = "MM-DD-YYYY";
+const DATE_FORMAT = 'MM-DD-YYYY';
 const isInCurrentWeek = (date) => date.get('week') === dayjs().get('week');
 
 /* 
@@ -25,123 +25,138 @@ the available days are set to every Mon, Wed, Fri, and
 the available times are 5pm and 7pm.  User can only pick Within the current month.
 */
 
-export const FormInputDateTime = ({ name, control, label  }) => {
-    const { scheduledReminders } = useFetch();
-    const [val, setVal] = useState(null)
-    const [errorMsg, setErrorMsg] = useState(null);
-    const [currentTimezone, setCurrentTimezone] = React.useState('system');
-    // const [times, setTimes] = useState([]);
-    const { events, latestTime, times, dates } = useCalendarContext();
-    const now = new Date()
-    const currentHour = now.getHours()
-    const errorMessage = useMemo(() => {
-        switch (errorMsg) {  
-          case 'invalidDate': {
-            return 'date is not valid';
-          }
-          default: {
-            return 'date is required';
-          }
-        }
-      }, [errorMsg]);
-  
-    const shouldDisableTime =(time, view) => {
-      const reminders = scheduledReminders?.result;
-      const scheduled = reminders.map(result => dayjs(result).date())
-      console.log("reminders: ",scheduled)
-      const selectedDay = dayjs(time).date();
-      console.log("selectedDay: ", selectedDay)
-      // const pickerDate = dayjs(selectedDay).format('yyyy-MM-dd')
-      const today = dayjs().date();
-      const selectedTime = dayjs(time).hour();
-        if ( view === "hours") {
-            return dates.includes(selectedDay) || scheduled.includes(selectedDay) || !times.some(t => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
-        } else if (view === "minutes"){ 
-            return dayjs(time).minute() <= 0
-        }
-        return false;
-    }
-
-    const shouldDisableDay = (date) => {
-      const reminders = scheduledReminders?.result;
-      const scheduled = reminders.map(result => dayjs(result).date())
-      const dayDate = dayjs(date).date()
-      const datesArr = events.map(event => dayjs(event.date).format('yyyy-MM-dd'))
-      const dateSet = new Set(datesArr)
-      const pickerDate = dayjs(date).format('yyyy-MM-dd')
-      return  scheduled.includes(dayDate) || !dateSet.has(pickerDate)
-         
-      };
-
-    const addOneWeek = () => {
-      const date = new Date();
-      const oneWeek = date.setDate(date.getDate() + 5); 
-      const dayNextWeek = date.getDay(oneWeek);
-      if(dayNextWeek < 5){
-        return date.setDate(date.getDate() + 5 - dayNextWeek);  
+export const FormInputDateTime = ({ name, control, label }) => {
+  const { scheduledReminders } = useFetch();
+  const [val, setVal] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [currentTimezone, setCurrentTimezone] = React.useState('system');
+  // const [times, setTimes] = useState([]);
+  const { events, latestTime, times, dates } = useCalendarContext();
+  const now = new Date();
+  const currentHour = now.getHours();
+  const errorMessage = useMemo(() => {
+    switch (errorMsg) {
+      case 'invalidDate': {
+        return 'date is not valid';
       }
-      return oneWeek;
+      default: {
+        return 'date is required';
+      }
     }
-  useEffect(() => {
-    console.log("maxtime: ", dayjs().set('hour', times[2]).set('minute', 0).set('second', 0).set('millisecond', 0).date())
-    console.log("times: ", times)
-  },[])
-    return (
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <Controller
-          control={control}
-          name="datetime"
-          rules={{ required: true }}
-          render={({ field, fieldState: { error } }) => {
-              return (
-              <DateTimePicker
-                  timezone="system"
-                  disablePast={true}
-                  // minTime={dayjs().hour(times[0]- 1)}
-                  // maxTime={dayjs().hour(times[2])}
-                  minDate={new Date()}
-                  maxDate={addOneWeek()}
-                  label="Date/Time*"
-                  value={field.value?? null}
-                  inputRef={field.ref}
-                  onChange={(date) => {        
-                  field.onChange(date);
-                  
-                  }}
-                  slotProps={{
-                      textField: {
-                        error: !!error,
-                        helperText: error ? errorMessage : null,
-                        fullWidth: true,
-                        }
-                      }}
-                  minutesStep={60}
-                  views={['year', 'day', 'hours']}
-                  viewRenderers={{
-                      hours: renderDigitalClockTimeView,
-                      // minutes: renderDigitalClockTimeView,
-                      // seconds: renderDigitalClockTimeView,
-                  }} 
-                  skipDisabled={true}             
-                  onError={(newError) => setErrorMsg(newError)}
-                  variant="inline"  
-                  id={`date-${Math.random()}`} 
-                  rifmFormatter={(val) => val.replace(/[^[a-zA-Z0-9-]*$]+/gi, "")} 
-                  refuse={/[^[a-zA-Z0-9-]*$]+/gi} 
-                  autoOk 
-                  KeyboardButtonProps={{
-                      "aria-label": "change date",
-                  }}                    
-                  shouldDisableDate={(date) => shouldDisableDay(date)}
-                  shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
-                  referenceDate={currentHour < 16 ? dayjs().set("hours", times[0]).set("minutes", 0).set("seconds", 0) : dayjs().set("hours",times[2]).set("minutes", 0).set("seconds", 0)}
-                  
-                  {...field}   
+  }, [errorMsg]);
 
-                />
-              );
-           }}
-          />
-      </LocalizationProvider>
-    )
-}
+  const shouldDisableTime = (time, view) => {
+    let scheduled = [];
+    const selectedDay = dayjs(time).date();
+    const today = dayjs().date();
+    const selectedTime = dayjs(time).hour();
+    if (scheduledReminders.result.length > 0 && view === 'hours') {
+      const reminders = scheduledReminders.result;
+      scheduled = reminders.map((result) => dayjs(result).date());
+      return (
+        dates.includes(selectedDay) ||
+        scheduled.includes(selectedDay) ||
+        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
+      );
+    } else if (view === 'hours') {
+      return (
+        dates.includes(selectedDay) ||
+        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
+      );
+    } else if (view === 'minutes') {
+      return dayjs(time).minute() <= 0;
+    }
+    return false;
+  };
+
+  const shouldDisableDay = (date) => {
+    let scheduled = [];
+    const dayDate = dayjs(date).date();
+    const datesArr = events.map((event) => dayjs(event.date).format('yyyy-MM-dd'));
+    const dateSet = new Set(datesArr);
+    const pickerDate = dayjs(date).format('yyyy-MM-dd');
+    if (scheduledReminders.result.length > 0) {
+      const reminders = scheduledReminders.result;
+      scheduled = reminders.map((result) => dayjs(result).date());
+      return scheduled.includes(dayDate) || !dateSet.has(pickerDate);
+    } else {
+      return !dateSet.has(pickerDate);
+    }
+  };
+
+  const addOneWeek = () => {
+    const date = new Date();
+    const oneWeek = date.setDate(date.getDate() + 5);
+    const dayNextWeek = date.getDay(oneWeek);
+    if (dayNextWeek < 5) {
+      return date.setDate(date.getDate() + 5 - dayNextWeek);
+    }
+    return oneWeek;
+  };
+  useEffect(() => {
+    console.log(
+      'maxtime: ',
+      dayjs().set('hour', times[2]).set('minute', 0).set('second', 0).set('millisecond', 0).date()
+    );
+    console.log('times: ', times);
+  }, []);
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Controller
+        control={control}
+        name="datetime"
+        rules={{ required: true }}
+        render={({ field, fieldState: { error } }) => {
+          return (
+            <DateTimePicker
+              timezone="system"
+              disablePast={true}
+              // minTime={dayjs().hour(times[0]- 1)}
+              // maxTime={dayjs().hour(times[2])}
+              minDate={new Date()}
+              maxDate={addOneWeek()}
+              label="Date/Time*"
+              value={field.value ?? null}
+              inputRef={field.ref}
+              onChange={(date) => {
+                field.onChange(date);
+              }}
+              slotProps={{
+                textField: {
+                  error: !!error,
+                  helperText: error ? errorMessage : null,
+                  fullWidth: true,
+                },
+              }}
+              minutesStep={60}
+              views={['year', 'day', 'hours']}
+              viewRenderers={{
+                hours: renderDigitalClockTimeView,
+                // minutes: renderDigitalClockTimeView,
+                // seconds: renderDigitalClockTimeView,
+              }}
+              skipDisabled={true}
+              onError={(newError) => setErrorMsg(newError)}
+              variant="inline"
+              id={`date-${Math.random()}`}
+              rifmFormatter={(val) => val.replace(/[^[a-zA-Z0-9-]*$]+/gi, '')}
+              refuse={/[^[a-zA-Z0-9-]*$]+/gi}
+              autoOk
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+              shouldDisableDate={(date) => shouldDisableDay(date)}
+              shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
+              referenceDate={
+                currentHour < 16
+                  ? dayjs().set('hours', times[0]).set('minutes', 0).set('seconds', 0)
+                  : dayjs().set('hours', times[2]).set('minutes', 0).set('seconds', 0)
+              }
+              {...field}
+            />
+          );
+        }}
+      />
+    </LocalizationProvider>
+  );
+};
