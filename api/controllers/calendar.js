@@ -65,12 +65,14 @@ exports.saveCalendarReminder = async (req, res) => {
 };
 
 exports.getCalendarReminders = async (req, res) => {
-    const { phone } = req.body;
+    const { id } = req.query;
       try {
         const agg = [
           {
     $match: {
-      phone: phone
+   
+               _id: new mongoose.Types.ObjectId(`${id}`),
+            
     }
   }, {
     $lookup: {

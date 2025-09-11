@@ -81,7 +81,7 @@ dayjs.extend(isSameOrBefore);
 
    const getCalendarReminders = async () => {
     const token = await getAccessTokenSilently();
-    const name =  user?.name;
+    const id =  user?.mongoId;
     try {
         const response = await axios({
         method: 'GET',
@@ -90,8 +90,8 @@ dayjs.extend(isSameOrBefore);
         headers: {
             Authorization: `Bearer ${token}`,
         },
-        data: {
-            phone: name
+        params: {
+            id: id
         },
         });
         const calendarReminders = await response.data;
