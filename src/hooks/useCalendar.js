@@ -17,11 +17,11 @@ const useCalendar = () => {
     sameElse: 'DD[th of] MMMM YYYY [at] h:mm A',
   };
 
-  const now = dayjs();
+ 
 
   const isBeforeNow = (date) => {  
     const checkDate = dayjs(date)
-    return checkDate.isBefore(now);
+    return checkDate.isBefore(currentDate);
   };
   
   const isBetween = (start, end, target, options) => {

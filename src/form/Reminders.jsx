@@ -16,7 +16,7 @@ export const Reminders = ({ dateScheduled }) => {
   const { state } = useSocketContext();
   const { events } = useCalendarContext();
   let eventDates = [];
-  eventDates = events.filter(event => !isBeforeNow( dayjs(event.date).date()))
+  eventDates = events.filter(event => !isBeforeNow(event.date)).map(e => e.date)
   // const { snap } = useSnapshot(state);
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
