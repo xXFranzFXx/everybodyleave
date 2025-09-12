@@ -9,7 +9,7 @@ const useFetch = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const { formatDateTime, formatReminder } = useCalendar();
   const [scheduledReminders, setScheduledReminders] = useState([]);
-  const [calendarData, setCalendarData] = useState([])
+  const [calendarData, setCalendarData] = useState([]);
   const saveCalendarReminder = useCallback(async (data) => {
     const { role, reminderDate, mongoId, name } = user;
 
@@ -76,52 +76,54 @@ const useFetch = () => {
       console.log('Error getting scheduled reminders: ', err);
     }
   };
-    const getCalendarReminders = async () => {
-      const { mongoId } = user;
+  const getCalendarReminders = async () => {
+    const { mongoId } = user;
 
-      const token = await getAccessTokenSilently();
-     
-      try {
-          const response = await axios({
-          method: 'GET',
-          url: `http://localhost:4000/api/calendarReminders/getReminders`,
-          // url: `https://everybodyleave.onrender.com/api/calendarReminders/getReminders`,
-          headers: {
-              Authorization: `Bearer ${token}`,
-          },
-           params: {
+    const token = await getAccessTokenSilently();
+
+    try {
+      const response = await axios({
+        method: 'GET',
+        //   url: `http://localhost:4000/api/calendarReminders/getReminders`,
+        url: `https://everybodyleave.onrender.com/api/calendarReminders/getReminders`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
           id: await mongoId,
-        }
-          });
-          let calendarReminders = [];
-          calendarReminders = await response.data.result;
-          console.log("calendar reminders: ", calendarReminders)
-          setCalendarData(calendarReminders)
-          return calendarReminders;
-      } catch (err) {
-          console.log('Error saving calendar reminder: ', err);
-      }
-      };
+        },
+      });
+      let calendarReminders = [];
+      calendarReminders = await response.data.result;
+      console.log('calendar reminders: ', calendarReminders);
+      setCalendarData(calendarReminders);
+      return calendarReminders;
+    } catch (err) {
+      console.log('Error saving calendar reminder: ', err);
+    }
+  };
   useEffect(() => {
     getScheduledReminders();
     getCalendarReminders();
   }, []);
 
-   useEffect(
-       () =>
-         subscribe(state, () => {
-           const callback = () => {
-            
-             if (state.hasCancelled) {
-              getScheduledReminders();
-             }
-           };
-           const unsubscribe = subscribe(state, callback);
-           callback();
-           return unsubscribe;
-         }),
-       []
-     );
+  //subscribe to state, when event is cancelled, fetch the user's scheduled events so
+  //the cancelled event will be available to choose again from the datetimepicker component
+  useEffect(
+    () =>
+      subscribe(state, () => {
+        const callback = () => {
+          if (state.hasCancelled) {
+            getScheduledReminders();
+          }
+        };
+        const unsubscribe = subscribe(state, callback);
+        callback();
+        return unsubscribe;
+      }),
+    []
+  );
+
   const sendVerificationSMS = async (phone, dateScheduled) => {
     const token = await getAccessTokenSilently();
 
@@ -136,19 +138,19 @@ const useFetch = () => {
         data: {
           phone: phone,
           dateScheduled: formatReminder(dateScheduled),
-        }
+        },
       });
       const res = await response.data;
       return res;
     } catch (err) {
       console.log('Error sending verification SMS: ', err);
     }
-  }
+  };
   return {
     sendVerificationSMS,
     saveCalendarReminder,
     scheduledReminders,
-    calendarData
+    calendarData,
   };
 };
 
