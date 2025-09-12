@@ -140,7 +140,7 @@ const SimpleForm = () => {
             // border: '1px solid gray',
           }}
         >
-          <Typography variant="h6" align="center" margin="dense">
+          <Typography variant="h6" align="center" margin="dense" sx={{fontWeight: 'bold'}}>
             Everybodyleave Weekly Reminders
           </Typography>
 
@@ -150,7 +150,7 @@ const SimpleForm = () => {
               py={2}
               sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%' }}
             >
-              <Typography variant="h6" align="left" margin="dense">
+              <Typography variant="h6" align="left" margin="dense" sx={{fontWeight: 'bold'}}>
                 Schedule a Reminder
               </Typography>
               <Grid2 size={12} sx={{ width: '100%', my: 2 }}>
