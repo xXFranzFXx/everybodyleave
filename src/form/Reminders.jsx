@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from '../context/SocketProvider';
 import { useMetadataContext } from '../context/MetadataProvider';
+import dayjs from 'dayjs'
 import useFetch from '../hooks/useFetch';
 import axios from 'axios';
 import { subscribe, useSnapshot } from 'valtio';
@@ -13,7 +14,10 @@ export const Reminders = ({ dateScheduled }) => {
   const { isBeforeNow, formatReminder } = useCalendar();
   const { scheduledReminders } = useFetch();
   const { state } = useSocketContext();
-  const { snap } = useSnapshot(state);
+  const { events } = useCalendarContext();
+  let eventDates = [];
+  eventDates = events.filter(event => !isBeforeNow( dayjs(event.date).date()))
+  // const { snap } = useSnapshot(state);
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
   const { reminderDate, mongoId } = user;
@@ -129,10 +133,10 @@ export const Reminders = ({ dateScheduled }) => {
           ))}
         {/* {upcomingReminders.length ? ( */}
            <>
-            <Typography variant="h6">Upcoming Reminders </Typography>
-            {Array.isArray(upcomingReminders) &&
-              upcomingReminders.length &&
-              upcomingReminders?.map((date, idx) => (
+{ upcomingReminders.length > 0 ? ( 
+            <>
+            <Typography variant="h6" sx={{fontWeight: 'bold'}}> Upcoming Reminders </Typography>
+              { upcomingReminders?.map((date, idx) => (
                 <>
                   <Grid2 container spacing={{ xs: 2, md: 3 }} >
                     <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1}}>
@@ -148,7 +152,14 @@ export const Reminders = ({ dateScheduled }) => {
                     </Grid2>
                   </Grid2>
                 </>
-              ))}
+           ))} </>):
+           (
+            <>
+           <Typography variant="h6" sx={{fontWeight: 'bold'}}> Next Available Reminder </Typography>
+            <Typography variant="h7">{formatReminder(eventDates[0])}</Typography>
+           </>
+            )  
+           }
           </>
         {/* ) */}
          
@@ -157,7 +168,7 @@ export const Reminders = ({ dateScheduled }) => {
 {/* } */}
         {Array.isArray(pastReminders) &&
           pastReminders.length  &&  
-          <Typography variant="h6">Past Reminders </Typography> }
+          <Typography variant="h6" sx={{fontWeight: 'bold'}}>Past Reminders </Typography> }
          { pastReminders?.map((date, idx) => (
             <>
               <Grid2 container spacing={{ xs: 2, md: 3 }}>
