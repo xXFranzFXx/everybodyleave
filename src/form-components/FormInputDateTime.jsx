@@ -4,6 +4,8 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import weekOfYearPlugin from 'dayjs/plugin/weekOfYear';
 import axios from 'axios';
+import { subscribe } from 'valtio';
+import { useSocketContext } from '../context/SocketProvider';
 import { useMetadataContext } from '../context/MetadataProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import MenuItem from '@mui/material/node/MenuItem';
@@ -26,6 +28,7 @@ the available times are 5pm and 7pm.  User can only pick Within the current mont
 */
 
 export const FormInputDateTime = ({ name, control, label }) => {
+  const { state } = useSocketContext();
   const { scheduledReminders } = useFetch();
   const weekDayArr = [0, 2, 4, 6, 7];
 
@@ -34,6 +37,8 @@ export const FormInputDateTime = ({ name, control, label }) => {
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
   // const [times, setTimes] = useState([]);
   const { events, latestTime, times, dates } = useCalendarContext();
+  let combinedEvents = [];
+
   const now = new Date();
   const currentHour = now.getHours();
   const errorMessage = useMemo(() => {
@@ -46,7 +51,21 @@ export const FormInputDateTime = ({ name, control, label }) => {
       }
     }
   }, [errorMsg]);
-
+   useEffect(
+      () =>
+        subscribe(state, () => {
+          const callback = () => {
+           
+            if (state.hasCancelled) {
+              combinedEvents = [...scheduledReminders, state.hasCancelled]
+            }
+          };
+          const unsubscribe = subscribe(state, callback);
+          callback();
+          return unsubscribe;
+        }),
+      []
+    );
   const shouldDisableTime = (time, view) => {
     let scheduled = [];
     const selectedDay = dayjs(time).date();
@@ -61,7 +80,7 @@ export const FormInputDateTime = ({ name, control, label }) => {
         weekDayArr.includes(weekday) ||
         dates.includes(selectedDay) ||
         scheduled.includes(selectedDay) ||
-        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
+        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour()))) 
       );
     } else if (view === 'hours') {
       return (
@@ -115,6 +134,7 @@ export const FormInputDateTime = ({ name, control, label }) => {
       dayjs().set('hour', times[2]).set('minute', 0).set('second', 0).set('millisecond', 0).date()
     );
     console.log('times: ', times);
+    console.log("scheduledReminders: ", scheduledReminders)
   }, []);
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>

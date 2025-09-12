@@ -152,9 +152,9 @@ const CalendarComponent = () => {
     setValue,
     formState: { errors },
   } = methods;
-  const { saveCalendarReminder } = useFetch();
+  const { saveCalendarReminder, calendarData } = useFetch();
   const { formatDateTime } = useCalendar();
-  const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes, calendarData  } = useCalendarContext();
+  const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes  } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
   const [dataDisplay, setDataDisplay] = React.useState('list');
@@ -260,7 +260,7 @@ const CalendarComponent = () => {
       <Calendar
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
-        data={calendarData??testData}
+        data={testData}
         dataDisplay={dataDisplay}
         handleClickDay={handleClick}
       />

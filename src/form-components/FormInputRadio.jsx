@@ -19,7 +19,8 @@ export const FormInputRadio = ({ name, control, label, clickedDay }) => {
      
      const getTimes = () => {
      const times = simpleDtMap.get(clickedDay);
-     setRadioOptions(times)
+     const timeSet = new Set(times)
+     setRadioOptions(Array.from(timeSet))
      return times;
   }
      
@@ -27,7 +28,7 @@ export const FormInputRadio = ({ name, control, label, clickedDay }) => {
         getTimes();
     },[clickedDay]);
 
-    const formattedTimes =   radioOptions?.map(time => { 
+    const formattedTimes =  radioOptions?.map(time => { 
          return { 
                 label: dayjs()
                         .hour(time)

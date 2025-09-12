@@ -2,7 +2,10 @@ import { useCallback, useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import useCalendar from './useCalendar';
+import { subscribe } from 'valtio';
+import { useSocketContext } from '../context/SocketProvider';
 const useFetch = () => {
+  const { state } = useSocketContext();
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const { formatDateTime, formatReminder } = useCalendar();
   const [scheduledReminders, setScheduledReminders] = useState([]);
@@ -104,6 +107,21 @@ const useFetch = () => {
     getCalendarReminders();
   }, []);
 
+   useEffect(
+       () =>
+         subscribe(state, () => {
+           const callback = () => {
+            
+             if (state.hasCancelled) {
+              getScheduledReminders();
+             }
+           };
+           const unsubscribe = subscribe(state, callback);
+           callback();
+           return unsubscribe;
+         }),
+       []
+     );
   const sendVerificationSMS = async (phone, dateScheduled) => {
     const token = await getAccessTokenSilently();
 

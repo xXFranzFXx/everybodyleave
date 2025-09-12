@@ -19,6 +19,7 @@ export const Reminders = ({ dateScheduled }) => {
   const { reminderDate, mongoId } = user;
   const [displayedDate, setDisplayedDate] = useState([]);
   const [pastReminders, setPastReminders] = useState([]);
+  const [hasCancelled, setHasCancelled] = useState("");
   const [upcomingReminders, setUpcomingReminders] = useState([]);
   useEffect(() => {
     if(dateScheduled) {
@@ -29,9 +30,10 @@ export const Reminders = ({ dateScheduled }) => {
   },[dateScheduled]);
 
   const handleDeleteDate = useCallback((date) => {
-      setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date));
+      setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date)); 
+      state.hasCancelled = date  
   },[])
-  
+ 
   const onDelete = async (date) => {
     const token = await getAccessTokenSilently();
 
