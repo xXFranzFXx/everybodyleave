@@ -115,7 +115,12 @@ const useFetch = () => {
         const callback = () => {
           if (state.hasCancelled) {
             getScheduledReminders();
+          } else if (state.scheduledReminder) {
+            getScheduledReminders();
+            // state.scheduledReminder = false;
           }
+          state.currentReminders = scheduledReminders.result;
+          console.log("currentReminders: ", state.currentReminders)
         };
         const unsubscribe = subscribe(state, callback);
         callback();

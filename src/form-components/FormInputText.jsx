@@ -20,8 +20,12 @@ export const FormInputText = ({ name, control, label}) => {
                     fullWidth 
                     label={`${label} ${value? value.length: 0}/${CHARACTER_LIMIT}`} 
                     variant="outlined" 
-                    InputLabelProps={{ shrink: true }} 
-                    slotProps={{ htmlInput: { maxLength: CHARACTER_LIMIT } }}           
+                    slotProps={{ 
+                        htmlInput: { maxLength: CHARACTER_LIMIT },
+                        inputLabel: { shrink: true} 
+                        
+                        }}           
+                   
                     />
             )} 
             rules={{ required: { value: true, message: 'This field is required' } }}

@@ -7,7 +7,7 @@ import useFetch from '../hooks/useFetch';
 import axios from 'axios';
 import { subscribe, useSnapshot } from 'valtio';
 import useCalendar from '../hooks/useCalendar';
-import { Typography, Button, Grid2, Box } from '@mui/material';
+import { Typography, Button, Grid2, Box, Divider } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
 export const Reminders = ({ dateScheduled }) => {
   // const { reminders } = useMetadataContext();
@@ -151,12 +151,14 @@ export const Reminders = ({ dateScheduled }) => {
                       )}
                     </Grid2>
                   </Grid2>
+               
                 </>
-           ))} </>):
+           ))}    <Divider sx={{my: 1}}/></>):
            (
             <>
-           <Typography variant="h6" sx={{fontWeight: 'bold'}}> Next Available Reminder </Typography>
+           <Typography variant="h6" sx={{fontWeight: 'bold'}}> Next Available Timeslot </Typography>
             <Typography variant="h7">{formatReminder(eventDates[0])}</Typography>
+            <Divider sx={{my: 1}}/>
            </>
             )  
            }

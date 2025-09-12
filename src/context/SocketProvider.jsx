@@ -13,7 +13,8 @@ const SocketProvider = ({ children }) => {
             acceptTerms: false,
             scheduledEvent: false,
             drawerOpen: false,
-            hasCancelled: ""
+            hasCancelled: "",
+            updatedReminders: []
 
 
 })).current
