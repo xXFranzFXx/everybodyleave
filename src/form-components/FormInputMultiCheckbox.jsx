@@ -36,7 +36,8 @@ export const FormInputMultiCheckbox = ({ name, control, setValue, label, }) => {
         setValue(name, selectedItems);
         
     }, [selectedItems]);
-    return (<FormControl variant="outlined" required>
+    return (
+    <FormControl variant="outlined" required>
       <FormLabel component="legend">{label}</FormLabel>
 
       <div>

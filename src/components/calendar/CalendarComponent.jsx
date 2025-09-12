@@ -4,6 +4,7 @@ import { FormInputText } from '../../form-components/FormInputText';
 // import Calendar from 'react-mui-calendar';
 import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
+import { FormInputCheckBox } from '../../form-components/FormInputCheckBox';
 import { FormInputMultiCheckbox } from '../../form-components/FormInputMultiCheckbox';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Grid2, Box, Drawer, Typography, Divider, Button } from '@mui/material';
@@ -243,7 +244,7 @@ const CalendarComponent = () => {
               <FormInputRadio ref={radioRef} clickedDay={clickedDay} control={control} name="time" label="time" />
             </Grid2>
             <Grid2 item size={12}>
-                <FormInputMultiCheckbox name="receiveText" label="receive text" control={control} setValue={setValue}/>
+                <FormInputCheckBox name="receiveText" label="receive sms reminder" control={control}/>
             </Grid2>
           </Grid2>
         
