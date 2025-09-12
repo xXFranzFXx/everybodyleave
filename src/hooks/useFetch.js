@@ -4,7 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import useCalendar from './useCalendar';
 const useFetch = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
-  const { formatDateTime } = useCalendar();
+  const { formatDateTime, formatReminder } = useCalendar();
   const [scheduledReminders, setScheduledReminders] = useState([]);
   const [calendarData, setCalendarData] = useState([])
   const saveCalendarReminder = useCallback(async (data) => {
@@ -117,7 +117,7 @@ const useFetch = () => {
         },
         data: {
           phone: phone,
-          dateScheduled: new Date(dateScheduled),
+          dateScheduled: formatReminder(dateScheduled),
         }
       });
       const res = await response.data;

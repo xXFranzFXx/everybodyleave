@@ -29,9 +29,7 @@ export const Reminders = ({ dateScheduled }) => {
   },[dateScheduled]);
 
   const handleDeleteDate = useCallback((date) => {
-     let upcoming = [...upcomingReminders];
-      upcoming.filter((dates) => dates !== date);
-      setUpcomingReminders(upcoming);
+      setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date));
   },[])
   
   const onDelete = async (date) => {
