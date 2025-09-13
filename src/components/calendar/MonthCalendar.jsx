@@ -241,7 +241,7 @@ const MonthCalendar = (props) => {
             let month;
             if (monthIndex < 10) {
                 month = '0'+monthIndex;
-                console.log(month);
+                // console.log(month);
             } else {
                 month = monthIndex;
             }

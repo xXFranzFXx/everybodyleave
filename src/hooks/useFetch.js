@@ -54,7 +54,7 @@ const useFetch = () => {
     const { mongoId } = user;
 
     const token = await getAccessTokenSilently();
-    console.log('mongoId: ', mongoId);
+    // console.log('mongoId: ', mongoId);
     try {
       const response = await axios({
         method: 'GET',
@@ -69,7 +69,6 @@ const useFetch = () => {
       });
       let reminders = [];
       reminders = await response.data;
-      console.log('getReminders: ', reminders);
       setScheduledReminders(reminders);
       return reminders;
     } catch (err) {
@@ -95,7 +94,6 @@ const useFetch = () => {
       });
       let calendarReminders = [];
       calendarReminders = await response.data.result;
-      console.log('calendar reminders: ', calendarReminders);
       setCalendarData(calendarReminders);
       return calendarReminders;
     } catch (err) {

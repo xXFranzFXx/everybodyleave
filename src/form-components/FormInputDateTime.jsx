@@ -3,12 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import weekOfYearPlugin from 'dayjs/plugin/weekOfYear';
-import axios from 'axios';
-import { subscribe } from 'valtio';
-import { useSocketContext } from '../context/SocketProvider';
-import { useMetadataContext } from '../context/MetadataProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import MenuItem from '@mui/material/node/MenuItem';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { Controller } from 'react-hook-form';
@@ -18,27 +13,17 @@ import useFetch from '../hooks/useFetch';
 dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
 dayjs.extend(timezone);
-// dayjs.tz.setDefault("America/Chicago")
 const DATE_FORMAT = 'MM-DD-YYYY';
 const isInCurrentWeek = (date) => date.get('week') === dayjs().get('week');
 
-/* 
-the available days are set to every Mon, Wed, Fri, and 
-the available times are 5pm and 7pm.  User can only pick Within the current month.
-*/
-
 export const FormInputDateTime = ({ name, control, label }) => {
-  const { state } = useSocketContext();
   const { scheduledReminders } = useFetch();
   const weekDayArr = [0, 2, 4, 6, 7];
 
-  const [val, setVal] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
-  // const [times, setTimes] = useState([]);
-  const { events, latestTime, times, dates } = useCalendarContext();
-  let combinedEvents = [];
-
+  const { events, times, dates } = useCalendarContext();
+  
   const now = new Date();
   const currentHour = now.getHours();
   const errorMessage = useMemo(() => {
@@ -51,42 +36,38 @@ export const FormInputDateTime = ({ name, control, label }) => {
       }
     }
   }, [errorMsg]);
-   useEffect(
-      () =>
-        subscribe(state, () => {
-          const callback = () => {
-           
-            if (state.hasCancelled) {
-              combinedEvents = [...scheduledReminders, state.hasCancelled]
-            }
-          };
-          const unsubscribe = subscribe(state, callback);
-          callback();
-          return unsubscribe;
-        }),
-      []
-    );
+
+
+const checkTimeFinalCall = (time) => {
+      const specificHour = dayjs().hour(time).minute(0).second(0).millisecond(0);
+      const fifteenMinutesBeforeNextHour= specificHour.subtract(15, 'minute');
+      // console.log("time 15 min before specific hour: ", dayjs(fifteenMinutesBeforeNextHour).format())
+      return fifteenMinutesBeforeNextHour;
+  }
+
   const shouldDisableTime = (time, view) => {
     let scheduled = [];
     const selectedDay = dayjs(time).date();
     const today = dayjs().date();
     const weekday = dayjs(time).day();
-    console.log('selectedDay: ', selectedDay);
     const selectedTime = dayjs(time).hour();
-    if (scheduledReminders.result.length > 0 && view === 'hours') {
-      const reminders = scheduledReminders.result;
+    // console.log("selectedDay: ", selectedDay)
+   
+
+    if (scheduledReminders?.result.length > 0 && view === 'hours') {
+      const reminders = scheduledReminders?.result;
       scheduled = reminders.map((result) => dayjs(result).date());
       return (
         weekDayArr.includes(weekday) ||
         dates.includes(selectedDay) ||
         scheduled.includes(selectedDay) ||
-        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour()))) 
+        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour()) || dayjs().format() === checkTimeFinalCall(time)))
       );
     } else if (view === 'hours') {
       return (
         weekDayArr.includes(weekday) ||
         dates.includes(selectedDay) ||
-        !times.some((t) => t === selectedTime || (today === selectedDay && !(time > dayjs().hour())))
+        !times.some((t) => t === selectedTime || (today === selectedDay && (!(time > dayjs().hour()) || dayjs().format() === checkTimeFinalCall(time)) ))
       );
     } else if (view === 'minutes') {
       return weekDayArr.includes(weekday) || dayjs(time).minute() <= 0;
@@ -97,22 +78,18 @@ export const FormInputDateTime = ({ name, control, label }) => {
   const shouldDisableDay = (date) => {
     let scheduled = [];
     const dayDate = dayjs(date).date();
-    console.log('dayDate: ', dayDate);
     const weekday = dayjs(date).day();
-    console.log('weekday: ', weekday);
     const datesArr = events.map((event) => dayjs(event.date).date());
     const dateSet = new Set(datesArr);
-    console.log('dateSet: ', dateSet);
     const pickerDate = dayjs.utc(date).format();
-    console.log('pickerDate: ', pickerDate);
-    if (scheduledReminders.result.length > 0) {
+    if (scheduledReminders?.result.length > 0) {
       const reminders = scheduledReminders.result;
-      console.log('reminders: ', reminders);
       scheduled = reminders.map((result) => dayjs(result).date());
-      console.log('scheduled: ', scheduled);
       return (
-        (weekDayArr.includes(weekday) || reminders.includes(`${pickerDate}`)) || (scheduled.includes(dayDate) || !dateSet.has(dayDate)) 
-        
+        weekDayArr.includes(weekday) ||
+        reminders.includes(`${pickerDate}`) ||
+        scheduled.includes(dayDate) ||
+        !dateSet.has(dayDate)
       );
     } else {
       return weekDayArr.includes(weekday) || !dateSet.has(dayDate);
@@ -128,14 +105,9 @@ export const FormInputDateTime = ({ name, control, label }) => {
     }
     return oneWeek;
   };
-  useEffect(() => {
-    console.log(
-      'maxtime: ',
-      dayjs().set('hour', times[2]).set('minute', 0).set('second', 0).set('millisecond', 0).date()
-    );
-    console.log('times: ', times);
-    console.log("scheduledReminders: ", scheduledReminders)
-  }, []);
+ useEffect(() => {
+  checkTimeFinalCall(17)
+ },[])
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Controller

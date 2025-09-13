@@ -40,14 +40,11 @@ dayjs.extend(isSameOrBefore);
       const hours = await result?.map((event) => dayjs(event.date).hour());
       const hourSet = new Set(hours);
       setTimes(Array.from(hourSet));
-      // events.forEach(event => {
-      //   console.log("dayjs(event.date): ", dayjs(event.date).date())
-      // })
+   
       const available = await result.filter(
         (event) =>  now.isBefore(dayjs(event.date)) 
       );
       setAvailableDT(available);
-      console.log('available: ', available);
       const dates = await result?.map((event) => format(event.date, 'yyyy-MM-dd'));
       const dateSet = new Set(dates);
       setDates(Array.from(dateSet));
@@ -56,7 +53,6 @@ dayjs.extend(isSameOrBefore);
       const daysSet = new Set(days);
       const dotm = Array.from(daysSet);
       setDaysOfMonth(dotm);
-      // console.log('daysOfMonth: ', dotm);
       await available.forEach((event) => {
         dateTimeMap.set(dayjs(event.date).format('YYYY-MM-DD'), []);
       });
@@ -73,9 +69,6 @@ dayjs.extend(isSameOrBefore);
       });
       setSimpleDtMap(dayTMap);
       setDtMap(dateTimeMap);
-      console.log('dateTimeMap: ', dateTimeMap);
-
-     
       return { dateSet, daysSet, dateTimeMap, hourSet, dotm };
     } catch (err) {
       console.log('Error retrieving dates: ', err);
