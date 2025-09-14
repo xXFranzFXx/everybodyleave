@@ -1,30 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from '../context/SocketProvider';
-import { useMetadataContext } from '../context/MetadataProvider';
-import dayjs from 'dayjs';
 import useFetch from '../hooks/useFetch';
 import axios from 'axios';
-import { subscribe, useSnapshot } from 'valtio';
 import useCalendar from '../hooks/useCalendar';
 import { Typography, Button, Grid2, Box, Divider } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
+
 export const Reminders = ({ dateScheduled }) => {
-  // const { reminders } = useMetadataContext();
   const { isBeforeNow, formatReminder } = useCalendar();
   const { scheduledReminders } = useFetch();
   const { state } = useSocketContext();
   const { events } = useCalendarContext();
   let eventDates = [];
   eventDates = events.filter((event) => !isBeforeNow(event.date)).map((e) => e.date);
-  // const { snap } = useSnapshot(state);
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
-  const { reminderDate, mongoId } = user;
-  const [displayedDate, setDisplayedDate] = useState([]);
+  const {  mongoId } = user;
   const [pastReminders, setPastReminders] = useState([]);
-  const [hasCancelled, setHasCancelled] = useState('');
   const [upcomingReminders, setUpcomingReminders] = useState([]);
+
   useEffect(() => {
     if (dateScheduled) {
       let upcoming = [...upcomingReminders];
@@ -81,51 +76,22 @@ export const Reminders = ({ dateScheduled }) => {
   }, [scheduledReminders]);
   const onEdit = () => {};
 
-  // useEffect(
-  //   () =>
-  //     subscribe(state, () => {
-  //       const callback = () => {
-  //         let past = [];
-  //         let current = [];
-  //         if (state.reminders.length) {
-  //           state.reminders?.forEach((reminder) => {
-  //             if (isBeforeNow(reminder)) {
-  //               past.push(reminder);
-  //             } else {
-  //               current.push(reminder);
-  //             }
-  //             setPastReminders(past);
-  //             setUpcomingReminders(current);
-  //           });
-  //           if (state.currentReminder) {
-  //             let newDate = [...displayedDate, state.reminder];
-  //             setDisplayedDate(state.currentReminder);
-  //           }
-  //         }
-  //       };
-  //       const unsubscribe = subscribe(state, callback);
-  //       callback();
-  //       return unsubscribe;
-  //     }),
-  //   []
-  // );
-
   return (
     <>
       <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1 }}>
-        {upcomingReminders.length > 0 ? (
+        { upcomingReminders.length > 0 ? (
           <>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
               {' '}
               Upcoming Reminders{' '}
             </Typography>
-            {upcomingReminders?.map((date, idx) => (
+            { upcomingReminders?.map((date, idx) => (
               <>
                 <Grid2 container spacing={{ xs: 2, md: 3 }}>
                   <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
                     <Typography variant="h7">{formatReminder(date)}</Typography>
 
-                    {!isBeforeNow(date) && (
+                    { !isBeforeNow(date) && (
                       <Grid2 item size={4}>
                         <Button variant="contained" color="primary" onClick={() => onDelete(date)}>
                           Cancel
@@ -149,20 +115,26 @@ export const Reminders = ({ dateScheduled }) => {
           </>
         )}
 
-        {Array.isArray(pastReminders) && pastReminders.length && (
+        {Array.isArray(pastReminders) && pastReminders.length > 0 ? (
+          <>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              Past Reminders{' '}
+            </Typography>
+            { pastReminders?.map((date, idx) => (
+              <>
+                <Grid2 container spacing={{ xs: 2, md: 3 }}>
+                  <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
+                    <Typography variant="h7">{formatReminder(date)}</Typography>
+                  </Grid2>
+                </Grid2>
+              </>
+            ))}
+          </>
+        ) : (
           <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            Past Reminders{' '}
+            No Scheduled Reminders
           </Typography>
         )}
-        {pastReminders?.map((date, idx) => (
-          <>
-            <Grid2 container spacing={{ xs: 2, md: 3 }}>
-              <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
-                <Typography variant="h7">{formatReminder(date)}</Typography>
-              </Grid2>
-            </Grid2>
-          </>
-        ))}
       </Box>
     </>
   );

@@ -168,12 +168,13 @@ const CalendarComponent = () => {
   const radioRef = useRef();
   
   
-  const handleClick = ({ day, month, year }) => {
+  const handleClick = ({ day, month, year, hasData, data }) => {
     setClickedDay(day);
     setValue("day", day);
     setValue("month", month);
     setValue("year", year);
     setDayName(dayjs(`${year}-${month}-${day}`).format('dddd'));
+    console.log("data: ", data)
     if (daysOfMonth?.includes(day)) {
      setOpen(true)
     }
@@ -229,7 +230,7 @@ const CalendarComponent = () => {
                 </Typography>
               </Grid2>
               <Grid2 item size={6}>
-                <Typography variant="h1" sx={{ pb: 1, justifySelf: 'flex-end', fontSize: '9rem' }}>
+                <Typography variant="h1" sx={{ pb: 1, justifySelf: 'flex-end', fontSize: '8,5rem' }}>
                   {clickedDay || ''}
                 </Typography>
               </Grid2>
@@ -261,7 +262,7 @@ const CalendarComponent = () => {
       <Calendar
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
-        data={testData}
+        data={calendarData??testData}
         dataDisplay={dataDisplay}
         handleClickDay={handleClick}
       />

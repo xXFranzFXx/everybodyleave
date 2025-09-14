@@ -5,6 +5,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CircleIcon from '@mui/icons-material/Circle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DaysOfWeek from './DOW';
+import dayjs from 'dayjs';
 
 const MonthBlock = (props) => {
     let newIntention = props.intention;
@@ -95,9 +96,10 @@ const MonthBlock = (props) => {
             <Grid2
                 sx={{paddingLeft: '1px', paddingRight: '2px', paddingBottom: '1px',  overflow: 'hidden', textOverflow: 'clip'}}
                 size={12}>
-                <Typography noWrap sx={{fontSize: { xs: '10px' } }} style={{paddingLeft: '2px', color: '#ffffff', backgroundColor: props.color ? props.color : "#000000", textAlign: 'left', textDecoration: props.completed ? 'line-through' : 'none', borderRadius: '2px'}}>{props.intention ? intention : ""}</Typography>
+                <Typography noWrap sx={{fontSize: { xs: '10px' } }} style={{paddingLeft: '2px', color: '#ffffff', backgroundColor: props.color ? props.color : "#000000", textAlign: 'left', textDecoration: props.completed ? 'line-through' : 'none', borderRadius: '2px'}}>{props.intention ? intention : ""} {" "} 
+                {props.hours ? (`@  ${dayjs().hour(parseInt(props.hours)).minute(0).second(0).millisecond(0).format('h:mm A')}`): null }</Typography>
             </Grid2>
-        );
+        )
     } else {
         return null;
     }
@@ -105,7 +107,7 @@ const MonthBlock = (props) => {
 
 const CalendarItem = (props) => {
     const drawerRef = React.useRef(null)
-    
+    const [hasData, setHasData] = React.useState(false)
     let dateNum;
     let color;
     let circleColor = props.secondaryColor;
@@ -119,13 +121,23 @@ const CalendarItem = (props) => {
     } else {
         return;
     }
-   
+    const checkData = (datenum) => {
+        let dataArray = [];
+        dataArray = props.data.map(key => parseInt(key.day))
+
+        return dataArray.includes(datenum);
+    }
+    const showEventData = (datenum) => {
+        return props.data.filter(key => parseInt(key.day) === datenum)
+    }
     const handleClick = () => {
         if (props.day.isInMonth) {
             props.handleDayClick({
                 "day": dateNum,
                 "month": props.monthIndex,
-                "year": props.currYear
+                "year": props.currYear,
+                "hasData": checkData(dateNum),
+                "data": showEventData(dateNum)??""
             });
           
      
@@ -141,7 +153,7 @@ const CalendarItem = (props) => {
             <Grid2 container sx={{ marginTop: { xs: '0px', sm: '0px' } }} style={{width: '100%'}}>
             {
                 props.data ? props.data.map((block, index) => (
-                    parseInt(block.day) === dateNum && props.day.isInMonth && parseInt(block.month) === props.monthIndex && parseInt(block.year) === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.hours} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
+                    parseInt(block.day) === dateNum && props.day.isInMonth && parseInt(block.month) === props.monthIndex && parseInt(block.year) === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.time} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
                 )) : null
             }
             </Grid2>
