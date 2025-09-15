@@ -6,20 +6,25 @@ import axios from 'axios';
 import useCalendar from '../hooks/useCalendar';
 import { Typography, Button, Grid2, Box, Divider } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
+import FormDialogCancel from '../form-components/FormDialogCancel';
+
 
 export const Reminders = ({ dateScheduled }) => {
   const { isBeforeNow, formatReminder } = useCalendar();
-  const { scheduledReminders } = useFetch();
+  const { scheduledReminders, sendCancellationSMS } = useFetch();
   const { state } = useSocketContext();
   const { events } = useCalendarContext();
   let eventDates = [];
   eventDates = events.filter((event) => !isBeforeNow(event.date)).map((e) => e.date);
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
-  const {  mongoId } = user;
+  const {  mongoId, name } = user;
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
-
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const handleDialogClose = () => {
+    setDialogOpen(false)
+  }
   useEffect(() => {
     if (dateScheduled) {
       let upcoming = [...upcomingReminders];
@@ -31,6 +36,8 @@ export const Reminders = ({ dateScheduled }) => {
   const handleDeleteDate = useCallback((date) => {
     setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date));
     state.hasCancelled = date;
+    setDialogOpen(true)
+    sendCancellationSMS(name, date)
   }, []);
 
   const onDelete = async (date) => {
@@ -78,6 +85,7 @@ export const Reminders = ({ dateScheduled }) => {
 
   return (
     <>
+    <FormDialogCancel open={dialogOpen} handleDialogClose={handleDialogClose} />
       <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1 }}>
         { upcomingReminders.length > 0 ? (
           <>
@@ -115,7 +123,7 @@ export const Reminders = ({ dateScheduled }) => {
           </>
         )}
 
-        {Array.isArray(pastReminders) && pastReminders.length > 0 ? (
+        {Array.isArray(pastReminders) && pastReminders.length > 0 && 
           <>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
               Past Reminders{' '}
@@ -129,12 +137,8 @@ export const Reminders = ({ dateScheduled }) => {
                 </Grid2>
               </>
             ))}
-          </>
-        ) : (
-          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            No Scheduled Reminders
-          </Typography>
-        )}
+          </>  
+        }
       </Box>
     </>
   );

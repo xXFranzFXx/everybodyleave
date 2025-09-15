@@ -149,8 +149,32 @@ const useFetch = () => {
       console.log('Error sending verification SMS: ', err);
     }
   };
+
+   const sendCancellationSMS = async (phone, dateScheduled) => {
+    const token = await getAccessTokenSilently();
+
+    try {
+      const response = await axios({
+        method: 'POST',
+        // url: `http://localhost:4000/api/textBee/cancellationSMS`,
+        url: `https://everybodyleave.onrender.com/api/textBee/cancellationSMS`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          phone: phone,
+          dateScheduled: formatReminder(dateScheduled),
+        },
+      });
+      const res = await response.data;
+      return res;
+    } catch (err) {
+      console.log('Error sending cancellation SMS: ', err);
+    }
+  };
   return {
     sendVerificationSMS,
+    sendCancellationSMS,
     saveCalendarReminder,
     scheduledReminders,
     calendarData,
