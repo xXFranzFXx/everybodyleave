@@ -35,7 +35,7 @@ export const FormInputRadio = ({ name, control, label, clickedDay }) => {
                         .minute(0)
                         .second(0)
                         .millisecond(0)
-                        .format('hh:mm A'), 
+                        .format('h:mm A'), 
                 value: time 
             } || `There are no available times`
         });

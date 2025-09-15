@@ -13,6 +13,7 @@ import { useCalendarContext } from '../../context/CalendarProvider';
 import useCalendar from '../../hooks/useCalendar';
 import useFetch from '../../hooks/useFetch';
 import { DataThresholdingTwoTone } from '@mui/icons-material';
+import CalendarDrawer from './CalendarDrawer';
 const testData = [
   {
     day: 3,
@@ -139,7 +140,8 @@ const CalendarComponent = () => {
     year: '',
     status: 'upcoming',
     completed: false,
-    color: '#0000FF'
+    color: '#0000FF',
+    dayData: []
   };
 
   const methods = useForm({ defaultValues: defaultValues || '' });
@@ -147,7 +149,7 @@ const CalendarComponent = () => {
     handleSubmit,
     register,
     getValues,
-    
+
     reset,
     control,
     setValue,
@@ -155,32 +157,33 @@ const CalendarComponent = () => {
   } = methods;
   const { saveCalendarReminder, calendarData } = useFetch();
   const { formatDateTime } = useCalendar();
-  const {  dates, events, times, daysOfMonth, availableDT, dtMap, getTimes  } = useCalendarContext();
+  const { dates, events, times, daysOfMonth, availableDT, dtMap, getTimes } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
   const [dataDisplay, setDataDisplay] = React.useState('list');
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
-  const [radioOptions, setRadioOptions]= React.useState([])
-  const [dayName, setDayName] = React.useState("")
+  const [radioOptions, setRadioOptions] = React.useState([]);
+  const [dayName, setDayName] = React.useState('');
+  const [itemData, setItemData] = ([]);
 
- 
   const radioRef = useRef();
-  
-  
+
   const handleClick = ({ day, month, year, hasData, data }) => {
     setClickedDay(day);
-    setValue("day", day);
-    setValue("month", month);
-    setValue("year", year);
+    setValue('day', day);
+    setValue('month', month);
+    setValue('year', year);
     setDayName(dayjs(`${year}-${month}-${day}`).format('dddd'));
-    console.log("data: ", data)
+    console.log('data: ', data);
     if (daysOfMonth?.includes(day)) {
-     setOpen(true)
+      setOpen(true);
     }
-    
+    if ( hasData ) {
+     setValue('dayData', data)
+    }
   };
- 
+
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -202,15 +205,25 @@ const CalendarComponent = () => {
     setOpen(false);
   };
   const handleCancel = () => {
-    setValue("time", "");
-    setValue("intention", "")
-    setValue("receiveText", "")
-    setOpen(false)
-  }
+    setValue('time', '');
+    setValue('intention', '');
+    setValue('receiveText', '');
+    setOpen(false);
+  };
   return (
     <div align="left">
       <FormProvider {...methods}>
-        <Drawer
+        <CalendarDrawer
+          control={control}
+          handleSubmit={handleSubmit}
+          onSubmit={onSubmit}
+          clickedDay={clickedDay}
+          open={open}
+          dayName={dayName}
+          toggleDrawer={toggleDrawer}
+          handleCancel={handleCancel}
+        />
+        {/* <Drawer
           PaperProps={{
             sx: {
               width: '35vw',
@@ -256,13 +269,13 @@ const CalendarComponent = () => {
           <Button variant="outlined" onClick={handleCancel}>
             Cancel
           </Button>
-        </Drawer>
+        </Drawer> */}
       </FormProvider>
       <div style={{ height: '30px' }}></div>
       <Calendar
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
-        data={calendarData??testData}
+        data={calendarData ?? testData}
         dataDisplay={dataDisplay}
         handleClickDay={handleClick}
       />

@@ -15,6 +15,9 @@ const LoginButton = () => {
         alignContent: 'space-between',
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#3333E9',
+        position: 'relative',
+        height: '100vh'
       }}
     >
       <Grid2 container spacing={{ xs: 2, md: 3 }} columnSpacing={{ xs: 12, sm: 10, md: 3 }}>
@@ -39,7 +42,7 @@ const LoginButton = () => {
         </Fade>
         <Fade in={true} timeout={9000}>
           <Grid2 item xs={12} sm={4} sx={{ marginLeft: '25%' }}>
-            <Button onClick={() => loginWithRedirect()}>Schedule A Reminder</Button>
+            <Button sx={{color: '#fff'}} onClick={() => loginWithRedirect()}>Schedule A Reminder</Button>
           </Grid2>
         </Fade>
       </Grid2>
