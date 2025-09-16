@@ -4,10 +4,10 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAuth0 } from '@auth0/auth0-react';
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
+import { FormInputText } from '../form-components/FormInputText';
 import { MetadataContext } from '../context/MetadataProvider';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
-import { smsVerification } from '../sockets/emit';
 import useFetch from '../hooks/useFetch';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
@@ -141,7 +141,7 @@ const SimpleForm = () => {
           }}
         >
           <Typography variant="h6" align="center" margin="dense" sx={{fontWeight: 'bold'}}>
-            Everybodyleave Weekly Reminders
+            EverybodyLeave Weekly Reminders
           </Typography>
 
           <Grid2 container spacing={{ xs: 2, md: 3 }} sx={{ width: '800px' }}>
@@ -159,7 +159,9 @@ const SimpleForm = () => {
               <Grid2 size={12} sx={{ my: 1 }}>
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
-
+               {/* <Grid2 size={12} sx={{ mt: 2 }}>
+                <FormInputText  name="message" control={control} label="Reminder Message" />
+              </Grid2> */}
               {/* {role === 'basic' &&  scheduledReminder ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
                   <Typography variant="h8" align="center" margin="dense">
