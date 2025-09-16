@@ -1,10 +1,54 @@
 const { Inngest, NonRetriableError } = require('inngest');
 const inngest = new Inngest({ id: "weekly_reminders" });
+const crypto = require('crypto');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
-const { textBeeBulkSms } = require('../helpers/textBee');
+const { textBeeBulkSms } = require('../controllers/textBee');
+
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+//since raw will already be stringified by inngest no need to do JSON.stringify on the payload here
+function verifyWebhookSignature(payload, signature, secret) {
+  const hmac = crypto.createHmac('sha256', secret);
+  const digest = hmac.update(payload).digest('hex');
+  const signatureHash = signature.split('=')[1];
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signatureHash),
+    Buffer.from(digest)
+  );
+}
+
+export const textBeeWhFunction = inngest.createFunction(
+  { id: "textBee-sms-received" },
+  { event: "textBee/sms.received" },
+  async ({ event, step }) => {
+    const rawBody = await event.data.raw;
+    const signature = await event.data.headers['x-signature'];
+    
+     if (!rawBody || !signature || !webhookSecret) {
+      throw new Error("Missing required data for HMAC verification.");
+    }
+
+     if (!verifyWebhookSignature(rawBody, signature, WEBHOOK_SECRET)) {
+      throw new Error("Invalid Signature!");
+  }
+     const payload = await JSON.parse(rawBody);
+     const { sender, message } = await payload;
+      console.log("Webhook payload:", payload);
+
+    // Your business logic here...
+    await step.run("process-wh-data", async () => {
+      console.log("sender is: ", sender);
+      console.log("response is: ", message);
+      // TODO: update user document and event document with the response received in this webhook
+    });
+
+    return { status: "success" };
+  
+ }
+)
 /**
  * Timezones: 
  * EST/New_York, 17:00/21:00UTC same day 19:00/23:00UTC same day
@@ -149,6 +193,7 @@ const sendBulkSms = inngest.createFunction(
 
 const functions = [
   // prepareReminders,
+  textBeeWhFunction,
   sendBulkSms
 ];
 
