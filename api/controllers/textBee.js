@@ -5,7 +5,7 @@ const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
 
 exports.textBeeSms = async (req, res) => {
     const { phone, dateScheduled } = req.body; 
-    const message = `You have scheduled an EBL reminder on ${dateScheduled}.`
+    const message = `You have scheduled an EbL reminder for ${dateScheduled}.`
     const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
     recipients: [phone],
         message: message,
@@ -20,7 +20,7 @@ exports.textBeeSms = async (req, res) => {
 
 exports.textBeeSmsCancel = async (req, res) => {
     const { phone, dateScheduled } = req.body; 
-    const message = `You have cancelled your EBL reminder on ${dateScheduled}.`
+    const message = `You have cancelled your EbL reminder for ${dateScheduled}.`
     const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
     recipients: [phone],
         message: message,
