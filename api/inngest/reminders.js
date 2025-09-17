@@ -20,7 +20,7 @@ function verifyWebhookSignature(payload, signature, secret) {
   );
 }
 
-export const textBeeWhFunction = inngest.createFunction(
+const textBeeWhFunction = inngest.createFunction(
   { id: "textBee-sms-received" },
   { event: "textBee/sms.received" },
   async ({ event, step }) => {
