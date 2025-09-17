@@ -25,9 +25,9 @@ const textBeeWhFunction = inngest.createFunction(
   { event: "textBee/sms.received" },
   async ({ event, step }) => {
     const rawBody = await event.data.raw;
-    const signature = await event.data.headers['x-signature'];
+    const signature = await event.data.signature;
     
-     if (!rawBody || !signature || !webhookSecret) {
+     if (!rawBody || !signature || !WEBHOOK_SECRET) {
       throw new Error("Missing required data for HMAC verification.");
     }
 
