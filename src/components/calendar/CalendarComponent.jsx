@@ -7,13 +7,14 @@ import dayjs from 'dayjs';
 import { FormInputCheckBox } from '../../form-components/FormInputCheckBox';
 import { FormInputMultiCheckbox } from '../../form-components/FormInputMultiCheckbox';
 import { useForm, FormProvider } from 'react-hook-form';
-import { Grid2, Box, Drawer, Typography, Divider, Button } from '@mui/material';
+import { useTheme, useMediaQuery } from '@mui/material';
 import Calendar from './Calendar';
 import { useCalendarContext } from '../../context/CalendarProvider';
 import useCalendar from '../../hooks/useCalendar';
 import useFetch from '../../hooks/useFetch';
 import { DataThresholdingTwoTone } from '@mui/icons-material';
 import CalendarDrawer from './CalendarDrawer';
+
 const testData = [
   {
     day: 3,
@@ -130,6 +131,9 @@ const testData = [
 ];
 
 const CalendarComponent = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { user } = useAuth0();
   const defaultValues = {
     intention: '',
@@ -141,7 +145,7 @@ const CalendarComponent = () => {
     status: 'upcoming',
     completed: false,
     color: '#0000FF',
-    dayData: []
+    dayData: [],
   };
 
   const methods = useForm({ defaultValues: defaultValues || '' });
@@ -165,7 +169,7 @@ const CalendarComponent = () => {
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions] = React.useState([]);
   const [dayName, setDayName] = React.useState('');
-  const [itemData, setItemData] = ([]);
+  const [itemData, setItemData] = [];
 
   const radioRef = useRef();
 
@@ -179,8 +183,8 @@ const CalendarComponent = () => {
     if (daysOfMonth?.includes(day)) {
       setOpen(true);
     }
-    if ( hasData ) {
-     setValue('dayData', data)
+    if (hasData) {
+      setValue('dayData', data);
     }
   };
 
@@ -214,6 +218,7 @@ const CalendarComponent = () => {
     <div align="left">
       <FormProvider {...methods}>
         <CalendarDrawer
+          isMobile={isMobile}
           control={control}
           handleSubmit={handleSubmit}
           onSubmit={onSubmit}
@@ -273,6 +278,7 @@ const CalendarComponent = () => {
       </FormProvider>
       <div style={{ height: '30px' }}></div>
       <Calendar
+        isMobile={isMobile}
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
         data={calendarData ?? testData}

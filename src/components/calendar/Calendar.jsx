@@ -55,8 +55,10 @@ const Calendar = (props) => {
     const dataDisplay = props.data && props.dataDisplay ? props.dataDisplay : "";
     const handleClickDay = props.handleClickDay ? props.handleClickDay : () => {};
     const handleDayClick = props.handleDayClick ? props.handleDayClick : () => {};
-    return (
+    const isMobile = props.isMobile ? props.isMobile : "";
+        return (
         <MonthCalendar 
+            isMobile={isMobile}
             month={monthIndex} 
             year={currYear} 
             dayArray={arrayOfDays} 

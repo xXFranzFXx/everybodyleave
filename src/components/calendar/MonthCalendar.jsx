@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 
 const MonthBlock = (props) => {
     let newIntention = props.intention;
-
+    
     if (window.innerWidth < 400) {
         // mobile
         if (props.intention.length >= 4) {
@@ -96,7 +96,7 @@ const MonthBlock = (props) => {
             <Grid2
                 sx={{paddingLeft: '1px', paddingRight: '2px', paddingBottom: '1px',  overflow: 'hidden', textOverflow: 'clip'}}
                 size={12}>
-                <Typography noWrap sx={{fontSize: { xs: '10px' } }} style={{paddingLeft: '2px', color: '#ffffff', backgroundColor: props.color ? props.color : "#000000", textAlign: 'left', textDecoration: props.completed ? 'line-through' : 'none', borderRadius: '2px'}}>{props.intention ? intention : ""} {" "} 
+                <Typography noWrap sx={{fontSize:  props.isMobile ? '10px': '15px', fontWeight: 'bold'  }} style={{paddingLeft: '2px', color: '#ffffff', backgroundColor: props.color ? props.color : "#000000", textAlign: 'left', textDecoration: props.completed ? 'line-through' : 'none', borderRadius: '2px'}}>{props.intention ? intention : ""} {" "} 
                 {props.hours ? (`@  ${dayjs().hour(parseInt(props.hours)).minute(0).second(0).millisecond(0).format('h:mm A')}`): null }</Typography>
             </Grid2>
         )
@@ -153,7 +153,7 @@ const CalendarItem = (props) => {
             <Grid2 container sx={{ marginTop: { xs: '0px', sm: '0px' } }} style={{width: '100%'}}>
             {
                 props.data ? props.data.map((block, index) => (
-                    parseInt(block.day) === dateNum && props.day.isInMonth && parseInt(block.month) === props.monthIndex && parseInt(block.year) === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.time} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed} />) : null
+                    parseInt(block.day) === dateNum && props.day.isInMonth && parseInt(block.month) === props.monthIndex && parseInt(block.year) === props.currYear ? (<MonthBlock dataDisplay={props.dataDisplay} intention={block.intention} hours={block.time} minutes={block.minutes} color={block.color} yPos={block.yPos} key={index} completed={block.completed}/>) : null
                 )) : null
             }
             </Grid2>
