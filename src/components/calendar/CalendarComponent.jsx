@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import { FormInputRadio } from '../../form-components/FormInputRadio';
 import { FormInputText } from '../../form-components/FormInputText';
 // import Calendar from 'react-mui-calendar';
@@ -162,7 +162,7 @@ const CalendarComponent = () => {
     formState: { errors },
   } = methods;
   const { saveCalendarReminder, calendarData } = useFetch();
-  const { formatDateTime } = useCalendar();
+  const { formatDateTime, checkDay } = useCalendar();
   const { dates, events, times, daysOfMonth, availableDT, dtMap, getTimes } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
@@ -171,27 +171,45 @@ const CalendarComponent = () => {
   const [open, setOpen] = React.useState(false);
   const [radioOptions, setRadioOptions] = React.useState([]);
   const [dayName, setDayName] = React.useState('');
-  const [itemData, setItemData] = [];
-
+  const [hasCancelledCalendar, setHasCancelledCalendar] = useState(false)
+  const [itemData, setItemData] = []; 
+  const [dataDrawerOpen, setDataDrawerOpen] = useState(false); 
   const radioRef = useRef();
 
   const handleClick = ({ day, month, year, hasData, data }) => {
+   
     setClickedDay(day);
     setValue('day', day);
     setValue('month', month);
     setValue('year', year);
     setDayName(dayjs(`${year}-${month}-${day}`).format('dddd'));
     console.log('data: ', data);
-    if (daysOfMonth?.includes(day)) {
-      setOpen(true);
-    }
-    if (hasData) {
+    console.log("daysOfMonth: ", daysOfMonth)
+    const date = dayjs(`${year}-${month}-${day}`);
+    const weekday = dayjs(date).get('day')
+            console.log("day: ", weekday )
+
+      if (hasData) {
       setValue('dayData', data);
     }
+    if (daysOfMonth?.includes(day) ) {
+    //   console.log("daysOfMonth: ", daysOfMonth)
+    //   console.log("day: ", day)
+      setOpen(true);
+    }
+  
   };
 
-  const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
+  const toggleDrawer = (newOpen, type) => () => {
+    switch (type) {
+        case 'empty': {
+            setOpen(newOpen);
+        }
+        case 'hasData': {
+            setDataDrawerOpen(newOpen);
+        }
+    }
+   
   };
 
   const changePrimaryColor = (color) => {

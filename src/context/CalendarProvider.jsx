@@ -94,16 +94,6 @@ dayjs.extend(isSameOrBefore);
     }
   };
 
-
- 
-  const getTimes = useCallback(async (day, month, year) => {
-       const times = await dtMap?.get(`${year}-${month}-${day}`);
-       setRadioOptions(times)
-       return times;
-    },[])
-
- 
-
   
 
     return ( 
@@ -118,7 +108,6 @@ dayjs.extend(isSameOrBefore);
             dtMap,
             simpleDtMap,
             calendarData,
-            getTimes
         }}
       >
         {children}
@@ -133,7 +122,6 @@ export function useCalendarContext() {
             dates,
             daysOfMonth,
             availableDT,
-            getTimes,
             dtMap,
             simpleDtMap,
             calendarData
@@ -145,7 +133,6 @@ export function useCalendarContext() {
             dates,
             daysOfMonth,
             availableDT,
-            getTimes,
             dtMap,
             simpleDtMap, 
             calendarData };

@@ -17,7 +17,8 @@ const useCalendar = () => {
     sameElse: 'DD[th of] MMMM YYYY [at] h:mm A',
   };
 
- 
+ const isInCurrentWeek = (date) => dayjs(date).week() === dayjs().week();
+ const isInCurrentMonth = (date) =>dayjs(date).month() === dayjs().month();
 
   const isBeforeNow = (date) => {  
     const checkDate = dayjs(date)
@@ -35,11 +36,20 @@ const useCalendar = () => {
    const dateTime = dayjs(date).hour(hour);
    return dateTime.utc().format();
   } 
+
+  const checkDay = (date) => {
+     const dayArr = [1, 3, 5];
+     const weekday = dayjs(date).get('day')
+     return (dayArr.includes(weekday) && isInCurrentMonth(date));
+  }
   return {
     isBeforeNow,
     isBetween,
     formatReminder,
-    formatDateTime
+    formatDateTime,
+    isInCurrentMonth,
+    isInCurrentWeek,
+    checkDay 
   }
 }
 

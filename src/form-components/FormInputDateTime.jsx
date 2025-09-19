@@ -10,16 +10,16 @@ import { Controller } from 'react-hook-form';
 import { renderDigitalClockTimeView } from '@mui/x-date-pickers';
 import { useCalendarContext } from '../context/CalendarProvider';
 import useFetch from '../hooks/useFetch';
+import useCalendar from '../hooks/useCalendar';
 dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DATE_FORMAT = 'MM-DD-YYYY';
-const isInCurrentWeek = (date) => dayjs(date).week() === dayjs().week();
-const isInCurrentMonth = (date) =>dayjs(date).month() === dayjs().month();
+
 export const FormInputDateTime = ({ name, control, label }) => {
   const { scheduledReminders } = useFetch();
   const weekDayArr = [0, 2, 4, 6, 7];
-
+  const { isInCurrentMonth, isInCurrentWeek } = useCalendar();
   const [errorMsg, setErrorMsg] = useState(null);
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
   const { events, times, dates } = useCalendarContext();
