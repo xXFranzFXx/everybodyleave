@@ -7,7 +7,7 @@ import useCalendar from '../hooks/useCalendar';
 import { Typography, Button, Grid2, Box, Divider } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
 import FormDialogCancel from '../form-components/FormDialogCancel';
-
+import dayjs from 'dayjs'
 
 export const Reminders = ({ dateScheduled }) => {
   const { isBeforeNow, formatReminder } = useCalendar();
@@ -31,6 +31,7 @@ export const Reminders = ({ dateScheduled }) => {
       upcoming = [...upcoming, dateScheduled];
       setUpcomingReminders(upcoming);
     }
+ 
   }, [dateScheduled]);
 
   const handleDeleteDate = useCallback((date) => {
@@ -118,7 +119,7 @@ export const Reminders = ({ dateScheduled }) => {
               {' '}
               Next Available Timeslot{' '}
             </Typography>
-            <Typography variant="h7">{formatReminder(eventDates[0])}</Typography>
+            <Typography variant="h7">{formatReminder(eventDates.pop())}</Typography>
             <Divider sx={{ my: 1 }} />
           </>
         )}
