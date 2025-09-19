@@ -14,6 +14,7 @@ import useCalendar from '../../hooks/useCalendar';
 import useFetch from '../../hooks/useFetch';
 import { DataThresholdingTwoTone } from '@mui/icons-material';
 import CalendarDrawer from './CalendarDrawer';
+import { useSocketContext } from '../../context/SocketProvider';
 
 const testData = [
   {
@@ -133,7 +134,8 @@ const testData = [
 const CalendarComponent = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const { state } = useSocketContext();
+  const { hasHasSavedCalendar } = state;
   const { user } = useAuth0();
   const defaultValues = {
     intention: '',
@@ -206,6 +208,7 @@ const CalendarComponent = () => {
 
   const onSubmit = (data) => {
     saveCalendarReminder(data);
+    state.hasSavedCalendar = true;
     setOpen(false);
   };
   const handleCancel = () => {

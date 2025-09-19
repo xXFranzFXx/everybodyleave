@@ -117,6 +117,10 @@ const useFetch = () => {
             getScheduledReminders();
             // state.scheduledReminder = false;
           }
+          if ( state.hasSavedCalendar === true) {
+            getCalendarReminders();
+          }
+          
           state.currentReminders = scheduledReminders.result;
           console.log("currentReminders: ", state.currentReminders)
         };

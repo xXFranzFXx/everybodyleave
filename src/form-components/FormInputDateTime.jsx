@@ -14,8 +14,8 @@ dayjs.extend(weekOfYearPlugin);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const DATE_FORMAT = 'MM-DD-YYYY';
-const isInCurrentWeek = (date) => date.get('week') === dayjs().get('week');
-
+const isInCurrentWeek = (date) => dayjs(date).week() === dayjs().week();
+const isInCurrentMonth = (date) =>dayjs(date).month() === dayjs().month();
 export const FormInputDateTime = ({ name, control, label }) => {
   const { scheduledReminders } = useFetch();
   const weekDayArr = [0, 2, 4, 6, 7];
@@ -86,13 +86,14 @@ const checkTimeFinalCall = (time) => {
       const reminders = scheduledReminders.result;
       scheduled = reminders.map((result) => dayjs(result).date());
       return (
+        !isInCurrentMonth(date) ||
         weekDayArr.includes(weekday) ||
         reminders.includes(`${pickerDate}`) ||
         scheduled.includes(dayDate) ||
-        !dateSet.has(dayDate)
+        !dateSet.has(dayDate) 
       );
     } else {
-      return weekDayArr.includes(weekday) || !dateSet.has(dayDate);
+      return !isInCurrentMonth(date) || weekDayArr.includes(weekday) || !dateSet.has(dayDate);
     }
   };
 

@@ -14,7 +14,8 @@ const SocketProvider = ({ children }) => {
             scheduledEvent: false,
             drawerOpen: false,
             hasCancelled: "",
-            updatedReminders: []
+            updatedReminders: [],
+            hasSavedCalendar: false, 
 
 
 })).current
