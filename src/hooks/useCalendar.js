@@ -17,9 +17,18 @@ const useCalendar = () => {
     sameElse: 'DD[th of] MMMM YYYY [at] h:mm A',
   };
 
- const isInCurrentWeek = (date) => dayjs(date).week() === dayjs().week();
- const isInCurrentMonth = (date) =>dayjs(date).month() === dayjs().month();
-
+ const isInCurrentWeek = (date) => {
+  const date1 = dayjs(); 
+  const date2 = dayjs(date);
+  return date1.isSame(date2, 'week');
+ }
+ 
+ const isInCurrentMonth = (date) => {
+  const date1 = dayjs(); 
+  const date2 = dayjs(date);
+  return date1.isSame(date2, 'month');
+ }
+ 
   const isBeforeNow = (date) => {  
     const checkDate = dayjs(date)
     return checkDate.isBefore(currentDate);

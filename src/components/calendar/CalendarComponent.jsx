@@ -14,6 +14,7 @@ import useCalendar from '../../hooks/useCalendar';
 import useFetch from '../../hooks/useFetch';
 import { DataThresholdingTwoTone } from '@mui/icons-material';
 import CalendarDrawer from './CalendarDrawer';
+import CalendarDrawerData from './CalendarDrawerData';
 import { useSocketContext } from '../../context/SocketProvider';
 
 const testData = [
@@ -191,10 +192,9 @@ const CalendarComponent = () => {
 
       if (hasData) {
       setValue('dayData', data);
+      setDataDrawerOpen(true)
     }
-    if (daysOfMonth?.includes(day) ) {
-    //   console.log("daysOfMonth: ", daysOfMonth)
-    //   console.log("day: ", day)
+    else if (daysOfMonth?.includes(day) ) {
       setOpen(true);
     }
   
@@ -235,9 +235,13 @@ const CalendarComponent = () => {
     setValue('receiveText', '');
     setOpen(false);
   };
+  const handleCancelData = () => {
+    setDataDrawerOpen(false)
+  }
   return (
     <div align="left">
       <FormProvider {...methods}>
+        <CalendarDrawerData toggleDrawer={toggleDrawer} onSubmit={onSubmit} handleCancelData={handleCancelData} clickedDay={clickedDay} dataDrawerOpen={dataDrawerOpen} name="CalendarDataDrawer" label="CalendarEdit" dayName={dayName} control={control} handleSubmit={handleSubmit}  isMobile={isMobile}/>
         <CalendarDrawer
           isMobile={isMobile}
           control={control}

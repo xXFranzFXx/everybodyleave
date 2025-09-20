@@ -42,7 +42,7 @@ dayjs.extend(isSameOrBefore);
       setTimes(Array.from(hourSet));
    
       const available = await result.filter(
-        (event) =>  now.isBefore(dayjs(event.date)) 
+        (event) =>  now.isBefore((event.date)) 
       );
       setAvailableDT(available);
       const dates = await result?.map((event) => format(event.date, 'yyyy-MM-dd'));

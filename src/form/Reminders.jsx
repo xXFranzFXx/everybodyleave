@@ -16,6 +16,7 @@ export const Reminders = ({ dateScheduled }) => {
   const { events } = useCalendarContext();
   let eventDates = [];
   eventDates = events.filter((event) => !isBeforeNow(event.date)).map((e) => e.date);
+  eventDates.sort((a,b) => dayjs(a).diff(dayjs(b)))
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
   const {  mongoId, name } = user;
@@ -119,7 +120,7 @@ export const Reminders = ({ dateScheduled }) => {
               {' '}
               Next Available Timeslot{' '}
             </Typography>
-            <Typography variant="h7">{formatReminder(eventDates.pop())}</Typography>
+            <Typography variant="h7">{formatReminder(eventDates[0])}</Typography>
             <Divider sx={{ my: 1 }} />
           </>
         )}

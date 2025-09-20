@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import { Typography } from "@mui/material/node";
 
 const CHARACTER_LIMIT = 50
-export const FormInputText = ({ name, control, label}) => {
+export const FormInputText = ({ name, control, label }, props) => {
     return (
         <>
         <Controller 
@@ -16,7 +16,7 @@ export const FormInputText = ({ name, control, label}) => {
                     helperText={error ? error.message : null} 
                     error={!!error} 
                     onChange={onChange} 
-                    value={value?? ""} 
+                    value={value?? props.editText} 
                     fullWidth 
                     label={`${label} ${value? value.length: 0}/${CHARACTER_LIMIT}`} 
                     variant="outlined" 
