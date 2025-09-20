@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Grid2, Typography, Divider, Drawer, Button, FormLabel } from '@mui/material';
+import { Box, Grid2, Typography, Divider, Drawer, Button, FormLabel, IconButton } from '@mui/material';
 import { FormInputText } from '../../form-components/FormInputText';
 import { FormInputCheckBox } from '../../form-components/FormInputCheckBox';
 import { FormInputRadio } from '../../form-components/FormInputRadio';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { FormInputSwitch } from '../../form-components/FormInputSwitch';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 const CalendarDrawerData = ({
   toggleDrawer,
   onSubmit,
@@ -13,8 +14,8 @@ const CalendarDrawerData = ({
   dataDrawerOpen,
   dayName,
   control,
-  handleCancelData,
   handleSubmit,
+  handleCancelData,
   isMobile,
 }) => {
   const { getValues, setValue } = useFormContext();
@@ -23,6 +24,13 @@ const CalendarDrawerData = ({
   const handleEdit = () => {
     setIsEditing(true);
   };
+  const handleCancel = () => {
+   if(isEditing){
+    return setIsEditing(false)
+   } else {
+    handleCancelData()
+   }
+  }
   const handleSave = () => {
     setIsEditing(false);
   };
@@ -68,19 +76,23 @@ const CalendarDrawerData = ({
               </>
             ) : (
               <>
-                {' '}
-                <Grid2 item size={6}>
-                  <FormLabel>Intention: </FormLabel>
+            {' '}
+            <Grid2 container direction="row">
+           
+                <Grid2 item size={11}>
+                  <FormLabel sx={{ fontWeight: 'bold'}}>Intention: </FormLabel>
                   <Typography
                     sx={{ pb: isMobile ? 0 : 1, justifySelf: 'flex-start', fontSize: isMobile ? '1.75rem' : '1rem' }}
                   >
                     {event.intention}
                   </Typography>
                 </Grid2>
+                 <Grid2 item size={1} ><IconButton size="large" color="primary" onClick={handleEdit}><EditNoteIcon/></IconButton></Grid2>
+                </Grid2>
               </>
             )}
             <Grid2 item size={12} sx={{ my: 4 }}>
-              <FormLabel>Time: </FormLabel>
+              <FormLabel sx={{ fontWeight: 'bold'}}>Time: </FormLabel>
 
               <Typography
                 sx={{ pb: isMobile ? 0 : 1, justifySelf: 'flex-start', fontSize: isMobile ? '1.75rem' : '1rem' }}
@@ -99,11 +111,11 @@ const CalendarDrawerData = ({
 
         </>
       ))}
-          <Button sx={{ my: 1 }} variant="outlined" onClick={handleSubmit(onSubmit)}>
+          <Button sx={{ my: 1 }} disabled={!isEditing} variant="outlined" onClick={handleSubmit(onSubmit)}>
             Save
           </Button>
-          <Button variant="outlined" onClick={handleCancelData}>
-            Cancel
+          <Button variant="outlined" onClick={handleCancel}>
+             {isEditing ? 'Cancel': 'Close'}
           </Button>
     </Drawer>
   );
