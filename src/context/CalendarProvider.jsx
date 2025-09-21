@@ -42,7 +42,7 @@ dayjs.extend(isSameOrBefore);
       setTimes(Array.from(hourSet));
    
       const available = await result.filter(
-        (event) =>  now.isBefore((event.date)) 
+        (event) =>  now.isBefore(dayjs(event.date)) 
       );
       setAvailableDT(available);
       const dates = await result?.map((event) => format(event.date, 'yyyy-MM-dd'));
@@ -77,6 +77,7 @@ dayjs.extend(isSameOrBefore);
 
   useEffect(() => {
     getEvents();
+    console.log("times: ", times )
     // getLatestTime();
   }, [phone]);
   const getLatestTime = async () => {
