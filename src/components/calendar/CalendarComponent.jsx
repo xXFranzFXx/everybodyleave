@@ -16,7 +16,6 @@ import { DataThresholdingTwoTone } from '@mui/icons-material';
 import CalendarDrawer from './CalendarDrawer';
 import CalendarDrawerData from './CalendarDrawerData';
 import { useSocketContext } from '../../context/SocketProvider';
-
 const testData = [
   {
     day: 3,
@@ -148,6 +147,7 @@ const CalendarComponent = () => {
     status: 'upcoming',
     completed: false,
     color: '#0000FF',
+    isEditing: false,
     dayData: [],
   };
 
@@ -163,7 +163,7 @@ const CalendarComponent = () => {
     formState: { errors },
   } = methods;
   const { saveCalendarReminder, calendarData } = useFetch();
-  const { formatDateTime, checkDay } = useCalendar();
+  const { formatDateTime, checkDay, isInCurrentMonth } = useCalendar();
   const { dates, events, times, daysOfMonth, availableDT, dtMap, getTimes } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
@@ -190,17 +190,18 @@ const CalendarComponent = () => {
     const weekday = dayjs(date).get('day')
             console.log("day: ", weekday )
 
-      if (hasData) {
+      if (hasData && isInCurrentMonth(`${year}-${month}-${day}`)) {
       setValue('dayData', data);
       setDataDrawerOpen(true)
     }
-    else if (daysOfMonth?.includes(day) ) {
+    else if (daysOfMonth?.includes(day) && isInCurrentMonth(`${year}-${month}-${day}`)) {
+      console.log(`${year}-${month}-${day} is in currentMonth: `, isInCurrentMonth(`${year}-${month}-${day}`))
       setOpen(true);
     }
   
   };
 
-  const toggleDrawer = (newOpen, type) => () => {
+  const toggleDrawer = useCallback((newOpen, type) => () => {
     switch (type) {
         case 'empty': {
             setOpen(newOpen);
@@ -210,7 +211,7 @@ const CalendarComponent = () => {
         }
     }
    
-  };
+  },[]);
 
   const changePrimaryColor = (color) => {
     setPrimaryColor(color.hex);
