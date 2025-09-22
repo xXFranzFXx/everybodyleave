@@ -11,7 +11,7 @@ const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 //since raw will already be stringified by inngest no need to do JSON.stringify on the payload here
 function verifyWebhookSignature(payload, signature, secret) {
   const hmac = crypto.createHmac('sha256', secret);
-  const digest = hmac.update(payload).digest('hex');
+  const digest = hmac.update(JSON.stringify(payload)).digest('hex');
   const signatureHash = signature.split('=')[1];
   
   return crypto.timingSafeEqual(
@@ -170,7 +170,7 @@ const sendBulkSms = inngest.createFunction(
 
       const result = await cursor[0].userDetails;
       const phoneList = await result.map(user => user.phone);
-      const message = "This is your scheduled reminder from Everybodyleave. Respond with 1 if you will be participating, or 2 if you aren't."
+      const message = "This is your scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you aren't."
       return { phoneList, message, eventId }
         } catch (err) {
            if (err.name === "TypeError") {
