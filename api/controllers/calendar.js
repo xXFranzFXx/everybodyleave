@@ -93,3 +93,36 @@ exports.getCalendarReminders = async (req, res) => {
     throw error;
   }
 };
+
+exports.deleteCalendarReminder = async (req, res) => {
+     const { mongoId, id } = req.body;
+      const session = await mongoose.startSession();
+    
+      try {
+        session.startTransaction();
+        const userId = new mongoose.Types.ObjectId(`${mongoId}`);
+        const calendarId = new mongoose.Types.ObjectId(`${id}`);
+        const calendar = await CalendarReminder.findOneAndDelete({ _id: calendarId }, { session });
+    
+        await User.updateOne(
+          { _id: userId },
+          {
+            $pull: { calendarEvents:  calendarId },
+          },
+          { session }
+        );
+    
+        await session.commitTransaction();
+        req.io.emit('Calendar reminder deleted', { calendar: calendar });
+        console.log('Transaction successful');
+        return res.status(200).json({ calendar });
+      } catch (error) {
+        await session.abortTransaction();
+        console.log('Transaction failed: ', error);
+        res.status(401).json({ error: 'Error deleting calendar reminder' });
+        throw error;
+      } finally {
+        session.endSession();
+      }
+    
+}

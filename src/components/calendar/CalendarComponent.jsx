@@ -138,6 +138,7 @@ const CalendarComponent = () => {
   const { hasHasSavedCalendar } = state;
   const { user } = useAuth0();
   const defaultValues = {
+    id:'',
     intention: '',
     receiveText: false,
     time: '',
@@ -178,8 +179,10 @@ const CalendarComponent = () => {
   const radioRef = useRef();
 
   const handleClick = ({ day, month, year, hasData, data }) => {
-   
+    const { _id } = data[0];
+    console.log("_id: ", _id)
     setClickedDay(day);
+    setValue('id', _id)
     setValue('day', day);
     setValue('month', month);
     setValue('year', year);

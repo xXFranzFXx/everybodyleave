@@ -50,6 +50,31 @@ const useFetch = () => {
     }
   }, []);
 
+const deleteCalendarReminder = useCallback(async (calendarDataId) => {
+    const { role, reminderDate, mongoId, name } = user;
+
+    const token = await getAccessTokenSilently();
+    console.log('mongoId: ', mongoId);
+    try {
+      const response = await axios({
+        method: 'PUT',
+        // url: `http://localhost:4000/api/calendarReminders/saveReminder`,
+        url: `https://everybodyleave.onrender.com/api/calendarReminders/deleteReminder`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          mongoId: await mongoId,
+          id: calendarDataId
+        },
+      });
+      const res = await response.data;
+      return res;
+    } catch (err) {
+      console.log('Error deleting calendar reminder: ', err);
+    }
+  }, []);
+
   const getScheduledReminders = async () => {
     const { mongoId } = user;
 
@@ -180,6 +205,7 @@ const useFetch = () => {
     sendVerificationSMS,
     sendCancellationSMS,
     saveCalendarReminder,
+    deleteCalendarReminder,
     scheduledReminders,
     calendarData,
   };
