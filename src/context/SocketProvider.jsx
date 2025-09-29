@@ -12,10 +12,13 @@ const SocketProvider = ({ children }) => {
             reminders:[],
             acceptTerms: false,
             scheduledEvent: false,
+            dialogOpen:false,
             drawerOpen: false,
             hasCancelled: "",
             updatedReminders: [],
             hasSavedCalendar: false, 
+            hasDeletedCalendar: false,
+            saveSuccess: false
 
 
 })).current

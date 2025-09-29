@@ -1,22 +1,30 @@
-import { useCallback, useState, useContext, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAuth0 } from '@auth0/auth0-react';
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { FormInputText } from '../form-components/FormInputText';
-import { MetadataContext } from '../context/MetadataProvider';
+import { useAuth0 } from '@auth0/auth0-react';
+import { subscribe } from 'valtio';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
 import useFetch from '../hooks/useFetch';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
-import axios from 'axios';
+
+const dialog = {
+   saveMessage:  `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
+   saveTitle: `You Have Scheduled an SMS Reminder !`
+}
+
 const SimpleForm = () => {
+  
+ 
+  const { user } = useAuth0();
+  const { name } = user;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { state } = useSocketContext();
-  const formDialogRef = useRef();
   const { phone, timezone, scheduledReminder } = state;
   const defaultValues = {
     datetime: '',
@@ -28,9 +36,6 @@ const SimpleForm = () => {
     saveToCalendar: false,
     rememberSetting: false,
   };
-  const { user, logout, getAccessTokenSilently } = useAuth0();
-  const { role, reminderDate, mongoId } = user;
-  const { saveUserReminder } = useContext(MetadataContext);
   const methods = useForm({ defaultValues: defaultValues || '' });
   const {
     handleSubmit,
@@ -39,51 +44,27 @@ const SimpleForm = () => {
     getValues,
     formState: { errors },
   } = methods;
-  const { sendVerificationSMS } = useFetch();
+  const { saveReminder, sendVerificationSMS } = useFetch();
   const [dateScheduled, setDateScheduled] = useState('');
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [savedEvent, setSavedEvent] = useState('');
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-    setSaveSuccess(false);
+    state.saveSuccess = false;
     setValue('datetime', '');
   };
-  
-  const setReminder = useCallback(() => {
-    state.scheduledReminder = true;
-  }, []);
+ 
 
-  const saveReminder = async (datetime, phone, timezone) => {
-    const token = await getAccessTokenSilently();
-    console.log('mongoId: ', mongoId);
-    const newDate = new Date(datetime);
+  const handleSaveReminder = async (datetime, phone, timezone) => {
+    // const newDate = new Date(datetime);
     try {
-      const response = await axios({
-        method: 'POST',
-        // url: `http://localhost:4000/api/events/save`,
-        url: `https://everybodyleave.onrender.com/api/events/save`,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
-          mongoId: mongoId,
-          phone: phone,
-          datetime: newDate,
-          timezone: timezone,
-        },
-      });
-      const res = await response.data;
-      console.log('res.date: ', res.date);
-      saveUserReminder(res.date);
-      // state.reminder = res.date;
-      setReminder();
-      setDateScheduled(newDate);
-      setSaveSuccess(true);
-      return res;
+     await saveReminder(datetime, phone, timezone)
+     setDateScheduled(datetime);
+     await sendVerificationSMS(phone, datetime)
+     
     } catch (err) {
+      setDateScheduled('')
       console.log('Error saving reminder: ', err);
     }
   };
@@ -94,15 +75,25 @@ const SimpleForm = () => {
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    // formDialogRef.current.handleClickOpen();
-    saveReminder(zeroSeconds, phone, timezone);
+    handleSaveReminder(zeroSeconds, phone, timezone)
+    
+   
   };
-  useEffect(() => {
-    if (saveSuccess) {
-      setDialogOpen(true);
-      sendVerificationSMS(phone, dateScheduled)
-    }
-  }, [saveSuccess]);
+    useEffect(
+      () =>
+        subscribe(state, () => {
+          const callback = () => {
+            if (state.saveSuccess) {
+              setDialogOpen(true);
+              state.scheduledReminder = true;
+            }
+          };
+          const unsubscribe = subscribe(state, callback);
+          callback();
+          return unsubscribe;
+        }),
+      []
+    );
 
   const handleChange = () => {};
 
@@ -112,11 +103,12 @@ const SimpleForm = () => {
 
       <FormProvider {...methods}>
         <FormDialog
-          ref={formDialogRef}
           control={control}
           dialogOpen={dialogOpen}
           handleDialogClose={handleDialogClose}
           reminder={scheduledReminder}
+          message={dialog.saveMessage}
+          title={dialog.saveTitle}
         />
 
         <Box
@@ -136,8 +128,6 @@ const SimpleForm = () => {
             maxWidth: '800px',
             minWidth: '415px',
             marginTop: '30px',
-            // borderRadius: '5px',
-            // border: '1px solid gray',
           }}
         >
           <Typography variant="h6" align="center" margin="dense" sx={{fontWeight: 'bold'}}>

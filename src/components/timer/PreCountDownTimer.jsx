@@ -11,6 +11,7 @@ import './timer.css';
 
 const PreCountDownTimer = ({ initialTime }) => {
   const [showCircle, setShowCircle] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
   const { time, start, pause, reset, status } = useTimer({
     initialTime: 900,
     endTime: 0,
@@ -21,26 +22,27 @@ const PreCountDownTimer = ({ initialTime }) => {
     },
   });
   const onComplete = () => {
-
+    setShowCircle(false);
+    setIsComplete(true)
   }
   const timerMinutes = Math.floor((time % (60 * 60)) / 60);
   const timerSeconds = Math.floor(time % 60);
   return (
     <>
       <Grid2 container>
-        {!showCircle && (
+        {!showCircle && !isComplete && (
           <>
-            <Grid2 item size={6}>
+            <Grid2 item size={6} >
               <Typography>Event will begin in:</Typography>
             </Grid2>
             <Grid2 item size={6}>
-              <Typography>
+              <Typography  >
                 {timerMinutes} minutes and {timerSeconds} seconds
               </Typography>
             </Grid2>
           </>
         )}
-        {showCircle && (
+        {showCircle && !isComplete && (
           <>
             <Grid2 item size={12}>
               <Countdown duration={3600} onComplete={onComplete}/>

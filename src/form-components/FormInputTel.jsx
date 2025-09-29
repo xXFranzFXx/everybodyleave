@@ -17,6 +17,7 @@ export const FormInputTel = ({ name, control, label }) => {
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
+    setShowPassword(!showPassword)
   };
   return (
     <>

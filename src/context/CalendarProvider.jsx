@@ -79,7 +79,7 @@ dayjs.extend(isSameOrBefore);
     getEvents();
     console.log("times: ", times )
     // getLatestTime();
-  }, [phone]);
+  }, []);
   const getLatestTime = async () => {
     try {
       const response = await axios({
@@ -109,6 +109,7 @@ dayjs.extend(isSameOrBefore);
             dtMap,
             simpleDtMap,
             calendarData,
+            setCalendarData
         }}
       >
         {children}
@@ -125,7 +126,8 @@ export function useCalendarContext() {
             availableDT,
             dtMap,
             simpleDtMap,
-            calendarData
+            calendarData,
+            setCalendarData
              } = useContext(CalendarContext)
   return { events,
             latestTime,
@@ -136,6 +138,7 @@ export function useCalendarContext() {
             availableDT,
             dtMap,
             simpleDtMap, 
-            calendarData };
+            calendarData, 
+            setCalendarData };
 }
 export default CalendarProvider;

@@ -135,10 +135,10 @@ const CalendarComponent = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { state } = useSocketContext();
-  const { hasHasSavedCalendar } = state;
+  const { hasSavedCalendar } = state;
   const { user } = useAuth0();
   const defaultValues = {
-    id:'',
+    id: '',
     intention: '',
     receiveText: false,
     time: '',
@@ -164,57 +164,59 @@ const CalendarComponent = () => {
     formState: { errors },
   } = methods;
   const { saveCalendarReminder, calendarData } = useFetch();
-  const { formatDateTime, checkDay, isInCurrentMonth } = useCalendar();
+  const { formatDateTime, checkDay, isInCurrentMonth, isBeforeNow } = useCalendar();
   const { dates, events, times, daysOfMonth, availableDT, dtMap, getTimes } = useCalendarContext();
   const [primaryColor, setPrimaryColor] = React.useState('#000000');
   const [secondaryColor, setSecondaryColor] = React.useState('#FFFFFF');
   const [dataDisplay, setDataDisplay] = React.useState('list');
   const [clickedDay, setClickedDay] = React.useState('');
   const [open, setOpen] = React.useState(false);
-  const [radioOptions, setRadioOptions] = React.useState([]);
+  const [clickedId, setClickedId] = useState('');
   const [dayName, setDayName] = React.useState('');
-  const [hasCancelledCalendar, setHasCancelledCalendar] = useState(false)
-  const [itemData, setItemData] = []; 
-  const [dataDrawerOpen, setDataDrawerOpen] = useState(false); 
+  const [hasCancelledCalendar, setHasCancelledCalendar] = useState(false);
+  const [itemData, setItemData] = [];
+  const [dataDrawerOpen, setDataDrawerOpen] = useState(false);
   const radioRef = useRef();
 
   const handleClick = ({ day, month, year, hasData, data }) => {
-    const { _id } = data[0];
-    console.log("_id: ", _id)
+    if (data.length > 0) {
+      const { _id } = data[0];
+      setClickedId(_id);
+    }
+
     setClickedDay(day);
-    setValue('id', _id)
     setValue('day', day);
     setValue('month', month);
     setValue('year', year);
     setDayName(dayjs(`${year}-${month}-${day}`).format('dddd'));
     console.log('data: ', data);
-    console.log("daysOfMonth: ", daysOfMonth)
+    console.log('daysOfMonth: ', daysOfMonth);
     const date = dayjs(`${year}-${month}-${day}`);
-    const weekday = dayjs(date).get('day')
-            console.log("day: ", weekday )
+    const weekday = dayjs(date).get('day');
+    console.log('day: ', weekday);
 
-      if (hasData && isInCurrentMonth(`${year}-${month}-${day}`)) {
+    if (hasData && isInCurrentMonth(`${year}-${month}-${day}`)) {
       setValue('dayData', data);
-      setDataDrawerOpen(true)
-    }
-    else if (daysOfMonth?.includes(day) && isInCurrentMonth(`${year}-${month}-${day}`)) {
-      console.log(`${year}-${month}-${day} is in currentMonth: `, isInCurrentMonth(`${year}-${month}-${day}`))
+      setDataDrawerOpen(true);
+    } else if (daysOfMonth?.includes(day) && isInCurrentMonth(`${year}-${month}-${day}`) && !isBeforeNow(date)) {
+      console.log(`${year}-${month}-${day} is in currentMonth: `, isInCurrentMonth(`${year}-${month}-${day}`));
       setOpen(true);
     }
-  
   };
 
-  const toggleDrawer = useCallback((newOpen, type) => () => {
-    switch (type) {
+  const toggleDrawer = useCallback(
+    (newOpen, type) => () => {
+      switch (type) {
         case 'empty': {
-            setOpen(newOpen);
+          setOpen(newOpen);
         }
         case 'hasData': {
-            setDataDrawerOpen(newOpen);
+          setDataDrawerOpen(newOpen);
         }
-    }
-   
-  },[]);
+      }
+    },
+    []
+  );
 
   const changePrimaryColor = (color) => {
     setPrimaryColor(color.hex);
@@ -240,12 +242,25 @@ const CalendarComponent = () => {
     setOpen(false);
   };
   const handleCancelData = () => {
-    setDataDrawerOpen(false)
-  }
+    setDataDrawerOpen(false);
+  };
   return (
     <div align="left">
       <FormProvider {...methods}>
-        <CalendarDrawerData toggleDrawer={toggleDrawer} onSubmit={onSubmit} handleCancelData={handleCancelData} clickedDay={clickedDay} dataDrawerOpen={dataDrawerOpen} name="CalendarDataDrawer" label="CalendarEdit" dayName={dayName} control={control} handleSubmit={handleSubmit}  isMobile={isMobile}/>
+        <CalendarDrawerData
+          clickedId={clickedId}
+          toggleDrawer={toggleDrawer}
+          onSubmit={onSubmit}
+          handleCancelData={handleCancelData}
+          clickedDay={clickedDay}
+          dataDrawerOpen={dataDrawerOpen}
+          name="CalendarDataDrawer"
+          label="CalendarEdit"
+          dayName={dayName}
+          control={control}
+          handleSubmit={handleSubmit}
+          isMobile={isMobile}
+        />
         <CalendarDrawer
           isMobile={isMobile}
           control={control}
@@ -257,54 +272,7 @@ const CalendarComponent = () => {
           toggleDrawer={toggleDrawer}
           handleCancel={handleCancel}
         />
-        {/* <Drawer
-          PaperProps={{
-            sx: {
-              width: '35vw',
-              pt: 10,
-              px: 5,
-            },
-          }}
-          open={open}
-          onClose={toggleDrawer(false)}
-          anchor={'right'}
-        >
-          <Box>
-            <Grid2 container>
-              <Grid2 item size={6}>
-                <Typography variant="h3" sx={{ pb: 1, mt: 8 }}>
-                   { dayName }
-                </Typography>
-              </Grid2>
-              <Grid2 item size={6}>
-                <Typography variant="h1" sx={{ pb: 1, justifySelf: 'flex-end', fontSize: '8,5rem' }}>
-                  {clickedDay || ''}
-                </Typography>
-              </Grid2>
-            </Grid2>
-          </Box>
-          <Divider sx={{ mb: 5 }} />
-          <Grid2 container direction="column">
-            <Grid2 item size={12}>
-              <FormInputText control={control} name="intention" label="intention" />
-            </Grid2>
-            <Grid2 item size={12} sx={{ my: 4 }}>
-              <FormInputRadio ref={radioRef} clickedDay={clickedDay} control={control} name="time" label="time" />
-            </Grid2>
-            <Grid2 item size={12}>
-                <FormInputCheckBox name="receiveText" label="receive sms reminder" control={control}/>
-            </Grid2>
-          </Grid2>
-        
-          <Divider sx={{ my: 2 }} />
-          <Button sx={{ my: 1 }} variant="outlined" onClick={handleSubmit(onSubmit)}>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </Drawer> */}
-      </FormProvider>
+   
       <div style={{ height: '30px' }}></div>
       <Calendar
         isMobile={isMobile}
@@ -314,6 +282,7 @@ const CalendarComponent = () => {
         dataDisplay={dataDisplay}
         handleClickDay={handleClick}
       />
+         </FormProvider>
     </div>
   );
 };

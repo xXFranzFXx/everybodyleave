@@ -10,8 +10,10 @@ import { FormInputSwitch } from '../../form-components/FormInputSwitch';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Countdown from '../timer/Countdown';
+import useFetch from '../../hooks/useFetch';
 
 const CalendarDrawerData = ({
+  clickedId,
   toggleDrawer,
   onSubmit,
   clickedDay,
@@ -21,7 +23,8 @@ const CalendarDrawerData = ({
   handleSubmit,
   handleCancelData,
   isMobile,
-}) => {
+}) => { 
+  const { deleteCalendarReminder } = useFetch();
   const { times } = useCalendarContext();
   const { getValues, setValue } = useFormContext();
   const data = getValues('dayData');
@@ -29,6 +32,15 @@ const CalendarDrawerData = ({
   const handleEdit = () => {
     setIsEditing(true);
   };
+  const handleDeleteReminder = () => {
+   
+    try {
+        deleteCalendarReminder(clickedId);
+    } catch (err) {
+        console.log("error deleting calendar reminder: ", err)
+    }
+  }
+
   const handleOnComplete = () => {
     console.log("countdown complete.")
   }
@@ -71,7 +83,7 @@ const CalendarDrawerData = ({
           </Grid2> */}
           <Grid2 item size={6}>
             <Typography variant={isMobile ? 'h5' : 'h3'} sx={{ pb: isMobile ? 2 : 1, mt: 8 }}>
-              {isMobile ? dayName.substring(0, 3) : dayName}
+              { dayName.substring(0, 3) }
             </Typography>
           </Grid2>
           <Grid2 item size={6}>
@@ -113,7 +125,7 @@ const CalendarDrawerData = ({
                   </Grid2>
                   <Grid2 item size={1}>
                     <IconButton size="large" color="primary">
-                      <DeleteForeverIcon />
+                      <DeleteForeverIcon onClick={handleDeleteReminder}/>
                     </IconButton>
                   </Grid2>
                 </Grid2>

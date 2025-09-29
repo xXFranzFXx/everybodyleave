@@ -1,4 +1,5 @@
 const Event = require('../models/EventModel');
+const SignedUpEvent = require('../models/SignedUpEventModel');
 const User = require('../models/UserModel');
 const CalendarReminder = require('../models/CalendarReminderModel');
 const mongoose = require('mongoose');
@@ -34,6 +35,24 @@ exports.saveCalendarReminder = async (req, res) => {
       { new: true, upsert: true },
       { session }
     );
+    if(receiveText) {
+        await SignedUpEvent.updateOne(
+                { datetime },
+                {
+                  $inc: { count: 1 },
+                  $addToSet: { usersAttending: mongoId },
+                //   $set: { status: 'closed' },
+                },
+                { new: true, upsert: true },
+                { session }
+              );
+              await User.updateOne(
+                { phone: phone }, 
+                { $addToSet: { reminder: event },
+                  $inc: { credit: -1 } 
+                
+                }, { new: true }, { session });
+    }
     const calendarReminderId = new mongoose.Types.ObjectId(`${event._id}`);
     console.log('calendarReminderId: ', calendarReminderId);
     await User.updateOne(
@@ -94,7 +113,26 @@ exports.getCalendarReminders = async (req, res) => {
   }
 };
 
+exports.updateCalendarReminder = async (req, res) => {
+  const { mongoId, id, updateData } = req.body;
+  const userId = new mongoose.Types.ObjectId(`${mongoId}`);
+  const calendarId = new mongoose.Types.ObjectId(`${id}`);
+
+  try  {
+    const calendar = await CalendarReminder.updateOne({ _id: calendarId },
+      { updateData }
+    );
+    req.io.emit('Calendar reminder updated', { calendar: calendar });
+        return res.status(200).json({ calendar });
+      } catch (error) {
+        console.log('Failed to update calendar reminder: ', error);
+        res.status(401).json({ error: 'Error updating calendar reminder' });
+        throw error;
+  } 
+}
+
 exports.deleteCalendarReminder = async (req, res) => {
+
      const { mongoId, id } = req.body;
       const session = await mongoose.startSession();
     

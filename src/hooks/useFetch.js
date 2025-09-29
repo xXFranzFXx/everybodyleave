@@ -3,8 +3,11 @@ import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-react';
 import useCalendar from './useCalendar';
 import { subscribe } from 'valtio';
+import { useMetadataContext } from '../context/MetadataProvider';
 import { useSocketContext } from '../context/SocketProvider';
-const useFetch = () => {
+
+const useFetch = () => { 
+  const { saveUserReminder } = useMetadataContext();
   const { state } = useSocketContext();
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const { formatDateTime, formatReminder } = useCalendar();
@@ -58,7 +61,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'PUT',
-        // url: `http://localhost:4000/api/calendarReminders/saveReminder`,
+        // url: `http://localhost:4000/api/calendarReminders/deleteReminder`,
         url: `https://everybodyleave.onrender.com/api/calendarReminders/deleteReminder`,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -136,18 +139,17 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     () =>
       subscribe(state, () => {
         const callback = () => {
-          if (state.hasCancelled) {
+          if (state.hasCancelled === true) {
             getScheduledReminders();
-          } else if (state.scheduledReminder) {
+          } else if (state.scheduledReminder === true) {
             getScheduledReminders();
-            // state.scheduledReminder = false;
+            state.scheduledReminder = false;
           }
-          if ( state.hasSavedCalendar === true) {
+          if ( state.hasSavedCalendar === true || state.hasDeletedCalendar === true) {
             getCalendarReminders();
           }
-          
-          state.currentReminders = scheduledReminders.result;
-          console.log("currentReminders: ", state.currentReminders)
+          // state.currentReminders = scheduledReminders.result;
+          // console.log("currentReminders: ", state.currentReminders)
         };
         const unsubscribe = subscribe(state, callback);
         callback();
@@ -155,10 +157,38 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       }),
     []
   );
+   const saveReminder = async (newDate, phone, timezone) => {
+      const { mongoId, name } = user;
 
+      const token = await getAccessTokenSilently();
+      console.log('mongoId: ', mongoId);
+      console.log("newDate: ", newDate)
+      try {
+        const response = await axios({
+          method: 'POST',
+          // url: `http://localhost:4000/api/events/save`,
+          url: `https://everybodyleave.onrender.com/api/events/save`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            mongoId: mongoId,
+            phone: phone,
+            datetime: newDate,
+            timezone: timezone,
+          },
+        });
+        const reminder = await response.data;
+        console.log('res.date: ', reminder.date);
+        saveUserReminder(reminder.date);
+        state.saveSuccess = true
+        return reminder;
+      } catch (err) {
+        console.log('Error saving reminder: ', err);
+      }
+    };
   const sendVerificationSMS = async (phone, dateScheduled) => {
     const token = await getAccessTokenSilently();
-
     try {
       const response = await axios({
         method: 'POST',
@@ -202,6 +232,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     }
   };
   return {
+    saveReminder,
     sendVerificationSMS,
     sendCancellationSMS,
     saveCalendarReminder,
