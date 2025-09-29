@@ -7,6 +7,7 @@ import useCalendar from '../hooks/useCalendar';
 import { Typography, Button, Grid2, Box, Divider } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
 import FormDialogCancel from '../form-components/FormDialogCancel';
+import PreCountdownTimer from '../components/timer/PreCountDownTimer';
 import dayjs from 'dayjs'
 
 export const Reminders = ({ dateScheduled }) => {
@@ -34,7 +35,9 @@ export const Reminders = ({ dateScheduled }) => {
     }
  
   }, [dateScheduled]);
-
+  const countdownTime = (date) => {
+    return dayjs(date).valueOf();
+  }
   const handleDeleteDate = useCallback((date) => {
     setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date));
     state.hasCancelled = date;
@@ -44,7 +47,6 @@ export const Reminders = ({ dateScheduled }) => {
 
   const onDelete = async (date) => {
     const token = await getAccessTokenSilently();
-
     console.log('mongoId: ', mongoId);
     try {
       const response = await axios({
@@ -69,6 +71,7 @@ export const Reminders = ({ dateScheduled }) => {
       console.log('Error cancelling reminder: ', err);
     }
   };
+  
   useEffect(() => {
     let past = [];
     let current = [];
@@ -100,7 +103,6 @@ export const Reminders = ({ dateScheduled }) => {
                 <Grid2 container spacing={{ xs: 2, md: 3 }}>
                   <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
                     <Typography variant="h7">{formatReminder(date)}</Typography>
-
                     { !isBeforeNow(date) && (
                       <Grid2 item size={4}>
                         <Button variant="contained" color="primary" onClick={() => onDelete(date)}>
