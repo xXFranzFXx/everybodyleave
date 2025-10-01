@@ -5,6 +5,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { format } from 'date-fns';
+import { subscribe } from "valtio";
 dayjs.extend(isSameOrBefore);
 
 
@@ -44,12 +45,15 @@ dayjs.extend(isSameOrBefore);
       const available = await result.filter(
         (event) =>  now.isBefore(dayjs(event.date)) 
       );
+      console.log("all: ", result)
       setAvailableDT(available);
       const dates = await result?.map((event) => format(event.date, 'yyyy-MM-dd'));
+      console.log("dates: ", dates)
       const dateSet = new Set(dates);
       setDates(Array.from(dateSet));
       const dateTimeMap = new Map();
       const days = await available.map((event) => dayjs(event.date).date());
+      console.log("days: ", days);
       const daysSet = new Set(days);
       const dotm = Array.from(daysSet);
       setDaysOfMonth(dotm);

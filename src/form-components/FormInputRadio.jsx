@@ -19,6 +19,7 @@ export const FormInputRadio = ({ name, control, label, clickedDay }) => {
     const timesArr = Array.from(timeSet);
     if (data) {
       unavailable = data.map((day) => parseInt(day.time));
+      console.log('dayData: ', data)
       console.log('unavailable: ', unavailable);
       const newArray = timesArr.filter((item) => !unavailable.includes(item));
       console.log('newArray: ', newArray);

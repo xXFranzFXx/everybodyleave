@@ -7,25 +7,14 @@ import SimpleForm from './form/SimpleForm';
 import LoginButton from './components/LoginButton';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from './context/SocketProvider';
-import CalendarComponent from './components/calendar/CalendarComponent';
+
+
 function App() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
-  const [userInfo, setUserInfo] = useState('');
   const { state } = useSocketContext();
 
   useEffect(() => {
     const name = user?.name;
-    // const reminderDate = user?.reminderDate
-    // if(Array.isArray(reminderDate)) {
-    //   state.reminder = reminderDate.map(day => new Date(day))
-    //  } else if (reminderDate){
-    //   //  let newArr = []
-    //   //  newArr = [...newArr, new Date(reminderDate)]
-    //   state.scheduledReminder = true;
-    //    state.reminder = reminderDate;
-    //  }
-
-    setUserInfo(name);
     state.phone = name;
   }, [user]);
 
@@ -73,14 +62,15 @@ function App() {
       },
     },
   });
+  
+
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {isAuthenticated ? (
         <>
-          <SimpleForm userInfo={userInfo} />
-          <CalendarComponent />
+          <SimpleForm  />
         </>
       ) : (
         <LoginButton />
