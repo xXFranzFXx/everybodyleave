@@ -135,7 +135,7 @@ const prepareReminders = inngest.createFunction(
 const sendBulkSms = inngest.createFunction(
   { id: "textbee-bulk-sms" },
   [
-    { cron: "TZ=America/Los_Angeles 45 15,16,18 * * 1,3,5"},
+    { cron: "TZ=America/Los_Angeles 45 9,15,16,18 * * 1,3,5"},
   ],
   async ({ step, event }) => {
     const newTime = getFutureTime(15)
