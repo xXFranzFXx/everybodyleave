@@ -5,7 +5,7 @@ const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
-const { textBeeBulkSms } = require('../controllers/textBee');
+const { textBeeBulkSms } = require('../helpers/textBee');
 
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 //since raw will already be stringified by inngest no need to do JSON.stringify on the payload here
