@@ -157,7 +157,7 @@ const checkTimeFinalCall = (time) => {
               shouldDisableDate={(date) => shouldDisableDay(date)}
               shouldDisableTime={(time, view) => shouldDisableTime(time, view)}
               referenceDate={
-                currentHour < 16
+                currentHour < 10 && currentHour > 4
                   ? dayjs().set('hours', times[0]).set('minutes', 0).set('seconds', 0)
                   : dayjs().set('hours', times[2]).set('minutes', 0).set('seconds', 0)
               }

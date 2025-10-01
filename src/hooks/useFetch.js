@@ -72,6 +72,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         },
       });
       const res = await response.data;
+      state.hasDeletedCalendar = true;
       return res;
     } catch (err) {
       console.log('Error deleting calendar reminder: ', err);
@@ -143,7 +144,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
             getScheduledReminders();
           } else if (state.scheduledReminder === true) {
             getScheduledReminders();
-            state.scheduledReminder = false;
+            // state.scheduledReminder = false;
           }
           if ( state.hasSavedCalendar === true || state.hasDeletedCalendar === true) {
             getCalendarReminders();
@@ -187,6 +188,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         console.log('Error saving reminder: ', err);
       }
     };
+
   const sendVerificationSMS = async (phone, dateScheduled) => {
     const token = await getAccessTokenSilently();
     try {
