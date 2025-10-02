@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
+import duration from 'dayjs/plugin/duration';
 import utc from 'dayjs/plugin/utc';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
@@ -7,6 +8,7 @@ const useCalendar = () => {
   dayjs.extend(LocalizedFormat)
   dayjs.extend(utc)
   dayjs.extend(calendar);
+  dayjs.extend(duration)
   const currentDate = dayjs();
   const customFormat = {
     sameDay: '[Today] [at] h:mm A',
@@ -45,7 +47,13 @@ const useCalendar = () => {
    const dateTime = dayjs(date).hour(hour);
    return dateTime.utc().format();
   } 
+  const fifteenMinuteLimit = (reminder) => {
+    const x = dayjs(reminder)
+    const y = dayjs()
 
+    const duration = dayjs.duration(x.diff(y)).asMinutes();
+    return duration <= 15 
+  }
   const checkDay = (date) => {
      const dayArr = [1, 3, 5];
      const weekday = dayjs(date).get('day')
@@ -58,7 +66,8 @@ const useCalendar = () => {
     formatDateTime,
     isInCurrentMonth,
     isInCurrentWeek,
-    checkDay 
+    checkDay ,
+    fifteenMinuteLimit
   }
 }
 

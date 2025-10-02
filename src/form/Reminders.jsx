@@ -11,7 +11,7 @@ import PreCountdownTimer from '../components/timer/PreCountDownTimer';
 import dayjs from 'dayjs'
 
 export const Reminders = ({ dateScheduled }) => {
-  const { isBeforeNow, formatReminder } = useCalendar();
+  const { isBeforeNow, formatReminder, fifteenMinuteLimit } = useCalendar();
   const { scheduledReminders, sendCancellationSMS } = useFetch();
   const { state } = useSocketContext();
   const { events } = useCalendarContext();
@@ -86,6 +86,7 @@ export const Reminders = ({ dateScheduled }) => {
       setUpcomingReminders(current);
     });
   }, [scheduledReminders]);
+
   const onEdit = () => {};
 
   return (
@@ -105,7 +106,7 @@ export const Reminders = ({ dateScheduled }) => {
                     <Typography variant="h7">{formatReminder(date)}</Typography>
                     { !isBeforeNow(date) && (
                       <Grid2 item size={4}>
-                        <Button variant="contained" color="primary" onClick={() => onDelete(date)}>
+                        <Button variant="contained" disabled={fifteenMinuteLimit(date)} color="primary" onClick={() => onDelete(date)}>
                           Cancel
                         </Button>
                       </Grid2>
