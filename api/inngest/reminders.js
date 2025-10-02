@@ -7,7 +7,6 @@ const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
 const { textBeeBulkSms } = require('../helpers/textBee');
 
-const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 //since raw will already be stringified by inngest no need to do JSON.stringify on the payload here
 function verifyWebhookSignature(payload, signature, secret) {
   const hmac = crypto.createHmac('sha256', secret);
@@ -31,7 +30,7 @@ const textBeeWhFunction = inngest.createFunction(
       throw new Error("Missing required data for HMAC verification.");
     }
 
-     if (!verifyWebhookSignature(rawBody, signature, WEBHOOK_SECRET)) {
+     if (!verifyWebhookSignature(rawBody, signature, process.env.WEBHOOK_SECRET)) {
       throw new Error("Invalid Signature!");
   }
      const payload = await JSON.parse(rawBody);
