@@ -18,10 +18,10 @@ const EventSchema = mongoose.Schema({
 
 }, baseOptions);
 
-// EventSchema.path('date').index({ 
-//   unique: true, 
-//   partialFilterExpression: {
-//     '__type': 'Event'
-//   }
-// });
+EventSchema.path('date').index({ 
+  unique: true, 
+  partialFilterExpression: {
+    '__type': 'Event'
+  }
+});
 module.exports = mongoose.model('Event', EventSchema);

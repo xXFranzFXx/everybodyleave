@@ -11,15 +11,15 @@ const UserSchema = mongoose.Schema({
         trim: true,
         required: true,
     },
-    reminder: {
+    reminder: [{
        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
-    },
-    optOut: {
+    }],
+    archived: [{
         type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
-    },
-    calendarEvents: {
+    }],
+    calendarEvents: [{
         type: [{type: mongoose.Schema.Types.ObjectId, ref: 'CalendarReminder'}]
-    },
+    }],
     role: {
         type: String,
         default: 'basic'

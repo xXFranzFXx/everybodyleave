@@ -77,7 +77,7 @@ const SimpleForm = () => {
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    handleSaveReminder(datetime, phone, timezone)
+    handleSaveReminder(zeroSeconds, phone, timezone)
     
    
   };

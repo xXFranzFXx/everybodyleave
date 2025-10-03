@@ -99,13 +99,13 @@ exports.saveReminder = async (req, res) => {
     let totalUsers = await SignedUpEvent.findOne({ date: datetime }).sort({ usersAttending: -1 }, { session });
     if (Array.isArray(totalUsers) && totalUsers.length === MAX_USERS_PER_BUCKET - 1 && !totalUsers.includes(id)) {
       const event = await SignedUpEvent.updateOne(
-        { date: datetime },
+        { datetime },
         {
           $inc: { count: 1 },
           $addToSet: { usersAttending: id },
           $set: { status: 'closed' },
         },
-        { new: true },
+        { new: true, upsert: true },
         { session }
       );
       await User.updateOne(
@@ -113,7 +113,7 @@ exports.saveReminder = async (req, res) => {
         { $addToSet: { reminder: event },
           $inc: { credit: -1 } 
         
-        }, { new: true }, { session });
+        }, { new: true, upsert: true }, { session });
 
       await session.commitTransaction();
       const { date } = event;
@@ -134,11 +134,11 @@ exports.saveReminder = async (req, res) => {
           },
           $addToSet: { usersAttending: id },
         },
-        { new: true },
+        { new: true, upsert: true },
         { session }
       );
       // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
-      await User.updateOne({ phone: phone }, { $addToSet: { reminder: event } }, { new: true }, { session });
+      await User.updateOne({ phone: phone }, { $addToSet: { reminder: event } }, { new: true, upsert:true }, { session });
 
       await session.commitTransaction();
       const { date } = event;
