@@ -99,7 +99,7 @@ exports.saveReminder = async (req, res) => {
     let totalUsers = await SignedUpEvent.findOne({ date: datetime }).sort({ usersAttending: -1 }, { session });
     if (Array.isArray(totalUsers) && totalUsers.length === MAX_USERS_PER_BUCKET - 1 && !totalUsers.includes(id)) {
       const event = await SignedUpEvent.updateOne(
-        { datetime },
+        { date: datetime },
         {
           $inc: { count: 1 },
           $addToSet: { usersAttending: id },

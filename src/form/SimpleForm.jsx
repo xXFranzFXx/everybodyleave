@@ -11,6 +11,7 @@ import { Reminders } from './Reminders';
 import useFetch from '../hooks/useFetch';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
+import dayjs from 'dayjs';
 
 const dialog = {
    saveMessage:  `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
@@ -72,10 +73,11 @@ const SimpleForm = () => {
 
   const onSubmit = (data) => {
     const { datetime, message } = data;
+    const adjustedTime = dayjs(datetime).set('minutes', 0).set('seconds', 0).set('milliseconds', 0).toDate();
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    handleSaveReminder(zeroSeconds, phone, timezone)
+    handleSaveReminder(datetime, phone, timezone)
     
    
   };
@@ -109,6 +111,7 @@ const SimpleForm = () => {
           reminder={scheduledReminder}
           message={dialog.saveMessage}
           title={dialog.saveTitle}
+          checkbox={true}
         />
 
         <Box
