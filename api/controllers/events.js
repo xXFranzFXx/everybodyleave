@@ -105,7 +105,7 @@ exports.saveReminder = async (req, res) => {
           $addToSet: { usersAttending: id },
           $set: { status: 'closed' },
         },
-        { new: true, upsert: true },
+        { new: true },
         { session }
       );
       await User.updateOne(
@@ -134,7 +134,7 @@ exports.saveReminder = async (req, res) => {
           },
           $addToSet: { usersAttending: id },
         },
-        { new: true, upsert: true },
+        { new: true },
         { session }
       );
       // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
