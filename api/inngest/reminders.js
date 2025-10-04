@@ -26,9 +26,9 @@ const textBeeWhFunction = inngest.createFunction(
     const rawBody = await event.data.raw;
     const signature = await event.data.signature;
     
-     if (!rawBody || !signature || !WEBHOOK_SECRET) {
-      throw new Error("Missing required data for HMAC verification.");
-    }
+    //  if (!rawBody || !signature || !process.env.WEBHOOK_SECRET) {
+    //   throw new Error("Missing required data for HMAC verification.");
+    // }
 
      if (!verifyWebhookSignature(rawBody, signature, process.env.WEBHOOK_SECRET)) {
       throw new Error("Invalid Signature!");
