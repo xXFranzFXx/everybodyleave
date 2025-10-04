@@ -9,18 +9,18 @@ import { subscribe } from 'valtio';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
 import { Reminders } from './Reminders';
 import useFetch from '../hooks/useFetch';
+import useCalendar from '../hooks/useCalendar';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
 
 const dialog = {
-   saveMessage:  `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
-   saveTitle: `You Have Scheduled an SMS Reminder !`
-}
+  saveMessage: `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
+  saveTitle: `You Have Scheduled an SMS Reminder For`,
+};
 
 const SimpleForm = () => {
-  
- 
+  const { formatReminder } = useCalendar();
   const { user } = useAuth0();
   const { name } = user;
   const theme = useTheme();
@@ -55,21 +55,18 @@ const SimpleForm = () => {
     state.saveSuccess = false;
     setValue('datetime', '');
   };
- 
 
   const handleSaveReminder = async (datetime, phone, timezone) => {
     // const newDate = new Date(datetime);
     try {
-     await saveReminder(datetime, phone, timezone)
-     setDateScheduled(datetime);
-     await sendVerificationSMS(phone, datetime)
-     
+      await saveReminder(datetime, phone, timezone);
+      setDateScheduled(datetime);
+      await sendVerificationSMS(phone, datetime);
     } catch (err) {
-      setDateScheduled('')
+      setDateScheduled('');
       console.log('Error saving reminder: ', err);
     }
   };
- 
 
   const onSubmit = (data) => {
     const { datetime, message } = data;
@@ -77,25 +74,23 @@ const SimpleForm = () => {
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    handleSaveReminder(zeroSeconds, phone, timezone)
-    
-   
+    handleSaveReminder(zeroSeconds, phone, timezone);
   };
-    useEffect(
-      () =>
-        subscribe(state, () => {
-          const callback = () => {
-            if (state.saveSuccess) {
-              setDialogOpen(true);
-              state.scheduledReminder = true;
-            }
-          };
-          const unsubscribe = subscribe(state, callback);
-          callback();
-          return unsubscribe;
-        }),
-      []
-    );
+  useEffect(
+    () =>
+      subscribe(state, () => {
+        const callback = () => {
+          if (state.saveSuccess) {
+            setDialogOpen(true);
+            state.scheduledReminder = true;
+          }
+        };
+        const unsubscribe = subscribe(state, callback);
+        callback();
+        return unsubscribe;
+      }),
+    []
+  );
 
   const handleChange = () => {};
 
@@ -108,7 +103,7 @@ const SimpleForm = () => {
           control={control}
           dialogOpen={dialogOpen}
           handleDialogClose={handleDialogClose}
-          reminder={scheduledReminder}
+          reminder={formatReminder(dateScheduled)}
           message={dialog.saveMessage}
           title={dialog.saveTitle}
           checkbox={true}
@@ -133,7 +128,7 @@ const SimpleForm = () => {
             marginTop: '30px',
           }}
         >
-          <Typography variant="h6" align="center" margin="dense" sx={{fontWeight: 'bold'}}>
+          <Typography variant="h6" align="center" margin="dense" sx={{ fontWeight: 'bold' }}>
             EverybodyLeave Weekly Reminders
           </Typography>
 
@@ -143,7 +138,7 @@ const SimpleForm = () => {
               py={2}
               sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%' }}
             >
-              <Typography variant="h6" align="left" margin="dense" sx={{fontWeight: 'bold'}}>
+              <Typography variant="h6" align="left" margin="dense" sx={{ fontWeight: 'bold' }}>
                 Schedule a Reminder
               </Typography>
               <Grid2 size={12} sx={{ width: '100%', my: 2 }}>
@@ -152,7 +147,7 @@ const SimpleForm = () => {
               <Grid2 size={12} sx={{ my: 1 }}>
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
-               {/* <Grid2 size={12} sx={{ mt: 2 }}>
+              {/* <Grid2 size={12} sx={{ mt: 2 }}>
                 <FormInputText  name="message" control={control} label="Reminder Message" />
               </Grid2> */}
               {/* {role === 'basic' &&  scheduledReminder ? (
@@ -191,7 +186,7 @@ const SimpleForm = () => {
               }}
             >
               <Grid2 item>
-                <Reminders dateScheduled={dateScheduled}/>
+                <Reminders dateScheduled={dateScheduled} />
               </Grid2>
             </Box>
           </Grid2>
