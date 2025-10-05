@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { FormInputText } from '../form-components/FormInputText';
+import { FormInputCheckBox } from '../form-components/FormInputCheckBox';
 import { useAuth0 } from '@auth0/auth0-react';
 import { subscribe } from 'valtio';
 import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
@@ -16,7 +17,7 @@ import dayjs from 'dayjs';
 
 const dialog = {
   saveMessage: `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
-  saveTitle: `You Have Scheduled an SMS Reminder For`,
+  saveTitle: `You Have Scheduled an SMS Reminder`,
 };
 
 const SimpleForm = () => {
@@ -34,7 +35,7 @@ const SimpleForm = () => {
     utcdate: '',
     timezone: '',
     message: '',
-    saveToCalendar: false,
+    saveCalendar: false,
     rememberSetting: false,
   };
   const methods = useForm({ defaultValues: defaultValues || '' });
@@ -45,12 +46,29 @@ const SimpleForm = () => {
     getValues,
     formState: { errors },
   } = methods;
-  const { saveReminder, sendVerificationSMS } = useFetch();
+  const { saveReminder, saveCalendarReminder, sendVerificationSMS } = useFetch();
   const [dateScheduled, setDateScheduled] = useState('');
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleDialogClose = () => {
+     if (getValues("saveCalendar") === true) {
+      const datetime = getValues("datetime");
+      const data = {
+        day: dayjs(datetime).date(),
+        month: dayjs(datetime).month(),
+        year: dayjs(datetime).year(),
+        time: dayjs(datetime).hour(),
+        intention: 'SMS Reminder',
+        receiveText: false
+      };
+      try {
+        saveCalendarReminder(data);
+        setValue("saveCalendar", false);
+      } catch (err) {
+        console.log("failed to save sms reminder to calendar: ", err)
+      }
+    }
     setDialogOpen(false);
     state.saveSuccess = false;
     setValue('datetime', '');
@@ -106,7 +124,7 @@ const SimpleForm = () => {
           reminder={formatReminder(dateScheduled)}
           message={dialog.saveMessage}
           title={dialog.saveTitle}
-          checkbox={true}
+          // checkbox={true}
         />
 
         <Box
@@ -147,6 +165,9 @@ const SimpleForm = () => {
               <Grid2 size={12} sx={{ my: 1 }}>
                 <FormInputDateTime name="datetime" control={control} label="Date/Time*" />
               </Grid2>
+              {/* <Grid2 size={12} >
+              <FormInputCheckBox  name="saveCalendar" label="save to calendar"/>
+              </Grid2> */}
               {/* <Grid2 size={12} sx={{ mt: 2 }}>
                 <FormInputText  name="message" control={control} label="Reminder Message" />
               </Grid2> */}

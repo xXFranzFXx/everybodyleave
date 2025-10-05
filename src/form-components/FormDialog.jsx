@@ -17,24 +17,22 @@ const FormDialog = ({ control, dialogOpen, handleDialogClose, reminder, message,
         <Box
           sx={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center' }}
         >
+          <DialogContent sx={{ paddingBottom: 0 }}>
           <DialogTitle> {title} </DialogTitle>
 
-          <DialogTitle> {reminder}</DialogTitle>
+           <DialogContentText> Date: {reminder}</DialogContentText>
+            <Divider sx={{ my: 1 }} />
 
-          <Divider />
-          <DialogContent sx={{ paddingBottom: 0 }}>
-            <Divider sx={{ my: 2 }} />
+        
             <DialogContentText>{message}</DialogContentText>
             <Divider sx={{ my: 2 }} />
             <DialogActions>
-              {checkbox && (
-                <>
-                  <Box sx={{ flexDirection: 'row-reverse', alignItems: 'center' }}>
-                    {/* <FormLabel >Save to calendar</FormLabel> */}
-                    <FormInputCheckBox control={control} name="sendToCalendar" label="save to calendar" />
-                  </Box>
-                </>
-              )}
+           
+            {checkbox && (
+             
+                    <FormInputCheckBox control={control} name="sendCalendar" label="save to calendar" />
+              
+              )} 
 
               <Button onClick={handleDialogClose}>Ok</Button>
             </DialogActions>

@@ -99,10 +99,10 @@ const checkTimeFinalCall = (time) => {
 
   const addOneWeek = () => {
     const date = new Date();
-    const oneWeek = date.setDate(date.getDate() + 5);
+    const oneWeek = date.setDate(date.getDate() + 7);
     const dayNextWeek = date.getDay(oneWeek);
     if (dayNextWeek < 5) {
-      return date.setDate(date.getDate() + 5 - dayNextWeek);
+      return date.setDate(date.getDate() + 7 - dayNextWeek);
     }
     return oneWeek;
   };
