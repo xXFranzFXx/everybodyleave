@@ -10,7 +10,7 @@ const { textBeeBulkSms } = require('../helpers/textBee');
 //since raw will already be stringified by inngest no need to do JSON.stringify on the payload here
 function verifyWebhookSignature(payload, signature, secret) {
   const hmac = crypto.createHmac('sha256', secret);
-  const digest = hmac.update(JSON.stringify(payload)).digest('hex');
+  const digest = hmac.update(payload).digest('hex');
   const signatureHash = signature.split('=')[1];
   
   return crypto.timingSafeEqual(
@@ -30,7 +30,8 @@ const textBeeWhFunction = inngest.createFunction(
     //  if (!rawBody || !signature || !process.env.WEBHOOK_SECRET) {
     //   throw new Error("Missing required data for HMAC verification.");
     // }
-  if (!verifyWebhookSignature(rawBody.raw, signature, process.env.WEBHOOK_SECRET)) {
+    const string = JSON.stringify(rawBody);
+  if (!verifyWebhookSignature(string, signature, process.env.WEBHOOK_SECRET)) {
       throw new NonRetriableError("failed signature verification");
     }
 
