@@ -23,21 +23,20 @@ const textBeeWhFunction = inngest.createFunction(
   { id: "textBee-sms-received" },
   { event: "textBee/sms.received" },
   async ({ event, step }) => {
-    const rawBody = await event.data.raw;
+    const rawBody = await event.data;
     const signature = await event.data.headers['X-Signature'];
     console.log("rawBody: ", rawBody);
     console.log("signature: ", signature);
     //  if (!rawBody || !signature || !process.env.WEBHOOK_SECRET) {
     //   throw new Error("Missing required data for HMAC verification.");
     // }
-     const payload = await JSON.parse(rawBody);
-     const { sender, message } = await payload;
-       console.log("Webhook payload:", payload);
-     if (!verifyWebhookSignature(payload, signature, process.env.WEBHOOK_SECRET)) {
+ 
+     if (!verifyWebhookSignature(rawBody, signature, process.env.WEBHOOK_SECRET)) {
       throw new Error("Invalid Signature!");
   }
-   
-    
+     const payload = await JSON.parse(rawBody);
+     const { sender, message } = await payload;
+      console.log("Webhook payload:", payload);
 
     // Your business logic here...
     await step.run("process-wh-data", async () => {
