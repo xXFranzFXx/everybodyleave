@@ -24,7 +24,7 @@ const textBeeWhFunction = inngest.createFunction(
   { event: "textBee/sms.received" },
   async ({ event, step }) => {
     const rawBody = await event.data;
-    const signature = await event.data.headers['X-Signature'];
+    const signature = await event.headers['X-Signature'];
     console.log("rawBody: ", rawBody);
     console.log("signature: ", signature);
     //  if (!rawBody || !signature || !process.env.WEBHOOK_SECRET) {
