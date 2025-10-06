@@ -30,7 +30,7 @@ const textBeeWhFunction = inngest.createFunction(
     //  if (!rawBody || !signature || !process.env.WEBHOOK_SECRET) {
     //   throw new Error("Missing required data for HMAC verification.");
     // }
-  if (!verifyWebhookSignature(rawBody, signature, process.env.WEBHOOK_SECRET)) {
+  if (!verifyWebhookSignature(rawBody.raw, signature, process.env.WEBHOOK_SECRET)) {
       throw new NonRetriableError("failed signature verification");
     }
 
