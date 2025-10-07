@@ -8,9 +8,14 @@ import { Typography, Button, Grid2, Box, Divider } from '@mui/material';
 import { useCalendarContext } from '../context/CalendarProvider';
 import FormDialogCancel from '../form-components/FormDialogCancel';
 import PreCountdownTimer from '../components/timer/PreCountDownTimer';
+import FormDialog from '../form-components/FormDialog';
 import dayjs from 'dayjs'
 
 export const Reminders = ({ dateScheduled }) => {
+  const dialog = {
+   errorMessage:  `The cut-off time for cancelling is 15 minutes before the scheduled reminder. If reminders are not cancelled within the required time, it will be counted as incomplete.   To avoid receiving an incomplete status, be sure to cancel prior to the cut off time.`,
+   errorTitle: `Reminders must be cancelled before cut-off time`
+}
   const { isBeforeNow, formatReminder, fifteenMinuteLimit } = useCalendar();
   const { scheduledReminders, sendCancellationSMS } = useFetch();
   const { state } = useSocketContext();
@@ -24,8 +29,10 @@ export const Reminders = ({ dateScheduled }) => {
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [errorOpen, setErrorOpen] = useState(false)
   const handleDialogClose = () => {
     setDialogOpen(false)
+    setErrorOpen(false)
   }
   useEffect(() => {
     if (dateScheduled) {
@@ -48,6 +55,10 @@ export const Reminders = ({ dateScheduled }) => {
   const onDelete = async (date) => {
     const token = await getAccessTokenSilently();
     console.log('mongoId: ', mongoId);
+    if ( fifteenMinuteLimit(date)) {
+      setErrorOpen(true);
+
+    }
     try {
       const response = await axios({
         method: 'PUT',
@@ -91,6 +102,7 @@ export const Reminders = ({ dateScheduled }) => {
 
   return (
     <>
+    <FormDialog open={errorOpen} handleDialogClose={handleDialogClose} message={dialog.errorMessage} title={dialog.errorTitle} />
     <FormDialogCancel open={dialogOpen} handleDialogClose={handleDialogClose} />
       <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1 }}>
         { upcomingReminders.length > 0 ? (

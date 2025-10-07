@@ -41,11 +41,10 @@ export const socketEvents = ({ state }) => {
       }
       return { ...state };
     })
-    socket.on('scheduledReminders', (data) => {
-      const { result } = data;
+    socket.on('scheduledReminders', ({ scheduledReminders }) => {
+     console.log("socket context reminders: ", scheduledReminders);
       const currentState = { ...state };
-      currentState.reminders = result;
-      console.log("socket context reminders: ", currentState.reminders);
+      currentState.reminders = [...scheduledReminders];
       return { state: currentState };
     })
     
