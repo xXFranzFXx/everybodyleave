@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { format } from 'date-fns';
 import { subscribe } from "valtio";
+
 dayjs.extend(isSameOrBefore);
 
 
@@ -84,6 +85,21 @@ dayjs.extend(isSameOrBefore);
     console.log("times: ", times )
     // getLatestTime();
   }, []);
+
+   useEffect(
+    () =>
+      subscribe(state, () => {
+        const callback = () => {
+          if (state.hasCancelled === true) {
+            getEvents();
+          }
+        };
+        const unsubscribe = subscribe(state, callback);
+        callback();
+        return unsubscribe;
+      }),
+    []
+  );
   const getLatestTime = async () => {
     try {
       const response = await axios({

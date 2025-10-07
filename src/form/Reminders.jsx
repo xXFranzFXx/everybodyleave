@@ -40,17 +40,18 @@ export const Reminders = ({ dateScheduled }) => {
       upcoming = [...upcoming, dateScheduled];
       setUpcomingReminders(upcoming);
     }
+  
  
   }, [dateScheduled]);
   const countdownTime = (date) => {
     return dayjs(date).valueOf();
   }
-  const handleDeleteDate = useCallback((date) => {
+  const handleDeleteDate = (date) => {
     setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date));
     state.hasCancelled = date;
     setDialogOpen(true)
     sendCancellationSMS(name, date)
-  }, []);
+  };
 
   const onDelete = async (date) => {
     const token = await getAccessTokenSilently();
