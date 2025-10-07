@@ -10,7 +10,7 @@ const { textBeeBulkSms } = require('../helpers/textBee');
 //since raw will already be stringified by inngest no need to do JSON.stringify on the payload here
 function verifyWebhookSignature(payload, signature, secret) {
   const hmac = crypto.createHmac('sha256', secret);
-  const digest = hmac.update(payload).digest('hex');
+  const digest = hmac.update(payload, 'utf-8').digest('hex');
   const signatureHash = signature.split('=')[1];
   
   return crypto.timingSafeEqual(
@@ -19,6 +19,32 @@ function verifyWebhookSignature(payload, signature, secret) {
   );
 }
 
+// const ALGORITHM = 'sha512';
+// const SIGNATURE_HEADER_NAME = 'X-HMAC-SHA512-Signature';
+
+// function verifyHmacSignature(headers, body, currentSecret, nextSecret) {
+//   const receivedSignature = headers[SIGNATURE_HEADER_NAME];
+//   if (!receivedSignature) {
+//     throw new Error('Missing HMAC signature header');
+//   }
+
+//   const isValid = [currentSecret, nextSecret].some(secret => {
+//     const computedSignature = sign(secret, body);
+//     return crypto.timingSafeEqual(
+//       Buffer.from(receivedSignature, 'base64'),
+//       Buffer.from(computedSignature, 'base64')
+//     );
+//   });
+
+//   return isValid;
+// }
+
+// function sign(hmacSecret, body) {
+//   const secretKeyBytes = Buffer.from(hmacSecret, 'base64');
+//   const hmac = crypto.createHmac(ALGORITHM, secretKeyBytes);
+//   hmac.update(body);
+//   return hmac.digest('base64');
+// }
 const textBeeWhFunction = inngest.createFunction(
   { id: "textBee-sms-received" },
   { event: "textBee/sms.received" },
@@ -31,6 +57,7 @@ const textBeeWhFunction = inngest.createFunction(
     //   throw new Error("Missing required data for HMAC verification.");
     // }
     const string = JSON.stringify(rawBody);
+    console.log("string: ", string)
   if (!verifyWebhookSignature(string, signature, process.env.WEBHOOK_SECRET)) {
       throw new NonRetriableError("failed signature verification");
     }
