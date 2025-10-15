@@ -10,6 +10,7 @@ import FormDialogCancel from '../form-components/FormDialogCancel';
 import PreCountdownTimer from '../components/timer/PreCountDownTimer';
 import FormDialog from '../form-components/FormDialog';
 import dayjs from 'dayjs'
+import NextAvailable from './NextAvailable';
 
 export const Reminders = ({ dateScheduled }) => {
   const dialog = {
@@ -25,7 +26,7 @@ export const Reminders = ({ dateScheduled }) => {
   eventDates.sort((a,b) => dayjs(a).diff(dayjs(b)))
   const { phone, timezone } = state;
   const { user, getAccessTokenSilently } = useAuth0();
-  const {  mongoId, name } = user;
+  const {  mongoId, name, profileName } = user;
   const [pastReminders, setPastReminders] = useState([]);
   const [upcomingReminders, setUpcomingReminders] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -106,11 +107,12 @@ export const Reminders = ({ dateScheduled }) => {
     <FormDialog open={errorOpen} handleDialogClose={handleDialogClose} message={dialog.errorMessage} title={dialog.errorTitle} />
     <FormDialogCancel open={dialogOpen} handleDialogClose={handleDialogClose} />
       <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1 }}>
-        { upcomingReminders.length > 0 ? (
+      
+        { upcomingReminders.length > 0 && (
           <>
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
               {' '}
-              Upcoming Reminders{' '}
+              {profileName}'s Upcoming Reminders{' '}
             </Typography>
             { upcomingReminders?.map((date, idx) => (
               <>
@@ -130,16 +132,7 @@ export const Reminders = ({ dateScheduled }) => {
             ))}
             <Divider sx={{ my: 1 }} />
           </>
-        ) : (
-          <>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              {' '}
-              Next Available Timeslot{' '}
-            </Typography>
-            <Typography variant="h7">{formatReminder(eventDates[0])}</Typography>
-            <Divider sx={{ my: 1 }} />
-          </>
-        )}
+        ) }
 
         {Array.isArray(pastReminders) && pastReminders.length > 0 && 
           <>
@@ -158,6 +151,7 @@ export const Reminders = ({ dateScheduled }) => {
           </>  
         }
       </Box>
+     
     </>
   );
 };
