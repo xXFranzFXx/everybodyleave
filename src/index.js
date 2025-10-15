@@ -7,10 +7,12 @@ import reportWebVitals from './reportWebVitals';
 import Auth0ProviderWithHistory from './context/Auth0ProviderWithHistory';
 import MetaDataProvider  from './context/MetadataProvider';
 import CalendarProvider from './context/CalendarProvider';
+import SettingsProvider from './context/SettingsProvider';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Auth0ProviderWithHistory>
+    <SettingsProvider>
     <MetaDataProvider>
    <SocketProvider>
    <CalendarProvider>
@@ -18,6 +20,7 @@ root.render(
       </CalendarProvider>
     </SocketProvider> 
     </MetaDataProvider>
+    </SettingsProvider>
     </Auth0ProviderWithHistory>
   </React.StrictMode>
 );

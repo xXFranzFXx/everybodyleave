@@ -159,7 +159,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     []
   );
    const saveReminder = async (newDate, phone, timezone) => {
-      const { mongoId, name } = user;
+      const { mongoId, name, profileName } = user;
 
       const token = await getAccessTokenSilently();
       console.log('mongoId: ', mongoId);
@@ -173,6 +173,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
             Authorization: `Bearer ${token}`,
           },
           data: {
+            profileName: profileName,
             mongoId: mongoId,
             phone: phone,
             datetime: newDate,
@@ -190,6 +191,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     };
 
   const sendVerificationSMS = async (phone, dateScheduled) => {
+    const { profileName } = user;
     const token = await getAccessTokenSilently();
     try {
       const response = await axios({
@@ -200,8 +202,10 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           Authorization: `Bearer ${token}`,
         },
         data: {
+          profileName: profileName,
           phone: phone,
           dateScheduled: formatReminder(dateScheduled),
+         
         },
       });
       const res = await response.data;
@@ -212,6 +216,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
   };
 
    const sendCancellationSMS = async (phone, dateScheduled) => {
+    const { profileName } = user;
+
     const token = await getAccessTokenSilently();
 
     try {
@@ -223,6 +229,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           Authorization: `Bearer ${token}`,
         },
         data: {
+          profileName: profileName,
           phone: phone,
           dateScheduled: formatReminder(dateScheduled),
         },

@@ -36,4 +36,7 @@ max-width: 210px !important
   width: 210px;
  
 }
+button[aria-label="Previous"] {
+  margin-left: 90%;
+}
 

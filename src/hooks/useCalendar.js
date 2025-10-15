@@ -16,7 +16,7 @@ const useCalendar = () => {
     nextWeek: '[Next]  LLLL',
     lastDay: '[Yesterday at] h:mm A',
     lastWeek: '[Last] LLLL',
-    sameElse: 'DD[th of] MMMM YYYY [at] h:mm A',
+    sameElse: 'LLLL',
   };
 
  const isInCurrentWeek = (date) => {
@@ -43,6 +43,7 @@ const useCalendar = () => {
   const formatReminder = (date) => {
     return dayjs(date).calendar(currentDate, customFormat);
   }
+
   const formatDateTime = (date, hour) => {
    const dateTime = dayjs(date).hour(hour);
    return dateTime.utc().format();
@@ -54,6 +55,7 @@ const useCalendar = () => {
     const duration = dayjs.duration(x.diff(y)).asMinutes();
     return duration <= 15 
   }
+
   const checkDay = (date) => {
      const dayArr = [1, 3, 5];
      const weekday = dayjs(date).get('day')

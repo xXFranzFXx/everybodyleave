@@ -5,16 +5,17 @@ import { FormInputTel } from '../form-components/FormInputTel';
 import { FormInputDateTime } from '../form-components/FormInputDateTime';
 import { FormInputText } from '../form-components/FormInputText';
 import { FormInputCheckBox } from '../form-components/FormInputCheckBox';
+import { useSettingsContext } from '../context/SettingsProvider';
 import { useAuth0 } from '@auth0/auth0-react';
 import { subscribe } from 'valtio';
-import { Typography, Button, Grid2, Box, Paper, useMediaQuery, useTheme } from '@mui/material';
+import { Typography, Button, Grid2, Box, Paper } from '@mui/material';
 import { Reminders } from './Reminders';
 import useFetch from '../hooks/useFetch';
 import useCalendar from '../hooks/useCalendar';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
-
+import NextAvailable from './NextAvailable';
 const dialog = {
   saveMessage: `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
   saveTitle: `You Have Scheduled an SMS Reminder`,
@@ -24,8 +25,7 @@ const SimpleForm = () => {
   const { formatReminder } = useCalendar();
   const { user } = useAuth0();
   const { name } = user;
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { isMobile } = useSettingsContext();
   const { state } = useSocketContext();
   const { phone, timezone, scheduledReminder } = state;
   const defaultValues = {
@@ -207,8 +207,16 @@ const SimpleForm = () => {
               }}
             >
               <Grid2 item>
-                <Reminders dateScheduled={dateScheduled} />
+                <Reminders dateScheduled={dateScheduled}  />
               </Grid2>
+            </Box>
+            <Box sx={{ border: '2px solid black',
+                borderRadius: '5px',
+                width: isMobile ? '100%' : '45%',
+                height: 300,}}>
+            <Grid2 item size={12}>
+            <NextAvailable/>
+            </Grid2>
             </Box>
           </Grid2>
         </Box>
