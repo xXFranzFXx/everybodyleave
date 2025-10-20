@@ -1,3 +1,5 @@
+//for MongoDb
+
 export const userPhonePerEventAgg = (datetime) => {
     return ([
   {
@@ -65,4 +67,23 @@ const allDates = ()  => {
     }
   }
 ]);
+}
+
+//get all archived events into one list
+const allArchived = () => {
+  return (
+    [
+  {
+    $unwind: "$archived"
+  },
+  {
+    $group: {
+      _id: null,
+      allArchived: {
+        $addToSet: "$archived"
+      }
+    }
+  }
+]
+  )
 }
