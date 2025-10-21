@@ -3,7 +3,9 @@ const client = new HttpSms(process.env.HTTPSMS_API_KEY)
 const BASE_URL = 'https://api.httpsms.com/v1'
 const axios = require('axios');
 
-async function sendScheduledHttpSMS(recipient, text, date) { 
+
+//sends scheduled sms 
+async function sendScheduledSms(recipient, text, date) { 
     await client.messages.postSend({
         content: text,
         from: '+19132387124',
@@ -18,20 +20,14 @@ async function sendScheduledHttpSMS(recipient, text, date) {
         console.error(err);
     });
 }
-async function handleUpload (data) {
-    // const data = [
+
+ //sends bulk sms by csv
+ // const data = [
     //   { FromPhoneNumber: phone, ToPhoneNumber: recipient, Content: message, SendTime(optional): date},
     // ];
-
-    const csvString = convertToCsv(data);
-
-    // Create a Blob from the CSV string
-    const blob = new Blob([csvString], { type: 'text/csv' });
-
-    // Create a FormData object
-    const formData = new FormData();
-    formData.append('file', blob, 'bulksms.csv'); // 'file' is the field name on the server, 'data.csv' is the filename
-
+async function sendBulkSmsCSV  (data) {
+   
+    const { formData } = convertToCsv(data);
     try {
       const response = await axios.post(`${BASE_URL}/bulk-messages`, { // Replace with your server endpoint
         headers: {
@@ -43,7 +39,8 @@ async function handleUpload (data) {
       });
 
       if (response.ok) {
-        console.log('CSV uploaded successfully!');
+         console.log('CSV uploaded successfully!');
+        return response.data;    
       } else {
         console.error('Failed to upload CSV:', response.statusText);
       }
@@ -52,7 +49,7 @@ async function handleUpload (data) {
     }
   };
 
-  const convertToCsv = (data) => {
+  function convertToCsv (data) {
     const headers = Object.keys(data[0]);
     const csvRows = [];
     csvRows.push(headers.join(','));
@@ -60,6 +57,12 @@ async function handleUpload (data) {
       const values = headers.map(header => row[header]);
       csvRows.push(values.join(','));
     }
-    return csvRows.join('\n');
+     const csvString = csvRows.join('\n');
+     const blob = new Blob([csvString], { type: 'text/csv' });
+
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append('file', blob, 'bulksms.csv'); // 'file' is the field name on the server, 'data.csv' is the filename
+    return formData;
   };
-module.exports = { sendHttpSMS }
+module.exports = { sendScheduledSms, sendBulkSmsCSV }
