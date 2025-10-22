@@ -215,7 +215,7 @@ const SimpleForm = () => {
                 width: isMobile ? '100%' : '45%',
                 height: 300,}}>
             <Grid2 item size={12}>
-            <NextAvailable/>
+            <NextAvailable handleSaveReminder={handleSaveReminder}/>
             </Grid2>
             </Box>
           </Grid2>
