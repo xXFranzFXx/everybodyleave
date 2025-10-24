@@ -10,6 +10,7 @@ const SocketProvider = ({ children }) => {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             currentReminder: "",
             reminders:[],
+            intention:"",
             acceptTerms: false,
             scheduledEvent: false,
             dialogOpen:false,

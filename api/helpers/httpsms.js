@@ -1,16 +1,16 @@
 const HttpSms = require('httpsms');
-const client = new HttpSms(process.env.HTTPSMS_API_KEY)
-const BASE_URL = 'https://api.httpsms.com/v1'
+const client = new HttpSms(process.env.HTTPSMS_API_KEY);
+const httpSmsPhone = process.env.HTTPSMS_PHONE;
+const BASE_URL = 'https://api.httpsms.com/v1';
 const axios = require('axios');
 const dayjs = require('dayjs');
-const duration = require('dayjs/plugin/duration')
+const duration = require('dayjs/plugin/duration');
 const utc = require("dayjs/plugin/utc");
-const timezone = require("dayjs/plugin/timezone")
+const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const httpSmsPhone = process.env.HTTPSMS_PHONE;
 //sends scheduled sms 
 async function sendScheduledSms(recipient, text, date) { 
     await client.messages.postSend({
@@ -33,10 +33,11 @@ async function sendScheduledSms(recipient, text, date) {
     //   { FromPhoneNumber: phone, ToPhoneNumber: recipient, Content: message, SendTime(optional): date},
     // ];
 async function sendBulkSmsCSV  (data) {
-   
-    const { formData } = convertToCsv(data);
+    const { name, phone, intention, datetime, timezone } = data;
+    const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
+    const { formData } = convertToCsv(csvData);
     try {
-      const response = await axios.post(`${BASE_URL}/bulk-messages`, { // Replace with your server endpoint
+      const res = await axios.post(`${BASE_URL}/nudge-messages`, { // Replace with your server endpoint
         headers: {
         'x-api-key': process.env.HTTPSMS_API_KEY,
         'Accept': 'application/json',
@@ -44,12 +45,12 @@ async function sendBulkSmsCSV  (data) {
         },
         body: formData,
       });
-
-      if (response.ok) {
+      const response = await res.data;
+      if (res.ok) {
          console.log('CSV uploaded successfully!');
-        return response.data;    
+        return response; 
       } else {
-        console.error('Failed to upload CSV:', response.statusText);
+        console.error('Failed to upload CSV:', res.statusText);
       }
     } catch (error) {
       console.error('Error uploading CSV:', error);
@@ -119,6 +120,12 @@ async function sendBulkSmsCSV  (data) {
     });
     return data;
   }
-
+/**
+ * 
+ to send nudgreminders for a single reminder date, send bulk scheduled message via CSV
+ ex: 
+ const data = createCsvObj(name, phone, intention, datetime, timezone)
+ sendBulkSmsCSV(data)
+ */
 
 module.exports = { sendScheduledSms, sendBulkSmsCSV, createCsvObj }

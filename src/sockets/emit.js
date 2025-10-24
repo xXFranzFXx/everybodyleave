@@ -24,8 +24,8 @@ export const emailReminder = (data) => {
   socket.emit('sendEmailReminder', data);
 };
 
-export const sms46Elks = (data) => {
-  socket.emit('send46ElksSms', data, 'dryrun');
+export const createNudgeReminders = (data) => {
+  socket.emit('createNudgeReminders', data);
 };
 
 export const userMetadata = (data) => {

@@ -16,6 +16,7 @@ import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
 import NextAvailable from './NextAvailable';
+import { createNudgeReminders } from '../sockets/emit';
 const dialog = {
   saveMessage: `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
   saveTitle: `You Have Scheduled an SMS Reminder`,
@@ -27,14 +28,14 @@ const SimpleForm = () => {
   const { name } = user;
   const { isMobile } = useSettingsContext();
   const { state } = useSocketContext();
-  const { phone, timezone, scheduledReminder } = state;
+  const { phone, timezone, scheduledReminder, profileName } = state;
   const defaultValues = {
     datetime: '',
     phone: phone || '',
     acceptTerms: '',
     utcdate: '',
     timezone: '',
-    message: '',
+    intention: '',
     saveCalendar: false,
     rememberSetting: false,
   };
@@ -76,10 +77,12 @@ const SimpleForm = () => {
 
   const handleSaveReminder = async (datetime, phone, timezone) => {
     // const newDate = new Date(datetime);
+    const httpSmsData = { name: profileName, phone:phone, intention:intention, datetime: datetime, timezone: timezone }
     try {
       await saveReminder(datetime, phone, timezone);
       setDateScheduled(datetime);
       await sendVerificationSMS(phone, datetime);
+      createNudgeReminders(httpSmsData);
     } catch (err) {
       setDateScheduled('');
       console.log('Error saving reminder: ', err);
@@ -168,9 +171,9 @@ const SimpleForm = () => {
               {/* <Grid2 size={12} >
               <FormInputCheckBox  name="saveCalendar" label="save to calendar"/>
               </Grid2> */}
-              {/* <Grid2 size={12} sx={{ mt: 2 }}>
-                <FormInputText  name="message" control={control} label="Reminder Message" />
-              </Grid2> */}
+              <Grid2 size={12} sx={{ mt: 2 }}>
+                <FormInputText  name="intention" control={control} label="intention" />
+              </Grid2>
               {/* {role === 'basic' &&  scheduledReminder ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
                   <Typography variant="h8" align="center" margin="dense">

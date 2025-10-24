@@ -8,6 +8,7 @@ const cors = require("cors");
 const { serve } = require("inngest/express");
 const { inngest, functions } = require("./inngest/reminders");
 const  connectDb  = require('./db/config/dbConfig');
+const { sendBulkSmsCSV } = require('./helpers/httpsms');
 const { dbConnection } = connectDb;
 
 // const { cronJobEmail, cronJobTwilio, cronJobTextBee } = require('./helpers/cron');
@@ -50,8 +51,8 @@ const socketIO = require("socket.io")(http, {
     allowEIO3: true,
     transports: ['websocket', 'polling', 'flashSocket'],
     cors: {
-      origin: ["https://everybodyleave-1.onrender.com", "https://everybodyleave-2.onrender.com","http://localhost:3000", "http://localhost:3001"],
-      'Access-Control-Allow-Origin': ["https://everybodyleave-1.onrender.com", "https://everybodyleave-1.onrender.com", "http://localhost:3000", "http://localhost:3001"],
+      origin: [, "https://everybodyleave-2.onrender.com","http://localhost:3000", "http://localhost:3001"],
+      'Access-Control-Allow-Origin': [, "https://everybodyleave-2.onrender.com", "http://localhost:3000", "http://localhost:3001"],
       methods: ["OPTIONS", "GET", "POST"]
     },
     pingTimeout: 60000,
@@ -69,10 +70,14 @@ app.use('/api', calendarRoutes);
 app.use('/api', textBeeRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
+
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
-    console.log(process.env.USER);
-   
+    // console.log(process.env.USER);
+    socket.on("createNudgeReminders", async (data) => {
+      const { response } = await sendBulkSmsCSV(data);
+      socket.emit("nudgeReminders", response);
+    })
   // socket.on('sendTwilioSms', async (data) => {
   //   const { sid } = await cronJobTwilio(data);
   //   socket.emit('twilioSms', sid);
