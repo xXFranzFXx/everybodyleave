@@ -7,6 +7,14 @@ const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
 const { textBeeBulkSms } = require('../helpers/textBee');
 
+const fifteenMinuteLimit = (reminder, receivedAt) => {
+    const x = dayjs(reminder)
+    const y = dayjs(receivedAt)
+
+    const duration = dayjs.duration(y.diff(x)).asMinutes();
+    return duration <= 15 
+  }
+  
 function generateHmacSha256(key, data) {
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(data);
@@ -44,7 +52,7 @@ const textBeeWhFunction = inngest.createFunction(
     // Your business logic here...
     await step.run("process-wh-data", async () => {
     const payload = await JSON.parse(rawBody);
-     const { sender, message } = await payload;
+     const { sender, message, receivedAt } = await payload;
       console.log("Webhook payload:", payload);
       console.log("sender is: ", sender);
       console.log("response is: ", message);
@@ -192,7 +200,7 @@ const sendBulkSms = inngest.createFunction(
       await step.run("send-textbee-bulk-sms", 
         async () =>{
           console.log("sending phonelist to textBee")
-          await textBeeBulkSms(message, phoneList);
+          await textBeeBulkSms(message, phoneList, eventId);
           })
     }
   })
