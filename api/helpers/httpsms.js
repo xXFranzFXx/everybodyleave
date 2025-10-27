@@ -27,7 +27,32 @@ async function sendScheduledSms(recipient, text, date) {
         console.error(err);
     });
 }
+async function sendSms(recipient, text) { 
+    await client.messages.postSend({
+        content: text,
+        from: `${httpSmsPhone}`,
+        to: recipient,
+    })
+    .then((message) => {
+        console.log(message.id);
+        return message;
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+}
 
+
+//dateScheduled is formatted date
+async function sendFirstSms(name, phone, intention, dateScheduled) {
+  const message = `Hello ${name}! You have just scheduled your first reminder on ${dateScheduled} for an hour focused on ${intention}.`
+  try {
+    const { message } = await sendSms(phone, text);
+    return message
+  } catch (err) {
+    console.log('Failed to send sms', err);
+  }
+} 
  //sends bulk sms by csv
  // const data = [
     //   { FromPhoneNumber: phone, ToPhoneNumber: recipient, Content: message, SendTime(optional): date},
@@ -128,4 +153,4 @@ async function sendBulkSmsCSV  (data) {
  sendBulkSmsCSV(data)
  */
 
-module.exports = { sendScheduledSms, sendBulkSmsCSV, createCsvObj }
+module.exports = { sendScheduledSms, sendBulkSmsCSV, createCsvObj, sendSms, sendFirstSms }
