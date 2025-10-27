@@ -3,8 +3,16 @@ const BASE_URL = 'https://api.textbee.dev/api/v1';
 const API_KEY = process.env.TEXTBEE_API_KEY;
 const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
 const smsLog = require('../models/SmsLogModel')
+const mongoose = require('mongoose'); 
+
 
 async function textBeeBulkSms(message, phoneList, eventId) {
+  const id = new mongoose.Types.ObjectId(`${eventId}`)
+  const logData = [];
+  phoneList.forEach(phone => {
+    let data = { phone: phone, response: 2 };
+    logData = [ ...logData, data ];
+  })
   try {
     const response = await axios.post(
       `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-bulk-sms`,
@@ -25,11 +33,12 @@ async function textBeeBulkSms(message, phoneList, eventId) {
     );
     const result = await response.data;
     if (response.ok) {
-      await smsLog.findOneAndUpdate(
-        { event: eventId },
-        { $addToSet: { usersAttending: id } },
+      const log = await smsLog.findOneAndUpdate(
+        { event: id },
+        { $addToSet: { log: logData } },
         { new: true, upsert: true },
       )
+      
     }
     console.log('textbee: ', result);
     return result;

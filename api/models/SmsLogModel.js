@@ -6,8 +6,12 @@ const SmsLogSchema = mongoose.Schema({
    event: {
      type: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' }
    },
-   user: [{
-    type: { type: mongoose.Schema.Types.ObjectId, ref: 'User'}
+   log: [{
+    phone: String,
+    response: {
+        type: Number,
+        default: 2
+    }
    }]},{ timestamps: true }
    );
 
