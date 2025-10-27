@@ -1,7 +1,6 @@
-const HttpSms = require('httpsms');
-const client = new HttpSms(process.env.HTTPSMS_API_KEY);
+
 const httpSmsPhone = process.env.HTTPSMS_PHONE;
-const BASE_URL = 'https://api.httpsms.com/v1';
+const BASE_URL = 'https://api.httpsms.com/v1/messages/send';
 const axios = require('axios');
 const dayjs = require('dayjs');
 const duration = require('dayjs/plugin/duration');
@@ -10,36 +9,49 @@ const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
+const headers = {
+        'x-api-key': process.env.HTTPSMS_API_KEY,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        }
 //sends scheduled sms 
 async function sendScheduledSms(recipient, text, date) { 
-    await client.messages.postSend({
-        content: text,
-        from: `${httpSmsPhone}`,
-        to: recipient,
-        send_at: date
-    })
-    .then((message) => {
-        console.log(message.id);
-        return message;
-    })
-    .catch((err) => {
-        console.error(err);
+  try {
+      const response = await axios.post(`${BASE_URL}`, {
+        headers: { headers },
+        body: JSON.stringify({
+          "content": text,
+          "encrypted": false,
+          "from": `${httpSmsPhone}`,
+          "to": recipient,
+          "send_at": date
+        })
     });
+     const data = await response.data;
+     return data;
+  } catch (err) {
+    console.log("failed to send scheduled sms reminder. ", err);
+  }
 }
+
 async function sendSms(recipient, text) { 
-    await client.messages.postSend({
-        content: text,
-        from: `${httpSmsPhone}`,
-        to: recipient,
-    })
-    .then((message) => {
-        console.log(message.id);
-        return message;
-    })
-    .catch((err) => {
-        console.error(err);
+  try {
+      const response = await axios.post(`${BASE_URL}`, {
+        headers: { headers },
+        body: JSON.stringify({
+          "content": text,
+          "encrypted": false,
+          "from": `${httpSmsPhone}`,
+          "to": recipient
+        })
     });
+     const data = await response.data;
+     return data;
+  } catch (err) {
+    console.log("failed to send sms reminder. ", err);
+  }
+
+
 }
 
 
@@ -62,12 +74,8 @@ async function sendBulkSmsCSV  (data) {
     const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
     const { formData } = convertToCsv(csvData);
     try {
-      const res = await axios.post(`${BASE_URL}/nudge-messages`, { // Replace with your server endpoint
-        headers: {
-        'x-api-key': process.env.HTTPSMS_API_KEY,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-        },
+      const res = await axios.post(`${BASE_URL}`, { // Replace with your server endpoint
+        headers: { headers },
         body: formData,
       });
       const response = await res.data;
