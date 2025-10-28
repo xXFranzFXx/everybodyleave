@@ -25,6 +25,7 @@ const userRoutes = require('./routes/user');
 const eventRoutes = require('./routes/events');
 const calendarRoutes = require('./routes/calendarReminders');
 const textBeeRoutes = require('./routes/textBee');
+const httpSmsRoutes = require('./routes/httpSms');
 
 app.use(cors());
 app.use(express.urlencoded({
@@ -68,6 +69,7 @@ app.use('/api', userRoutes);
 app.use('/api', eventRoutes);
 app.use('/api', calendarRoutes);
 app.use('/api', textBeeRoutes);
+app.use('/api', httpSmsRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
 
