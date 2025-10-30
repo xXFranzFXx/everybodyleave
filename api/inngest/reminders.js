@@ -5,15 +5,9 @@ const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
-const { textBeeBulkSms } = require('../helpers/textBee');
+const { textBeeBulkSms, webhookResponse } = require('../helpers/textBee');
 
-const fifteenMinuteLimit = (reminder, receivedAt) => {
-    const x = dayjs(reminder)
-    const y = dayjs(receivedAt)
 
-    const duration = dayjs.duration(y.diff(x)).asMinutes();
-    return duration <= 15 
-  }
   
 function generateHmacSha256(key, data) {
   const hmac = crypto.createHmac('sha256', key);
@@ -56,6 +50,7 @@ const textBeeWhFunction = inngest.createFunction(
       console.log("Webhook payload:", payload);
       console.log("sender is: ", sender);
       console.log("response is: ", message);
+      webhookResponse( sender, message, receivedAt)
       // TODO: update user document and event document with the response received in this webhook
     });
 
@@ -91,7 +86,13 @@ const getFutureTime =  (minutesAhead) => {
   console.log("future time is: ", now)
   return now;
 }
-
+const oneHourAgo =  () => {
+  const now = new Date()
+  now.setHours(now.getHours() -1, 0, 0, 0)
+  // now.setMinutes(now.getMinutes() + minutesAhead);
+  console.log("future time is: ", now)
+  return now;
+}
 const isEmpty = (arr) => {
   return Array.isArray(arr) && arr.length === 0;
 } 
@@ -184,7 +185,66 @@ const sendBulkSms = inngest.createFunction(
 
       const result = await cursor[0].userDetails;
       const phoneList = await result.map(user => user.phone);
-      const message = "This is your scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you aren't."
+      const message = "This is your final scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you cannot participate. Please respond before your leave starts.  If no response is received, it will be defaulted to non-participation.  Thank you!"
+      return { phoneList, message, eventId }
+        } catch (err) {
+           if (err.name === "TypeError") {
+          throw new NonRetriableError("No users signed up for this event");
+        }
+        throw err;
+        } 
+  });
+  
+
+  if(userList){
+    const { phoneList, message, eventId } = userList;
+      await step.run("send-textbee-bulk-sms", 
+        async () =>{
+          console.log("sending phonelist to textBee")
+          await textBeeBulkSms(message, phoneList, eventId);
+          })
+    }
+  })
+
+const sendBulkSmsFollowup = inngest.createFunction(
+  { id: "textbee-bulk-sms" },
+  [
+    { cron: "TZ=America/Los_Angeles * 11,17,18,20 * * 1,3,5"},
+  ],
+  async ({ step, event }) => {
+    const newTime = getFutureTime(15)
+    const userList = await step.run(
+      "get-users",
+      async () => {
+        const datetime = new Date();
+        // datetime.setMinutes(datetime.getMinutes() + 15)
+        console.log("inngest datetime: ", datetime)
+        try {
+        const agg = [
+           {
+              $match: {
+                'date': newTime
+              }
+              },{
+                $lookup: {
+                  'from': 'users', 
+                  'localField': 'usersAttending', 
+                  'foreignField': '_id', 
+                  'as': 'userDetails'
+                }
+                },{
+                  $project: {
+                    'userDetails.phone': 1
+                  }
+              }
+        ];
+      const cursor = await SignedUpEvent.aggregate(agg);
+      // console.log("cursor: ", cursor);
+      const eventId = await cursor[0]._id;
+
+      const result = await cursor[0].userDetails;
+      const phoneList = await result.map(user => user.phone);
+      const message = "This is your final scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you cannot participate. Please respond before your leave starts.  If no response is received, it will be defaulted to non-participation.  Thank you!"
       return { phoneList, message, eventId }
         } catch (err) {
            if (err.name === "TypeError") {

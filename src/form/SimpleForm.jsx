@@ -75,7 +75,7 @@ const SimpleForm = () => {
     setValue('datetime', '');
   };
 
-  const handleSaveReminder = async (datetime, phone, timezone) => {
+  const handleSaveReminder = async (datetime, phone, timezone, intention) => {
     // const newDate = new Date(datetime);
     const httpSmsData = { name: profileName, phone:phone, intention:intention, datetime: datetime, timezone: timezone }
     try {
@@ -90,12 +90,12 @@ const SimpleForm = () => {
   };
 
   const onSubmit = (data) => {
-    const { datetime, message } = data;
+    const { datetime, intention } = data;
     const adjustedTime = dayjs(datetime).set('minutes', 0).set('seconds', 0).set('milliseconds', 0).toDate();
     const zeroSeconds = new Date(datetime).setMilliseconds(0);
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    handleSaveReminder(zeroSeconds, phone, timezone);
+    handleSaveReminder(zeroSeconds, phone, timezone, intention);
   };
   useEffect(
     () =>

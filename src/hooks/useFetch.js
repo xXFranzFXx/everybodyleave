@@ -14,7 +14,7 @@ const useFetch = () => {
   const [scheduledReminders, setScheduledReminders] = useState([]);
   const [calendarData, setCalendarData] = useState([]);
   const saveCalendarReminder = useCallback(async (data) => {
-    const { role, reminderDate, mongoId, name } = user;
+    const { role, reminderDate, mongoId, name, profileName } = user;
 
     const { year, month, day, time, intention, receiveText } = data;
     const dateString = `${year}-${month}-${day}`;
@@ -189,7 +189,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         console.log('Error saving reminder: ', err);
       }
     };
-  const createNudgeReminders = async ( )
+  
   const sendVerificationSMS = async (phone, dateScheduled) => {
     const { profileName, logins } = user;
     const token = await getAccessTokenSilently();

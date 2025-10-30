@@ -95,7 +95,8 @@ async function findDateFromSmsLog(phone) {
   }, {
     $project: {
       _id: 1,
-      "date": "$eventInfo.date"
+      "date": "$eventInfo.date",
+      "endsAt": "$eventInfo.endsAt"
     }
   }
 ];
@@ -107,17 +108,23 @@ async function findDateFromSmsLog(phone) {
 }
 async function webhookResponse(payload) {
    const { sender, message, receivedAt } = payload;
-   const { eventDetails } = await findDateFromSmsLog(sender);
-   const eventDate = await eventDetails.date;
-   const id = new mongoose.Types.ObjectId(`${eventDetails._id}`)
+   const { eventDetails: { _id, date, endsAt } } = await findDateFromSmsLog(sender);
+   const id = new mongoose.Types.ObjectId(`${_id}`)
    const smsLog =  SmsLog.findOne({ event: id });
-   if (dayjs(receivedAt).isBefore(eventDate, hour)) {
+   if ((message === "1" || message === "2") && dayjs(receivedAt).isBefore(date, 'min')) {
       await smsLog.log.set(sender, message);
       const response = `You have replied with ${message}.  Thank you for your timely response.`
       await textBeeSendSms(sender, response);
-   } else {
+   } else if (message === "1"  && fifteenMinuteLimit(endsAt, receivedAt)){
+      const response = `Great Job! Thank you for participating`
+      await textBeeSendSms(sender, response);
+   } else if (message === "2"  && fifteenMinuteLimit(endsAt, receivedAt)){
+      const response = `There's always next time!`
+       await textBeeSendSms(sender, response);
+   } else if ((dayjs(receivedAt).isAfter(date, 'min') && dayjs(receivedAt).isBefore(endsAt, 'min')) 
+    || (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))){
     await smsLog.log.set(sender, "2");
-    const response = `You must reply prior to the start of your leave.  Failure to reply and late replies count as a no show.`
+    const response = `You must reply prior to the start of your leave.  Failure to reply and late replies negatively effect your progress chart.`
     await textBeeSendSms(sender, response);
    }
 }
