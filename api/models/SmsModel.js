@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
-const smsResponseModel = require('./SmsResponseModel')
 const httpSmsPhone = process.env.HTTPSMS_PHONE;
-
+const baseOptions = {
+	discriminatorKey: "smstype",
+  	collection: "sms",
+};
 /**
  * For httpSMS
  */
-const HttpSmsSchema = mongoose.Schema({
+const SmsSchema = mongoose.Schema({
     FromPhoneNumber: {
         type: String,
         default: `${httpSmsPhone}`
@@ -30,6 +32,6 @@ const HttpSmsSchema = mongoose.Schema({
         type: String
     }
 
-});
+}, baseOptions);
 
-module.exports = mongoose.model('httpSms', HttpSmsSchema);
+module.exports = mongoose.model('Sms', SmsSchema);

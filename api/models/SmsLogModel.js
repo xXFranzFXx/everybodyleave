@@ -10,13 +10,10 @@ const SmsLogSchema = mongoose.Schema({
     type: String,
     default: 'open'
    },
-   log: [{
-    phone: String,
-    response: {
-        type: Number,
-        default: 2
-    }
-   }]},{ timestamps: true }
+   log: {
+    type: Map,
+    of: String
+   }},{ timestamps: true }
    );
 
-module.exports = mongoose.model('smsLog', SmsLogSchema);
+module.exports = mongoose.model('SmsLog', SmsLogSchema);

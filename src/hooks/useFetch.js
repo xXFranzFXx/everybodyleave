@@ -189,9 +189,9 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         console.log('Error saving reminder: ', err);
       }
     };
-
+  const createNudgeReminders = async ( )
   const sendVerificationSMS = async (phone, dateScheduled) => {
-    const { profileName } = user;
+    const { profileName, logins } = user;
     const token = await getAccessTokenSilently();
     try {
       const response = await axios({
@@ -205,7 +205,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           profileName: profileName,
           phone: phone,
           dateScheduled: formatReminder(dateScheduled),
-         
+          logins: logins,
         },
       });
       const res = await response.data;

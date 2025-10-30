@@ -5,12 +5,12 @@ const { expressjwt: jwt } = require("express-jwt");
 const dayjs =  require('dayjs');
 
 
-exports.httpsmsWebhook = async (req, res) => {
+exports.httpSmsWebhook = async (req, res) => {
   // Verify auth token
-  if (process.env.HTTPSMS_WEBHOOK_SIGNING_KEY) {
+  if (process.env.WEBHOOK_SECRET) {
     try {
       const token = req.header("Authorization").replace("Bearer ", "");
-      const claims = jwt.verify(token, process.env.HTTPSMS_WEBHOOK_SIGNING_KEY);
+      const claims = jwt.verify(token, process.env.WEBHOOK_SECRET);
   
     } catch (error) {
       console.error("Invalid Authorization token", error);
