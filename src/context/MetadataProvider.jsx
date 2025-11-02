@@ -7,7 +7,7 @@ import { userMetadata } from "../sockets/emit";
   const MetadataProvider = ({ children }) => {
     const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
     const auth0Id = user?.sub;
-    const [ reminders, setReminders ] = useState(null);
+    const [ reminders, setReminders ] = useState([]);
     const metadataKey = `${process.env.REACT_APP_AUTH0_DOMAIN}/claims/user_metadata`;
     const getUserMetadata = async () => {
         try {
@@ -34,7 +34,7 @@ import { userMetadata } from "../sockets/emit";
     };
   
   const saveUserReminder = async (reminder) => {
-    const allReminders = [...reminders, reminder]
+    const allReminders = Array.isArray(reminders) && reminders.length ? [...reminders, reminder] : reminder;
     const accessToken = await getAccessTokenSilently();
     const config = {
       method: 'patch',

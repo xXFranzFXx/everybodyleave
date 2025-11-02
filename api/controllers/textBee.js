@@ -3,12 +3,13 @@ const BASE_URL = 'https://api.textbee.dev/api/v1';
 const API_KEY = process.env.TEXTBEE_API_KEY;
 const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
 
+
 //sends confirmation sms
 exports.textBeeSms = async (req, res) => {
-    const { profileName, logins, phone, dateScheduled, intention } = req.body; 
+    const { profileName, phone, dateScheduled, intention, logins } = req.body; 
     const message = logins === 1 ? 
         `Congratulations ${profileName}! You have scheduled your first leave for ${dateScheduled}. Your intention for the leave is ${intention}  You will receive 4 nudge reminders on the day of your scheduled leave.  You response is required on the final reminder text. Thank you!`:
-        `This is your EbL reminder about your leave scheduled for ${dateScheduled}. You have set an intention for ${intention}.`
+        `You have scheduled an EbL leave for ${dateScheduled}. You have set an intention for ${intention}.`
     const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
     recipients: [phone],
         message: message,

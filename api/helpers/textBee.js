@@ -27,10 +27,10 @@ async function textBeeSendSms(message, recipient) {
 }
 async function textBeeBulkSms(message, phoneList, eventId) {
   const id = new mongoose.Types.ObjectId(`${eventId}`)
-  const logData = [];
-  phoneList.forEach(phone => {
-    // let data = { phone: phone, response: 2 };
-    logData = [ ...logData, { phone: phone, response: 2 } ];
+  let logData = [];
+  logData = phoneList.forEach(phone => {
+    let data = { phone: phone, response: 2 };
+    logData = [ ...logData, data ];
   })
   try {
     const response = await axios.post(
@@ -57,10 +57,11 @@ async function textBeeBulkSms(message, phoneList, eventId) {
         { $addToSet: { log: logData } },
         { new: true, upsert: true },
       )
-      console.log("Updated call log ", log);
+        await log;
+      // console.log("Updated call log ", log);
 
-      await event.updateOne({ id }, {status: 'closed'});
-      console.log("event is now closed");
+      // await event.updateOne({ id }, {status: 'closed'});
+      // console.log("event is now closed");
     }
     console.log('textbee: ', result);
     return result;
@@ -108,7 +109,8 @@ async function findDateFromSmsLog(phone) {
 }
 async function webhookResponse(payload) {
    const { sender, message, receivedAt } = payload;
-   const { eventDetails: { _id, date, endsAt } } = await findDateFromSmsLog(sender);
+   const { eventDetails } = await findDateFromSmsLog(sender);
+   const {  _id, date, endsAt } = await eventDetails;
    const id = new mongoose.Types.ObjectId(`${_id}`)
    const smsLog =  SmsLog.findOne({ event: id });
    if ((message === "1" || message === "2") && dayjs(receivedAt).isBefore(date, 'min')) {

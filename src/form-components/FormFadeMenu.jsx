@@ -30,6 +30,7 @@ export default function FadeMenu({label, callback}) {
       </Button>
       <Menu
         id="fade-menu"
+         sx={{ marginLeft: isMobile? '15%' : '3%' }}
         slotProps={{
           list: {
             'aria-labelledby': 'fade-button',

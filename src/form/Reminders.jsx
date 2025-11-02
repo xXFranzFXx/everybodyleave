@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from '../context/SocketProvider';
+import { useSettingsContext } from '../context/SettingsProvider';
 import useFetch from '../hooks/useFetch';
 import axios from 'axios';
 import useCalendar from '../hooks/useCalendar';
@@ -13,6 +14,7 @@ import dayjs from 'dayjs'
 import NextAvailable from './NextAvailable';
 
 export const Reminders = ({ dateScheduled }) => {
+  const { isMobile } = useSettingsContext();
   const dialog = {
    errorMessage:  `The cut-off time for cancelling is 15 minutes before the scheduled reminder. If reminders are not cancelled within the required time, it will be counted as incomplete.   To avoid receiving an incomplete status, be sure to cancel prior to the cut off time.`,
    errorTitle: `Reminders must be cancelled before cut-off time`
@@ -106,11 +108,16 @@ export const Reminders = ({ dateScheduled }) => {
     <>
     <FormDialog open={errorOpen} handleDialogClose={handleDialogClose} message={dialog.errorMessage} title={dialog.errorTitle} />
     <FormDialogCancel open={dialogOpen} handleDialogClose={handleDialogClose} />
-      <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1 }}>
-      
+      <Box xs={12} md={6} px={1} py={1} sx={{ width: '100%', p: 1, height: '100%' }}>
+              {!upcomingReminders.length && 
+                   <Typography  sx={{ fontWeight: 'bold', fontSize: isMobile? '1rem': '.8rem', justifySelf: 'center' }}>
+                   You have no scheduled reminders
+                   </Typography>
+              }
+
         { upcomingReminders.length > 0 && (
           <>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', justifySelf: 'center', fontSize: isMobile ? '1rem': '.8rem'}}>
               {' '}
               {profileName}'s Upcoming Reminders{' '}
             </Typography>
@@ -133,12 +140,9 @@ export const Reminders = ({ dateScheduled }) => {
             <Divider sx={{ my: 1 }} />
           </>
         ) }
-
         {Array.isArray(pastReminders) && pastReminders.length > 0 && 
           <>
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              Past Reminders{' '}
-            </Typography>
+         
             { pastReminders?.map((date, idx) => (
               <>
                 <Grid2 container spacing={{ xs: 2, md: 3 }}>

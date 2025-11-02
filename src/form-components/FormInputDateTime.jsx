@@ -19,7 +19,7 @@ const DATE_FORMAT = 'MM-DD-YYYY';
 export const FormInputDateTime = ({ name, control, label }) => {
   const { scheduledReminders } = useFetch();
   const weekDayArr = [0, 2, 4, 6, 7];
-  const { isInCurrentMonth, isInCurrentWeek } = useCalendar();
+  const { isInCurrentMonth, isInCurrentWeek, isInSameWeek } = useCalendar();
   const [errorMsg, setErrorMsg] = useState(null);
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
   const { events, times, dates } = useCalendarContext();
@@ -77,6 +77,16 @@ const checkTimeFinalCall = (time) => {
 
   const shouldDisableDay = (date) => {
     let scheduled = [];
+
+    const currentMonth = dayjs().startOf('month').toDate();
+    const startOfNextMonth = dayjs(currentMonth).add(1, 'month').toDate();
+    console.log("startOfNextMonth: ", startOfNextMonth)
+    console.log("currentMonth: ", currentMonth)
+    const firstWeekNextMonth = dayjs(startOfNextMonth).add(7, 'day').toDate()
+    console.log("date: ", date)
+    console.log("firstWeekNextMonth: ", firstWeekNextMonth)
+    console.log(isInSameWeek(date, firstWeekNextMonth))
+    console.log(date < firstWeekNextMonth)
     const dayDate = dayjs(date).date();
     const weekday = dayjs(date).day();
     const datesArr = events.map((event) => dayjs(event.date).date());
@@ -86,6 +96,7 @@ const checkTimeFinalCall = (time) => {
       const reminders = scheduledReminders.result;
       scheduled = reminders.map((result) => dayjs(result).date());
       return (
+        (!isInCurrentMonth(date)  && !isInSameWeek(date, firstWeekNextMonth)) || 
         !isInCurrentMonth(date) ||
         reminders.includes(`${pickerDate}`) ||
         scheduled.includes(dayDate) ||
@@ -93,7 +104,10 @@ const checkTimeFinalCall = (time) => {
         !dateSet.has(dayDate) )
       );
     } else {
-      return !isInCurrentMonth(date) ||  (weekDayArr.includes(weekday) && !dateSet.has(dayDate));
+      return  (
+        (!isInCurrentMonth(date)  && date > firstWeekNextMonth) || 
+      !isInCurrentMonth(date) || 
+      (weekDayArr.includes(weekday) && !dateSet.has(dayDate)));
     }
   };
 

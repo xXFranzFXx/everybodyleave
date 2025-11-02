@@ -24,6 +24,12 @@ const useCalendar = () => {
   const date2 = dayjs(date);
   return date1.isSame(date2, 'week');
  }
+
+ const isInSameWeek = (date1, date2) => {
+  const d1 = dayjs(date1);
+  const d2 = dayjs(date2).format();
+  return d1.isSame(d2, 'week');
+ }
  
  const isInCurrentMonth = (date) => {
   const date1 = dayjs(); 
@@ -48,6 +54,7 @@ const useCalendar = () => {
    const dateTime = dayjs(date).hour(hour);
    return dateTime.utc().format();
   } 
+  
   const fifteenMinuteLimit = (reminder) => {
     const x = dayjs(reminder)
     const y = dayjs()
@@ -64,6 +71,7 @@ const useCalendar = () => {
   return {
     isBeforeNow,
     isBetween,
+    isInSameWeek,
     formatReminder,
     formatDateTime,
     isInCurrentMonth,

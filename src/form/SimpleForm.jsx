@@ -73,22 +73,22 @@ const SimpleForm = () => {
     setDialogOpen(false);
     state.saveSuccess = false;
     setValue('datetime', '');
-  };
 
+  };
   const handleSaveReminder = async (datetime, phone, timezone, intention) => {
     // const newDate = new Date(datetime);
     const httpSmsData = { name: profileName, phone:phone, intention:intention, datetime: datetime, timezone: timezone }
     try {
       await saveReminder(datetime, phone, timezone);
       setDateScheduled(datetime);
-      await sendVerificationSMS(phone, datetime);
+      await sendVerificationSMS(phone, datetime, intention);
       createNudgeReminders(httpSmsData);
     } catch (err) {
       setDateScheduled('');
       console.log('Error saving reminder: ', err);
     }
   };
-
+  
   const onSubmit = (data) => {
     const { datetime, intention } = data;
     const adjustedTime = dayjs(datetime).set('minutes', 0).set('seconds', 0).set('milliseconds', 0).toDate();
@@ -98,10 +98,12 @@ const SimpleForm = () => {
     handleSaveReminder(zeroSeconds, phone, timezone, intention);
   };
   useEffect(
+    
     () =>
       subscribe(state, () => {
         const callback = () => {
           if (state.saveSuccess) {
+            setValue('intention', '')
             setDialogOpen(true);
             state.scheduledReminder = true;
           }
@@ -172,7 +174,7 @@ const SimpleForm = () => {
               <FormInputCheckBox  name="saveCalendar" label="save to calendar"/>
               </Grid2> */}
               <Grid2 size={12} sx={{ mt: 2 }}>
-                <FormInputText  name="intention" control={control} label="intention" />
+                <FormInputText   name="intention" control={control} label="intention" />
               </Grid2>
               {/* {role === 'basic' &&  scheduledReminder ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
