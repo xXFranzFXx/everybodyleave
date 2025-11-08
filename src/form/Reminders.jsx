@@ -10,8 +10,9 @@ import { useCalendarContext } from '../context/CalendarProvider';
 import FormDialogCancel from '../form-components/FormDialogCancel';
 import PreCountdownTimer from '../components/timer/PreCountDownTimer';
 import FormDialog from '../form-components/FormDialog';
+import Carousel from 'react-material-ui-carousel';
+import FadeMenu from '../form-components/FormFadeMenu';
 import dayjs from 'dayjs'
-import NextAvailable from './NextAvailable';
 
 export const Reminders = ({ dateScheduled }) => {
   const { isMobile } = useSettingsContext();
@@ -101,7 +102,7 @@ export const Reminders = ({ dateScheduled }) => {
       setUpcomingReminders(current);
     });
   }, [scheduledReminders]);
-
+  const menuSx= { fontSize: isMobile? '1rem': '.8rem', mt: 2, ml: isMobile? 7 : 6, width: '75%',pt: 1, height: 85}
   const onEdit = () => {};
 
   return (
@@ -117,11 +118,43 @@ export const Reminders = ({ dateScheduled }) => {
 
         { upcomingReminders.length > 0 && (
           <>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', justifySelf: 'center', fontSize: isMobile ? '1rem': '.8rem'}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', justifySelf: 'center'}}>
               {' '}
-              {profileName}'s Upcoming Reminders{' '}
+              {profileName}'s Upcoming Leaves{' '}
             </Typography>
-            { upcomingReminders?.map((date, idx) => (
+              <Carousel 
+                   indicators={false}
+                   navButtonsAlwaysInvisible={false}
+                   navButtonsAlwaysVisible={true}
+                    navButtonsWrapperProps={{   // Move the buttons to the bottom. Unsetting top here to override default style.
+                    style: {
+                        bottom: '0',
+                        top: 'unset',
+                        paddingTop: 5
+                        
+                    }
+                }} 
+                 navButtonsProps={{          // Change the colors and radius of the actual buttons. THIS STYLES BOTH BUTTONS
+                    style: {
+                        backgroundColor: 'cornflowerblue',
+                        borderRadius: 0,
+                        width: 10,
+                      
+                    
+                    }}}
+                   >
+                    {upcomingReminders?.map((date, i) => (
+                  
+<>
+                      <FadeMenu key ={i} sx={menuSx} label={formatReminder(date)} date={date} callback={() => onDelete(date)} buttonLabel="Cancel Reminder" />
+                        <Divider sx={{ paddingTop: '.5px'}} />
+                      <Typography key={`ur-${i}`}  sx={{ fontSize: isMobile? '1.1rem': '1rem', justifySelf: 'center', paddingTop: '3px', paddingBottom: '10px'}}>
+                        {i + 1} of {upcomingReminders.length}
+                      </Typography>
+                      </>
+                    ))}
+                  </Carousel>
+            {/* { upcomingReminders?.map((date, idx) => (
               <>
                 <Grid2 container spacing={{ xs: 2, md: 3 }}>
                   <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
@@ -136,23 +169,64 @@ export const Reminders = ({ dateScheduled }) => {
                   </Grid2>
                 </Grid2>
               </>
-            ))}
-            <Divider sx={{ my: 1 }} />
+            ))} */}
+          
           </>
         ) }
-        {Array.isArray(pastReminders) && pastReminders.length > 0 && 
+         <Typography variant="h6" sx={{ fontWeight: 'bold', justifySelf: 'center' }}>
+              {profileName}'s Previous Leaves{' '}
+            </Typography>
+        {Array.isArray(pastReminders) && pastReminders.length > 1 ?  
+        
           <>
-         
-            { pastReminders?.map((date, idx) => (
+            
+            
+          <Carousel 
+                   indicators={false}
+                   navButtonsAlwaysInvisible={false}
+                   navButtonsAlwaysVisible={true}
+                    navButtonsWrapperProps={{   // Move the buttons to the bottom. Unsetting top here to override default style.
+                    style: {
+                        bottom: '0',
+                        top: 'unset',
+                        paddingTop: 5
+                        
+                    }
+                }} 
+                 navButtonsProps={{          // Change the colors and radius of the actual buttons. THIS STYLES BOTH BUTTONS
+                    style: {
+                        backgroundColor: 'cornflowerblue',
+                        borderRadius: 0,
+                        width:10,
+                       
+                    
+                    }}}
+                   >
+                         { pastReminders?.map((date, idx) => (
               <>
-                <Grid2 container spacing={{ xs: 2, md: 3 }}>
-                  <Grid2 key={idx} item size={3} sx={{ width: 'auto', my: 1 }}>
-                    <Typography variant="h7">{formatReminder(date)}</Typography>
-                  </Grid2>
-                </Grid2>
+                {/* <Grid2 container spacing={{ xs: 2, md: 3 }}> */}
+                  {/* <Grid2 key={idx} item size={3} sx={menuSx}> */}
+                    <Typography key={`pr-${idx}`} sx={{fontSize: isMobile? '1rem': '.8rem', mt: 2, ml: isMobile? 7 : 6, width: '75%',pt: 1, height: 85}}>{formatReminder(date)}</Typography>
+                      {/* <Divider sx={{ paddingTop: '25px'}} /> */}
+                      {/* <Typography key={`pr2-${idx}`}  sx={{ fontSize: isMobile? '1.1rem': '1rem', justifySelf: 'center', paddingTop: '3px', paddingBottom: '2px'}}>
+                        {idx + 1} of {pastReminders.length}
+                      </Typography> */}
+                  {/* </Grid2> */}
+                {/* </Grid2> */}
               </>
             ))}
+                   </Carousel>
+        
           </>  
+          :
+           <>
+                <Grid2 container spacing={{ xs: 2, md: 3 }}>
+                  <Grid2  item size={3} sx={{ width: 'auto', my: 1 }}>
+                    <Typography variant="h7" sx={{justifySelf: 'center'}}>{formatReminder(pastReminders[0])}</Typography>
+                  </Grid2>
+                </Grid2>
+              
+          </>
         }
       </Box>
      

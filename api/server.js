@@ -64,20 +64,12 @@ app.use((req, res, next) => {
   req.io = socketIO;
   return next();
 });
-
-app.use('/api', userRoutes);
-app.use('/api', eventRoutes);
-app.use('/api', calendarRoutes);
-app.use('/api', textBeeRoutes);
-app.use('/api', httpSmsRoutes);
-app.use('/api/inngest', serve({ client: inngest, functions }));
-
-
 socketIO.on("connection", socket => {
     console.log(`⚡: ${socket.id} user just connected!`);
     // console.log(process.env.USER);
     socket.on("createNudgeReminders", async (data) => {
       const { response } = await sendBulkSmsCSV(data);
+      console.log("created nudge reminders ", response);
       socket.emit("nudgeReminders", response);
     })
   // socket.on('sendTwilioSms', async (data) => {
@@ -118,6 +110,15 @@ socketIO.on("connection", socket => {
     console.log("🔥: A user disconnected");
   });
 });
+
+app.use('/api', userRoutes);
+app.use('/api', eventRoutes);
+app.use('/api', calendarRoutes);
+app.use('/api', textBeeRoutes);
+app.use('/api', httpSmsRoutes);
+app.use('/api/inngest', serve({ client: inngest, functions }));
+
+
 
   http.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);

@@ -59,8 +59,18 @@ const useCalendar = () => {
     const x = dayjs(reminder)
     const y = dayjs()
 
-    const duration = dayjs.duration(x.diff(y)).asMinutes();
-    return duration <= 15 
+    const diff = x.diff(y, 'minute');
+    const diff2 = y.diff(x, 'minutes');
+    return diff <= 15 || diff2 >= 0
+  }
+
+  const outsideFifteenMinutes = (reminder) => {
+    const x = dayjs(reminder);
+    const y = dayjs();
+  
+    const diff1 = x.diff(y, 'minute');
+    console.log("diff1: ", diff1)
+    return diff1 >= 15
   }
 
   const checkDay = (date) => {
@@ -77,7 +87,8 @@ const useCalendar = () => {
     isInCurrentMonth,
     isInCurrentWeek,
     checkDay ,
-    fifteenMinuteLimit
+    fifteenMinuteLimit,
+    outsideFifteenMinutes
   }
 }
 

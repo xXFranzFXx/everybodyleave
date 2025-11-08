@@ -199,14 +199,14 @@ const SimpleForm = () => {
               {/* )} */}
             </Box>
             <Box
-              px={3}
+              px={1}
               py={2}
               sx={{
                 border: '2px solid black',
                 borderRadius: '5px',
                 width: isMobile ? '100%' : '45%',
                 height: '100%',
-                maxHeight: 275,
+                maxHeight: 340,
                 my: isMobile ? 3 : 0,
                 overflowY: 'scroll',
               }}
@@ -215,10 +215,14 @@ const SimpleForm = () => {
                 <Reminders dateScheduled={dateScheduled}  />
               </Grid2>
             </Box>
-            <Box sx={{ border: '2px solid black',
+            <Box 
+              px={1}
+              py={2}
+              sx={{ 
+                border: '2px solid black',
                 borderRadius: '5px',
                 width: isMobile ? '100%' : '45%',
-                height: 300,}}>
+                height: 300}}>
             <Grid2 item size={12}>
             <NextAvailable handleSaveReminder={handleSaveReminder}/>
             </Grid2>
