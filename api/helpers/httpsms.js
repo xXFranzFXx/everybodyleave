@@ -57,7 +57,7 @@ async function sendSms(recipient, text) {
 
 //dateScheduled is formatted date
 async function sendFirstSms(name, phone, intention, dateScheduled) {
-  const message = `Hello ${name}! You have just scheduled your first reminder on ${dateScheduled} for an hour focused on ${intention}.`
+  const message = `Hello ${name}! You have just scheduled your first leave on ${dateScheduled} for an hour focused on ${intention}.`
   try {
     const { message } = await sendSms(phone, text);
     return message
@@ -69,8 +69,7 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
  // const data = [
     //   { FromPhoneNumber: phone, ToPhoneNumber: recipient, Content: message, SendTime(optional): date},
     // ];
-async function sendBulkSmsCSV  (data) {
-    const { name, phone, intention, datetime, timezone } = data;
+async function sendBulkSmsCSV  (name, phone, intention, datetime, timezone) {
     const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
     const { formData } = convertToCsv(csvData);
     try {
