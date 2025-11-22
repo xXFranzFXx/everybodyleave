@@ -1,5 +1,6 @@
 const { inngest } = require('../inngest/reminders');
-
+const dayjs = require('dayjs')
+//use these methods to trigger inngest functions
 exports.cancelLeave = async (req, res, next) => {
     const { mongoId, phone, datetime } = req.body;
 
@@ -27,3 +28,18 @@ exports.createLeave = async (req, res, next) => {
     }).catch(err => next(err));
   res.json({ message: 'Leave created' });
 };
+
+
+exports.nudgeTexts = async (req, res, next) => {
+    const { name, phone, intention, dateScheduled, sendAt } = req.body;
+    await inngest.send({
+    name: "notifications/reminder.scheduled",
+    data: {
+        name,
+        phone,
+        intention,
+        dateScheduled
+    },
+    ts: dayjs(sendAt).unix() //this will schedule the function
+    });
+}
