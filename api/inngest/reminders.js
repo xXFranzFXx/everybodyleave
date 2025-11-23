@@ -207,12 +207,12 @@ const sendBulkSms = inngest.createFunction(
   })
 
 const sendBulkSmsFollowup = inngest.createFunction(
-  { id: "textbee-bulk-sms" },
+  { id: "textbee-bulk-sms-followup" },
   [
     { cron: "TZ=America/Los_Angeles * 11,17,18,20 * * 1,3,5"},
   ],
   async ({ step, event }) => {
-    const newTime = getFutureTime(15)
+    const newTime = oneHourAgo();
     const userList = await step.run(
       "get-users",
       async () => {
@@ -244,7 +244,7 @@ const sendBulkSmsFollowup = inngest.createFunction(
 
       const result = await cursor[0].userDetails;
       const phoneList = await result.map(user => user.phone);
-      const message = "This is your final scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you cannot participate. Please respond before your leave starts.  If no response is received, it will be defaulted to non-participation.  Thank you!"
+      const message = "Hello!  This is just a follow up to see how your leave went.  Please respond in within 15 min with 1 if you successfully completed it, and 2 if you did not.  Thank you!"
       return { phoneList, message, eventId }
         } catch (err) {
            if (err.name === "TypeError") {
@@ -257,18 +257,19 @@ const sendBulkSmsFollowup = inngest.createFunction(
 
   if(userList){
     const { phoneList, message, eventId } = userList;
-      await step.run("send-textbee-bulk-sms", 
+      await step.run("send-textbee-bulk-sms-followup", 
         async () =>{
-          console.log("sending phonelist to textBee")
+          console.log("sending phonelist to textBee for followup")
           await textBeeBulkSms(message, phoneList, eventId);
           })
     }
   })
 
-const functions = [
+const functions = [ 
   // prepareReminders,
   textBeeWhFunction,
-  sendBulkSms
+  sendBulkSms,
+  sendBulkSmsFollowup
 ];
 
 module.exports = { inngest, functions }
