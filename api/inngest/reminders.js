@@ -209,7 +209,7 @@ const sendBulkSms = inngest.createFunction(
 const sendBulkSmsFollowup = inngest.createFunction(
   { id: "textbee-bulk-sms-followup" },
   [
-    { cron: "TZ=America/Los_Angeles  11,17,18,20 * * 1,3,5"},
+    { cron: "TZ=America/Los_Angeles 0 11,17,18,20 * * 1,3,5"},
   ],
   async ({ step, event }) => {
     const newTime = oneHourAgo();
