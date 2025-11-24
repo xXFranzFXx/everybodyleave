@@ -16,7 +16,7 @@ export const FormInputText = ({ name, control, label }, props) => {
                     helperText={error ? error.message : null} 
                     error={!!error} 
                     onChange={onChange} 
-                    value={value?? props.editText} 
+                    value={value?? ""} 
                     fullWidth 
                     label={`${label} ${value? value.length: 0}/${CHARACTER_LIMIT}`} 
                     variant="outlined" 
@@ -25,7 +25,7 @@ export const FormInputText = ({ name, control, label }, props) => {
                         inputLabel: { shrink: true} 
                         
                         }}           
-                   
+                    { ...fieldProps }
                     />
             )} 
             rules={{ required: { value: true, message: 'This field is required' } }}

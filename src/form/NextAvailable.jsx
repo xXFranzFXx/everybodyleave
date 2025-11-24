@@ -22,8 +22,8 @@ const NextAvailable = ({handleSaveReminder}) => {
   const sorted = Array.from(new Set(eventDates))
   const currentSchedule = scheduledReminders.result?.filter(el => !isBeforeNow(el))
   const available = sorted.filter( ( el ) => !currentSchedule?.includes( el ) );
-  
-  
+  // console.log("available: ", available)
+  const sx = { fontSize: isMobile? '1.1rem': '.8rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}
   return (
     <div>
       <Typography variant="h6" sx={{ fontWeight: 'bold', my: 2, ml: 3}}>
@@ -51,7 +51,7 @@ const NextAvailable = ({handleSaveReminder}) => {
         }}}
        >
         {available.map((date, i) => (
-          <FadeMenu key ={i} label={formatReminder(date)} callback={() => handleSaveReminder(date, phone, timezone)}/>
+          <FadeMenu key ={`av-${i}`} date={date} label={formatReminder(date)} sx={sx} callback={() => handleSaveReminder(date, phone, timezone)} buttonLabel="Schedule Reminder"/>
           // <Typography key={i}  sx={{ fontSize: isMobile? '1.3rem': '1rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}}>
           //   {formatReminder(date)}
           // </Typography>

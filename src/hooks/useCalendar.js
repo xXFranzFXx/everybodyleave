@@ -4,6 +4,17 @@ import duration from 'dayjs/plugin/duration';
 import utc from 'dayjs/plugin/utc';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
+
+  
+    const checkDst = (date) => {
+        const currentYr = dayjs().get('year');
+        const dstStart = dayjs(`${currentYr}-03-09T10:00:00Z`); // Second Sunday of March
+        const dstEnd = dayjs(`${currentYr}-11-02T10:00:00Z`);   // First Sunday of November
+
+        const targetDate = dayjs(date); 
+
+        return targetDate.isBetween(dstStart, dstEnd, 'day', '[]')
+    }
 const useCalendar = () => {
   dayjs.extend(LocalizedFormat)
   dayjs.extend(utc)
@@ -69,7 +80,7 @@ const useCalendar = () => {
     const y = dayjs();
   
     const diff1 = x.diff(y, 'minute');
-    console.log("diff1: ", diff1)
+    // console.log("diff1: ", diff1)
     return diff1 >= 15
   }
 
@@ -78,6 +89,7 @@ const useCalendar = () => {
      const weekday = dayjs(date).get('day')
      return (dayArr.includes(weekday) && isInCurrentMonth(date));
   }
+
   return {
     isBeforeNow,
     isBetween,
@@ -88,7 +100,8 @@ const useCalendar = () => {
     isInCurrentWeek,
     checkDay ,
     fifteenMinuteLimit,
-    outsideFifteenMinutes
+    outsideFifteenMinutes,
+    checkDst
   }
 }
 

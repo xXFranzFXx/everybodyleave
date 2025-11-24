@@ -69,6 +69,7 @@ export const Reminders = ({ dateScheduled }) => {
         method: 'PUT',
         // url: `http://localhost:4000/api/events/remove`,
         url: `https://everybodyleave.onrender.com/api/events/cancel`,
+
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -220,12 +221,12 @@ export const Reminders = ({ dateScheduled }) => {
           </>  
           :
            <>
-                <Grid2 container spacing={{ xs: 2, md: 3 }}>
+                {/* <Grid2 container spacing={{ xs: 2, md: 3 }}>
                   <Grid2  item size={3} sx={{ width: 'auto', my: 1 }}>
                     <Typography variant="h7" sx={{justifySelf: 'center'}}>{formatReminder(pastReminders[0])}</Typography>
                   </Grid2>
                 </Grid2>
-              
+               */}
           </>
         }
       </Box>

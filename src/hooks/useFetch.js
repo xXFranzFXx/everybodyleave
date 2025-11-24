@@ -190,7 +190,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       }
     };
   
-  const sendVerificationSMS = async (phone, dateScheduled) => {
+  const sendVerificationSMS = async (phone, dateScheduled, intention) => {
     const { profileName, logins } = user;
     const token = await getAccessTokenSilently();
     try {
@@ -205,6 +205,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           profileName: profileName,
           phone: phone,
           dateScheduled: formatReminder(dateScheduled),
+          intention: intention,
           logins: logins,
         },
       });
@@ -240,12 +241,67 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       console.log('Error sending cancellation SMS: ', err);
     }
   };
+
+  const createNudgeReminders = async (name, phone, intention, datetime, timezone) => {
+     const token = await getAccessTokenSilently();
+
+    try {
+      const response = await axios({
+        method: 'POST',
+        // url: `http://localhost:4000/api/httpSms/nudgeTexts`,
+        url: `https://everybodyleave.onrender.com//api/httpSms/nudgeTexts`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          name,
+          phone,
+          intention,
+          datetime,
+          timezone
+        },
+      });
+      const res = await response.data;
+      return res;
+    } catch (err) {
+      console.log('Error creating nudgeReminders ', err);
+    }
+  }
+
+  //httpSms, this will send the first sms  in the morning of the leave
+  const sendInitialSMS = async (timezone, phone, datetime, intention ) => {
+    const { profileName, logins } = user;
+    const token = await getAccessTokenSilently();
+    try {
+      const response = await axios({
+        method: 'POST',
+        // url: `http://localhost:4000/api//httpSms/initialSms`,
+        url: `https://everybodyleave.onrender.com/api//httpSms/initialSms`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          profileName: profileName,
+          phone: phone,
+          dateScheduled: datetime,
+          intention: intention,
+          timezone: timezone
+        },
+      });
+      const res = await response.data;
+      return res;
+    } catch (err) {
+      console.log('Error sending verification SMS: ', err);
+    }
+  };
   return {
     saveReminder,
     sendVerificationSMS,
     sendCancellationSMS,
     saveCalendarReminder,
     deleteCalendarReminder,
+    createNudgeReminders,
+    sendInitialSMS,
     scheduledReminders,
     calendarData,
   };

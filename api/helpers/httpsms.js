@@ -28,6 +28,7 @@ async function sendScheduledSms(recipient, text, date) {
         })
     });
      const data = await response.data;
+     console.log(data);
      return data;
   } catch (err) {
     console.log("failed to send scheduled sms reminder. ", err);
@@ -117,8 +118,8 @@ async function sendBulkSmsCSV  (name, phone, intention, datetime, timezone) {
     let nudgeTimes = [];
     let nudgeReminders = [];
     const reminderHour = dayjs(datetime).get('hour');
-    const firstNudge = reminderHour - 4;
-    if(timezone === 'America/Honolulu' && reminderHour === 17) {
+    const firstNudge = dayjs(datetime).subtract(4, 'hour');
+    if(timezone === 'America/Honolulu' && reminderHour === 17 || reminderHour === 18) {
         nudgeReminders.push(dayjs(datetime).subtract(10, 'hour'));
         return nudgeReminders;
     } else {

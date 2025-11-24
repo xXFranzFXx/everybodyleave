@@ -6,6 +6,7 @@ import weekOfYearPlugin from 'dayjs/plugin/weekOfYear';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { useSocketContext } from '../context/SocketProvider';
 import { Controller } from 'react-hook-form';
 import { renderDigitalClockTimeView } from '@mui/x-date-pickers';
 import { useCalendarContext } from '../context/CalendarProvider';
@@ -17,13 +18,22 @@ dayjs.extend(timezone);
 const DATE_FORMAT = 'MM-DD-YYYY';
 
 export const FormInputDateTime = ({ name, control, label }) => {
+  dayjs.tz.setDefault(dayjs.tz.guess())
   const { scheduledReminders } = useFetch();
+  const { state } = useSocketContext();
+  const { timezone } = state;
   const weekDayArr = [0, 2, 4, 6, 7];
   const { isInCurrentMonth, isInCurrentWeek, isInSameWeek } = useCalendar();
   const [errorMsg, setErrorMsg] = useState(null);
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
   const { events, times, dates } = useCalendarContext();
-  
+  const datesArr = events?.map(event => event.date);
+  const localTime =  (date, ianaCode) => {
+      return dayjs(date).utc('z').local().tz(ianaCode).format('ddd, MMM D, H:mm z')
+  } 
+  const eventLocaltimes = datesArr?.map(date => {
+    return dayjs(date).local().format();
+  })
   const now = new Date();
   const currentHour = now.getHours();
   const errorMessage = useMemo(() => {
@@ -41,7 +51,7 @@ export const FormInputDateTime = ({ name, control, label }) => {
 const checkTimeFinalCall = (time) => {
       const specificHour = dayjs().hour(time).minute(0).second(0).millisecond(0);
       const fifteenMinutesBeforeNextHour= specificHour.subtract(15, 'minute');
-      // console.log("time 15 min before specific hour: ", dayjs(fifteenMinutesBeforeNextHour).format())
+      console.log("time 15 min before specific hour: ", dayjs(fifteenMinutesBeforeNextHour).format())
       return fifteenMinutesBeforeNextHour;
   }
 
@@ -80,13 +90,9 @@ const checkTimeFinalCall = (time) => {
 
     const currentMonth = dayjs().startOf('month').toDate();
     const startOfNextMonth = dayjs(currentMonth).add(1, 'month').toDate();
-    console.log("startOfNextMonth: ", startOfNextMonth)
-    console.log("currentMonth: ", currentMonth)
+   
     const firstWeekNextMonth = dayjs(startOfNextMonth).add(7, 'day').toDate()
-    console.log("date: ", date)
-    console.log("firstWeekNextMonth: ", firstWeekNextMonth)
-    console.log(isInSameWeek(date, firstWeekNextMonth))
-    console.log(date < firstWeekNextMonth)
+   
     const dayDate = dayjs(date).date();
     const weekday = dayjs(date).day();
     const datesArr = events.map((event) => dayjs(event.date).date());
@@ -132,7 +138,7 @@ const checkTimeFinalCall = (time) => {
         render={({ field, fieldState: { error } }) => {
           return (
             <DateTimePicker
-              timezone="system"
+              timezone={timezone}
               disablePast={true}
               // minTime={dayjs().hour(times[0]- 1)}
               // maxTime={dayjs().hour(times[2])}

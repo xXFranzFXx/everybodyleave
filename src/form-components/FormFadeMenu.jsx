@@ -3,10 +3,13 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Fade from '@mui/material/Fade';
+import useCalendar from '../hooks/useCalendar';
 import { useSettingsContext } from '../context/SettingsProvider';
-export default function FadeMenu({label, callback}) {
+
+export default function FadeMenu({ label, callback, buttonLabel, sx, date }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const { isMobile } = useSettingsContext();
+  const { fifteenMinuteLimit, outsideFifteenMinutes } = useCalendar();
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget); 
@@ -24,7 +27,7 @@ export default function FadeMenu({label, callback}) {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        sx={{ fontSize: isMobile? '1.3rem': '1rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}}
+        sx={sx}
       >
         {label}
       </Button>
@@ -41,7 +44,7 @@ export default function FadeMenu({label, callback}) {
         open={open}
         onClose={handleClose}
       >
-        <MenuItem onClick={() => callback()}>Schedule Reminder</MenuItem>
+        <MenuItem sx={{background: 'cornflowerblue', color: 'white'}} disabled={!outsideFifteenMinutes(date)} onClick={() => callback()}>{buttonLabel}</MenuItem>
       </Menu>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSocketContext } from '../context/SocketProvider';
 import { FormProvider, useForm } from 'react-hook-form';
 import { FormInputTel } from '../form-components/FormInputTel';
@@ -16,7 +16,6 @@ import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
 import NextAvailable from './NextAvailable';
-import { createNudgeReminders } from '../sockets/emit';
 const dialog = {
   saveMessage: `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
   saveTitle: `You Have Scheduled an SMS Reminder`,
@@ -28,7 +27,7 @@ const SimpleForm = () => {
   const { name } = user;
   const { isMobile } = useSettingsContext();
   const { state } = useSocketContext();
-  const { phone, timezone, scheduledReminder, profileName } = state;
+  const { phone, timezone, scheduledReminder, profileName, intention } = state;
   const defaultValues = {
     datetime: '',
     phone: phone || '',
@@ -39,19 +38,21 @@ const SimpleForm = () => {
     saveCalendar: false,
     rememberSetting: false,
   };
-  const methods = useForm({ defaultValues: defaultValues || '' });
+  const methods = useForm({ defaultValues: defaultValues  });
   const {
     handleSubmit,
     control,
     setValue,
     getValues,
+    resetField,
+    reset,
     formState: { errors },
   } = methods;
-  const { saveReminder, saveCalendarReminder, sendVerificationSMS } = useFetch();
+  const { saveReminder, saveCalendarReminder, sendVerificationSMS, sendInitialSMS, createNudgeReminders } = useFetch();
   const [dateScheduled, setDateScheduled] = useState('');
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  const inputRef = useRef("")
   const handleDialogClose = () => {
      if (getValues("saveCalendar") === true) {
       const datetime = getValues("datetime");
@@ -70,19 +71,21 @@ const SimpleForm = () => {
         console.log("failed to save sms reminder to calendar: ", err)
       }
     }
+    
     setDialogOpen(false);
     state.saveSuccess = false;
-    setValue('datetime', '');
 
   };
   const handleSaveReminder = async (datetime, phone, timezone, intention) => {
     // const newDate = new Date(datetime);
-    const httpSmsData = { name: profileName, phone:phone, intention:intention, datetime: datetime, timezone: timezone }
+    // const httpSmsData = { name: profileName, phone:phone, intention:intention, datetime: datetime, timezone: timezone }
     try {
       await saveReminder(datetime, phone, timezone);
       setDateScheduled(datetime);
-      await sendVerificationSMS(phone, datetime, intention);
-      createNudgeReminders(httpSmsData);
+      // await sendVerificationSMS(phone, datetime, intention);
+      await sendInitialSMS(timezone, phone, datetime, intention)
+      // await createNudgeReminders(profileName, phone, intention, datetime, timezone);
+    
     } catch (err) {
       setDateScheduled('');
       console.log('Error saving reminder: ', err);
@@ -96,14 +99,19 @@ const SimpleForm = () => {
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
     handleSaveReminder(zeroSeconds, phone, timezone, intention);
+    resetField("datetime");
+    resetField("intention");
   };
+
+  useEffect(() =>  {console.log("intention: ", inputRef.value)},[intention])
   useEffect(
     
     () =>
+   
       subscribe(state, () => {
         const callback = () => {
           if (state.saveSuccess) {
-            setValue('intention', '')
+            resetField('intention')
             setDialogOpen(true);
             state.scheduledReminder = true;
           }
@@ -174,7 +182,7 @@ const SimpleForm = () => {
               <FormInputCheckBox  name="saveCalendar" label="save to calendar"/>
               </Grid2> */}
               <Grid2 size={12} sx={{ mt: 2 }}>
-                <FormInputText   name="intention" control={control} label="intention" />
+                <FormInputText   ref={inputRef} name="intention" control={control} label="intention" />
               </Grid2>
               {/* {role === 'basic' &&  scheduledReminder ? (
                 <Grid2 item xs={12} sm={4} style={{ paddingTop: 15 }}>
@@ -188,6 +196,7 @@ const SimpleForm = () => {
                   // disabled={
                   //   role === 'basic'  ? true : false
                   // }
+                  disabled={getValues("intention") === '' || getValues("datetime") === ''}
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit(onSubmit)}
