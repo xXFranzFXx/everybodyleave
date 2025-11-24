@@ -6,12 +6,17 @@ const { sendScheduledSms, sendBulkSmsCSV } = require('../helpers/httpsms')
 const dayjs =  require('dayjs');
 
 
-exports.httpSmsWebhook = async (req, res) => {
+exports.httpSmsWebhook = jwt({
+    secret: process.env.WEBHOOK_SECRET,
+    algorithms: ['HS256'], // Specify the algorithm explicitly
+  }), async (req, res) => {
   // Verify auth token
   if (process.env.WEBHOOK_SECRET) {
     try {
-      const token = req.header("Authorization").replace("Bearer ", "");
-      const claims = jwt.verify(token, process.env.WEBHOOK_SECRET);
+      // const token = await req.header("Authorization").replace("Bearer ", "");
+      // const { header, payload } = await jwt.decode(token, {complete: true})
+      // const claims = await jwt.verify(token, process.env.WEBHOOK_SECRET);
+      console.log("JWT token verified: ", req.auth)
   
     } catch (error) {
       console.error("Invalid Authorization token", error);
