@@ -1,15 +1,11 @@
 const Sms = require('../models/SmsModel');
 const mongoose = require('mongoose');
-const { expressjwt: jwt } = require("express-jwt");
 const { sendScheduledSms, sendBulkSmsCSV } = require('../helpers/httpsms')
 
 const dayjs =  require('dayjs');
 
 
-exports.httpSmsWebhook = jwt({
-    secret: process.env.WEBHOOK_SECRET,
-    algorithms: ['HS256'], // Specify the algorithm explicitly
-  }), async (req, res) => {
+exports.httpSmsWebhook =  async (req, res) => {
   // Verify auth token
   if (process.env.WEBHOOK_SECRET) {
     try {
