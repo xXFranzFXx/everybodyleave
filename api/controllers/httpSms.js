@@ -22,7 +22,7 @@ exports.httpSmsWebhook =  async (req, res) => {
 
   const event = req.body;
   console.info(
-    `httpsms.com webhook event received with type [${request.header("X-Event-Type")}]`,
+    `httpsms.com webhook event received with type [${req.header("X-Event-Type")}]`,
   );
   console.info(`decoded [${event.type}] with id [${event.id}`);
   console.debug(JSON.stringify(event.data, null, 2));
