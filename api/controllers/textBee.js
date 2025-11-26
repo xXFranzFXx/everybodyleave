@@ -2,7 +2,7 @@ const axios = require('axios');
 const BASE_URL = 'https://api.textbee.dev/api/v1';
 const API_KEY = process.env.TEXTBEE_API_KEY;
 const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
-
+const SmsLog = require('../models/SmsLogModel');
 
 //sends confirmation sms
 exports.textBeeSms = async (req, res) => {
@@ -25,6 +25,11 @@ exports.textBeeSms = async (req, res) => {
 exports.textBeeBulkSms = async (req, res) => {
     const { phone, dateScheduled } = req.body; 
     const message = `This is your scheduled reminder from EbL. Please reply with 1 if you are still attending the event. Respond with 2 if you aren't before the event begins.  Late responses will not be accepted.  A late response or failure to respond will count against your progress level.`
+    let smsLogObj = {
+        phone: "",
+        response: "",
+    }
+    phone.forEach((user, index) => { smsLogObj[index].phone = user });
     const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
     recipients: [phone],
         message: message,
@@ -34,8 +39,15 @@ exports.textBeeBulkSms = async (req, res) => {
         }
     });
     const result = await response.data;
+        await SmsLog.findOneAndUpdate(
+            { date: dateScheduled },
+            { 
+                $addToSet: { log:  { $each: smsLogObj }}
+            },
+            { new: true, upsert: true })
     return result;
-}
+    }
+    
 
 exports.textBeeSmsCancel = async (req, res) => {
     const {profileName, phone, dateScheduled } = req.body; 

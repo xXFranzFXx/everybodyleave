@@ -90,16 +90,16 @@ async function findDateFromSmsLog(phone) {
     }
   }, {
     $lookup: {
-      'from': 'events', 
-      'localField': 'event', 
-      'foreignField': '_id', 
-      'as': 'eventInfo'
+      from: 'events', 
+      localField: 'event', 
+      foreignField: '_id', 
+      as: 'eventInfo'
     }
   }, {
     $project: {
       _id: 1,
-      "date": "$eventInfo.date",
-      "endsAt": "$eventInfo.endsAt"
+      date: "$eventInfo.date",
+      endsAt: "$eventInfo.endsAt"
     }
   }
 ];
