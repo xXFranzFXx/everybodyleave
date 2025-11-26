@@ -51,18 +51,18 @@ async function textBeeBulkSms(message, phoneList, eventId) {
       }
     );
     const result = await response.data;
-    if (response.ok) {
+   
       const log = await SmsLog.findOneAndUpdate(
         { event: id },
         { $addToSet: { log: logData } },
         { new: true, upsert: true },
       )
         await log;
-      // console.log("Updated call log ", log);
+      console.log("Updated call log ", log);
 
-      // await event.updateOne({ id }, {status: 'closed'});
-      // console.log("event is now closed");
-    }
+      await event.updateOne({ id }, {status: 'closed'});
+      console.log("event is now closed");
+    
     console.log('textbee: ', result);
     return result;
   } catch (error) {
@@ -79,7 +79,9 @@ async function textBeeReceiveSms() {
   const messages = await response.data;
   return messages;
 }
-
+async function updateSmsLog(phone) {
+  const log = await SmsLog.findOneAndUpdate({})
+}
 async function findDateFromSmsLog(phone) {
   const agg = [
   {
