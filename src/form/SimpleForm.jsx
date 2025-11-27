@@ -196,7 +196,7 @@ const SimpleForm = () => {
                   // disabled={
                   //   role === 'basic'  ? true : false
                   // }
-                  disabled={getValues("intention") === '' || getValues("datetime") === ''}
+                  disabled={getValues("intention") == '' || getValues("datetime") == ''} 
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit(onSubmit)}
