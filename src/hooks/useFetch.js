@@ -251,7 +251,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       const response = await axios({
         method: 'POST',
         // url: `http://localhost:4000/api/httpSms/nudgeTexts`,
-        url: `https://everybodyleave.onrender.com//api/httpSms/nudgeTexts`,
+        url: `https://everybodyleave.onrender.com/api/httpSms/nudgeTexts`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
