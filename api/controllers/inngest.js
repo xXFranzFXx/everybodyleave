@@ -18,10 +18,10 @@ exports.cancelLeave = async (req, res, next) => {
 };
 
 exports.createLeave = async (req, res, next) => {
-    const { mongoId, phone, datetime, timezone, profileName, intention, logins, eventId } = req.body;
+    const { mongoId, phone, datetime, timezone, profileName, intention, logins } = req.body;
     const userId = new mongoose.Types.ObjectId(`${mongoId}`);
     const signedUpEvent = await SignedUpEvent.getSignedUpEventByDate(datetime, userId);
-    const id = new mongoose.Types.ObjectId(`${signedUpEvent._id}`);
+    const eventId = new mongoose.Types.ObjectId(`${signedUpEvent._id}`);
     
     const message = `This is your scheduled reminder from EbL. Please reply with 1 if you are still attending the event. Respond with 2 if you aren't. Please respond before the event begins.  Late responses will not be accepted.  A late response or failure to respond will count against your progress level.`
     await inngest.send({

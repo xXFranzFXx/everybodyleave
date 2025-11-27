@@ -299,7 +299,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
   };
 
   //inngest 
-  const createLeaveWorkflow = async( phone, datetime, timezone, intention, eventId) => {
+  const createLeaveWorkflow = async( phone, datetime, timezone, intention) => {
    const { profileName, logins, mongoId } = user;
     const token = await getAccessTokenSilently();
     try {
