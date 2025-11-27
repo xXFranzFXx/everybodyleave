@@ -16,14 +16,15 @@ const SignedUpEventSchema = mongoose.Schema({
         default: false
     }
 })
-SignedUpEventSchema.static('getSignedUpEvent', function(eventId, mongoId, filters = {}) {
+SignedUpEventSchema.static('getSignedUpEventbyDate', function(datetime, mongoId, filters = {}) {
   return this.findOne({
     ...filters,
     $and: [
-      { _id: eventId }, 
+      { date: datetime }, 
       { usersAttending: { $in: [ mongoId ] }}
       ],
   });
 });
+
 eventModel.discriminator('SignedUpEvent', SignedUpEventSchema);
 module.exports = mongoose.model('SignedUpEvent');

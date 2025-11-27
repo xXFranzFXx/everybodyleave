@@ -274,13 +274,13 @@ const scheduleReminder = inngest.createFunction(
       // Ensure the cancellation event (async) and the triggering event (event)'s reminderId are the same:
       and: [
          { if: "async.data.eventId == event.data.eventId" },
-         { if: "async.data.userId == event.data.eventId" },
+         { if: "async.data.userId == event.data.userId" },
         ]
     }],
   },
   { event: "reminders/create.leave" },
     async ({ event, step }) => {
-      const { mongoId, phone, datetime, timezone, profileName, intention, logins, eventId } = event.data
+      const { mongoId, phone, datetime, timezone, profileName, intention, logins, eventId, message } = event.data
       const remindAt = dayjs(datetime).subtract(15, 'minute');
       console.log("remindAt: ", remindAt)
       await step.run('send-textBee-initialSms', async () => { 

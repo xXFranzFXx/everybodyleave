@@ -26,6 +26,7 @@ const eventRoutes = require('./routes/events');
 const calendarRoutes = require('./routes/calendarReminders');
 const textBeeRoutes = require('./routes/textBee');
 const httpSmsRoutes = require('./routes/httpSms');
+const inngestWorkflowRoutes = require('./routes/inngestWorkflows')
 
 app.use(cors());
 app.use(express.urlencoded({
@@ -117,7 +118,7 @@ app.use('/api', calendarRoutes);
 app.use('/api', textBeeRoutes);
 app.use('/api', httpSmsRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
-
+app.use('api', inngestWorkflowRoutes);
 
 
   http.listen(PORT, () => {

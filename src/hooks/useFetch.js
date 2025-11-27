@@ -268,6 +268,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     }
   }
 
+
   //httpSms, this will send the first sms  in the morning of the leave
   const sendInitialSMS = async (timezone, phone, datetime, intention ) => {
     const { profileName, logins } = user;
@@ -276,7 +277,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       const response = await axios({
         method: 'POST',
         // url: `http://localhost:4000/api//httpSms/initialSms`,
-        url: `https://everybodyleave.onrender.com/api//httpSms/initialSms`,
+        url: `https://everybodyleave.onrender.com/api/httpSms/initialSms`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -294,6 +295,35 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       console.log('Error sending verification SMS: ', err);
     }
   };
+
+  //inngest 
+  const createLeaveWorkflow = async( phone, datetime, timezone, intention, eventId) => {
+   const { profileName, logins, mongoId } = user;
+    const token = await getAccessTokenSilently();
+    try {
+      const response = await axios({
+        method: 'POST',
+        // url: `http://localhost:4000/api//httpSms/initialSms`,
+        url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          profileName: profileName,
+          phone: phone,
+          dateScheduled: datetime,
+          intention: intention,
+          timezone: timezone, 
+          logins: logins,
+
+        },
+      });
+      const res = await response.data;
+      return res;
+    } catch (err) {
+      console.log('Error creating inngest workflow: ', err);
+    }
+  }
   return {
     saveReminder,
     sendVerificationSMS,
