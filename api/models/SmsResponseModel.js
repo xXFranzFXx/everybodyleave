@@ -6,7 +6,7 @@ const smsModel = require('./SmsModel');
  */
 const SmsResponseSchema = mongoose.Schema({
         response: { type: Number }
-    },{ timestamps: true }
+    }
     );
 
 smsModel.discriminator('SmsResponse', SmsResponseSchema);
