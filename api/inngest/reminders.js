@@ -5,7 +5,7 @@ const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
-const { textBeeBulkSms, webhookResponse } = require('../helpers/textBee');
+const { textBeeBulkSms, webhookResponse, textBeeInitialSms, textBeeSendSms } = require('../helpers/textBee');
 
 
   
@@ -200,8 +200,9 @@ const sendBulkSms = inngest.createFunction(
     const { phoneList, message, eventId } = userList;
       await step.run("send-textbee-bulk-sms", 
         async () =>{
+          const eventDate = new Date(newTime)
           console.log("sending phonelist to textBee")
-          await textBeeBulkSms(message, phoneList, eventId);
+          await textBeeBulkSms(message, phoneList, eventId, eventDate);
           })
     }
   })
@@ -264,9 +265,37 @@ const sendBulkSmsFollowup = inngest.createFunction(
           })
     }
   })
-
+// workflow
+const scheduleReminder = inngest.createFunction(
+  {
+    id: "create-leave",
+    cancelOn: [{
+      event: "reminders/delete.leave", // The event name that cancels this function
+      // Ensure the cancellation event (async) and the triggering event (event)'s reminderId are the same:
+      and: [
+         { if: "async.data.eventId == event.data.eventId" },
+         { if: "async.data.userId == event.data.eventId" },
+        ]
+    }],
+  },
+  { event: "reminders/create.leave" },
+    async ({ event, step }) => {
+      const { mongoId, phone, datetime, timezone, profileName, intention, logins, eventId } = event.data
+      const remindAt = dayjs(datetime).subtract(15, 'minute');
+      console.log("remindAt: ", remindAt)
+      await step.run('send-textBee-initialSms', async () => { 
+        await textBeeInitialSms(profileName, phone, datetime, intention, logins)
+      }),
+      await step.sleepUntil('sleep-until-remind-at-time', remindAt);
+      await step.run('send-textBee-reminder', async () => {
+       console.log("sending phonelist to textBee for followup")
+          await textBeeBulkSms(message, phone, eventId);
+    });
+  }
+);
 const functions = [ 
   // prepareReminders,
+  scheduleReminder,
   textBeeWhFunction,
   sendBulkSms,
   sendBulkSmsFollowup

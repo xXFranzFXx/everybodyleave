@@ -19,8 +19,18 @@ exports.httpSmsWebhook =  async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
   }
-
+/** example payload
+ * "message_id": "27484092-0029-4b3d-9a99-fbee47191aee",
+  "user_id": "lf497ZfUIwckwZ1b2LX8AkRm7WD2",
+  "owner": "+19132387124",
+  "encrypted": false,
+  "contact": "+18583827385",
+  "timestamp": "2025-11-25T04:48:57.102Z",
+  "content": "2",
+  "sim": "SIM1"
+ */
   const event = req.body;
+  const { message_id, user_id, owner, contact, timestamp, content } = event.data;
   console.info(
     `httpsms.com webhook event received with type [${req.header("X-Event-Type")}]`,
   );

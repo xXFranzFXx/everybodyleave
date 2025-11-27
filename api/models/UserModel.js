@@ -24,10 +24,23 @@ const UserSchema = mongoose.Schema({
         type: String,
         default: 'basic'
     },
+    //for use with httpSMS
+    events: [{
+        event: {type: mongoose.Schema.Types.ObjectId, ref: 'Event'},
+        reminderDate: Date,
+        nudges:[{ type: Date }],
+        intention: {type: String},
+        response: {type: Number}
+    }],
     credit: {
         type: Number,
         default: 3,
     }
 });
-
+UserSchema.static('getUser', function(phoneNumber, filters={}) {
+    return this.findOne({
+        ...filters,
+        phone: phoneNumber 
+    })
+})
 module.exports = mongoose.model('User', UserSchema);

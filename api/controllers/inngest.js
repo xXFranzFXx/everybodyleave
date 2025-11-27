@@ -16,14 +16,19 @@ exports.cancelLeave = async (req, res, next) => {
 };
 
 exports.createLeave = async (req, res, next) => {
-    const { mongoId, phone, datetime, timezone } = req.body;
+    const { mongoId, phone, datetime, timezone, profileName, intention, logins, eventId } = req.body;
+    const message = `This is your scheduled reminder from EbL. Please reply with 1 if you are still attending the event. Respond with 2 if you aren't before the event begins.  Late responses will not be accepted.  A late response or failure to respond will count against your progress level.`
     await inngest.send({
         name: "reminders/create.leave",
         data: {
             mongoId,
             phone,
             datetime,
-            timezone
+            timezone,
+            profileName,
+            logins, 
+            intention,
+            eventId
         },
     }).catch(err => next(err));
   res.json({ message: 'Leave created' });
@@ -43,3 +48,7 @@ exports.nudgeTexts = async (req, res, next) => {
     ts: dayjs(sendAt).unix() //this will schedule the function
     });
 }
+
+module.exports = { cancelLeave, createLeave, nudgTexts }
+
+//TODO: add routes

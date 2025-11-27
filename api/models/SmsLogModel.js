@@ -6,9 +6,14 @@ const SmsLogSchema = mongoose.Schema({
    event: {
      type: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' }
    },
-   status: {
-    type: String,
-    default: 'open'
+   eventDate: {
+    type: Date
+   },
+   smsId: {
+    type: String
+   },
+   recipients: {
+    type: [ String ]
    },
    log: {
     type: Map,
@@ -16,4 +21,13 @@ const SmsLogSchema = mongoose.Schema({
    }},{ timestamps: true }
    );
 
+  SmsLogSchema.static('getSmsLog', function(id, phone, filters={}){
+    return this.findOne({
+      ...filters,
+      $and: [
+        { event: id },
+        { recipients: { $in: [ phone ] } }
+      ]
+    })
+  })
 module.exports = mongoose.model('SmsLog', SmsLogSchema);

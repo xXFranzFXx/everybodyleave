@@ -3,7 +3,9 @@ const BASE_URL = 'https://api.textbee.dev/api/v1';
 const API_KEY = process.env.TEXTBEE_API_KEY;
 const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
 const SmsLog = require('../models/SmsLogModel');
+const User = require('../models/UserModel')
 const event = require('../models/EventModel');
+const SignedUpEvent = require('../models/SignedUpEventModel')
 const mongoose = require('mongoose'); 
 
 function fifteenMinuteLimit (reminder, receivedAt) {
@@ -13,6 +15,14 @@ function fifteenMinuteLimit (reminder, receivedAt) {
     const duration = dayjs.duration(y.diff(x)).asMinutes();
     return duration <= 15 
   }
+async function getEventDate (phone, id) {
+  const user = await User.getUser(phone);
+  const userId = new mongoose.Types.ObjectId(`${user._id}`)
+  const event = await SignedUpEvent.getSignedUpEvent(id, userId);
+  const eventDate = event.date
+  return eventDate;
+
+}
 async function textBeeSendSms(message, recipient) {
    const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
       recipient: recipient,
@@ -25,13 +35,9 @@ async function textBeeSendSms(message, recipient) {
       const result = await response.data;
       return result;
 }
-async function textBeeBulkSms(message, phoneList, eventId) {
+async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
   const id = new mongoose.Types.ObjectId(`${eventId}`)
-  let logData = [];
-  logData = phoneList.forEach(phone => {
-    let data = { phone: phone, response: 2 };
-    logData = [ ...logData, data ];
-  })
+ 
   try {
     const response = await axios.post(
       `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-bulk-sms`,
@@ -54,16 +60,19 @@ async function textBeeBulkSms(message, phoneList, eventId) {
    
       const log = await SmsLog.findOneAndUpdate(
         { event: id },
-        { $addToSet: { log: logData } },
+        {  $addToSet: { recipients: phoneList },
+           $set: { eventDate: eventDate },
+           $set: { smsId: result.smsId }
+         },
         { new: true, upsert: true },
       )
         await log;
       console.log("Updated call log ", log);
 
-      await event.updateOne({ id }, {status: 'closed'});
+      await event.updateOne({ id }, { $set: { status: 'closed'}}, {new: true} );
       console.log("event is now closed");
     
-    console.log('textbee: ', result);
+    console.log('textbee final reminder bulk sms sent: ', result);
     return result;
   } catch (error) {
     console.log('Failed to send bulk sms reminders:  ', error);
@@ -109,6 +118,24 @@ async function findDateFromSmsLog(phone) {
  return eventDetails
 
 }
+
+async function textBeeInitialSms (profileName, phone, dateScheduled, intention, logins) {
+ const message = logins === 1 ? 
+        `Congratulations ${profileName}! You have scheduled your first leave for ${dateScheduled}. Your intention for the leave is ${intention}  You will receive 4 nudge reminders on the day of your scheduled leave.  You response is required on the final reminder text. Thank you!`:
+        `You have scheduled an EbL leave for ${dateScheduled}. You have set an intention for ${intention}.`
+    const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
+    recipients: [phone],
+        message: message,
+        }, {
+        headers: {
+            'x-api-key': API_KEY
+        }
+    });
+
+    const result = await response.data;
+    return result;
+
+}
 async function webhookResponse(payload) {
    const { sender, message, receivedAt } = payload;
    const { eventDetails } = await findDateFromSmsLog(sender);
@@ -132,4 +159,4 @@ async function webhookResponse(payload) {
     await textBeeSendSms(sender, response);
    }
 }
-module.exports = { textBeeBulkSms, textBeeReceiveSms, webhookResponse };
+module.exports = { textBeeBulkSms, textBeeSendSms, textBeeReceiveSms, webhookResponse, textBeeInitialSms };
