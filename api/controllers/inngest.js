@@ -56,6 +56,5 @@ exports.nudgeTexts = async (req, res, next) => {
     });
 }
 
-module.exports = { cancelLeave, createLeave, nudgTexts }
 
 //TODO: add routes
