@@ -18,7 +18,7 @@ const SmsLogSchema = mongoose.Schema({
    log: {
     type: Map,
     of: String
-   }},{ timestamps: true }
+   }},
    );
 
   SmsLogSchema.static('getSmsLog', function(id, phone, filters={}){
