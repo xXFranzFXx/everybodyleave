@@ -196,7 +196,7 @@ const SimpleForm = () => {
                   // disabled={
                   //   role === 'basic'  ? true : false
                   // }
-                  disabled={getValues("intention") === '' } 
+                  // disabled={getValues("intention") === '' } 
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit(onSubmit)}
