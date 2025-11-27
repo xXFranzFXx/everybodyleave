@@ -321,6 +321,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         },
       });
       const res = await response.data;
+      console.log("created inngest workflow: ", res)
       return res;
     } catch (err) {
       console.log('Error creating inngest workflow: ', err);
