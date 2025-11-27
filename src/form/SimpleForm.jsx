@@ -82,8 +82,8 @@ const SimpleForm = () => {
     try {
       await saveReminder(datetime, phone, timezone);
       setDateScheduled(datetime);
-      // await sendVerificationSMS(phone, datetime, intention);
-      await sendInitialSMS(timezone, phone, datetime, intention)
+      await sendVerificationSMS(phone, datetime, intention);
+      // await sendInitialSMS(timezone, phone, datetime, intention)
       // await createNudgeReminders(profileName, phone, intention, datetime, timezone);
     
     } catch (err) {
@@ -103,7 +103,6 @@ const SimpleForm = () => {
     resetField("intention");
   };
 
-  useEffect(() =>  {console.log("intention: ", inputRef.value)},[intention])
   useEffect(
     
     () =>

@@ -181,7 +181,9 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           },
         });
         const reminder = await response.data;
-        console.log('res.date: ', reminder.date);
+        console.log('reminder date: ', reminder.date);
+        console.log('reminder id: ', reminder.id);
+        console.log('reminder: ', reminder)
         saveUserReminder(reminder.date);
         state.saveSuccess = true
         return reminder;
@@ -332,6 +334,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     deleteCalendarReminder,
     createNudgeReminders,
     sendInitialSMS,
+    createLeaveWorkflow,
     scheduledReminders,
     calendarData,
   };
