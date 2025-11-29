@@ -9,24 +9,25 @@ const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(timezone);
-const headers = {
+const options = {
+  'headers' : {
         'x-api-key': process.env.HTTPSMS_API_KEY,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
         }
+}
+axios.defaults.headers.common['X-API-Key'] = process.env.HTTPSMS_API_KEY;
 //sends scheduled sms 
 async function sendScheduledSms(recipient, text, date) { 
-  try {
-      const response = await axios.post(`${BASE_URL}`, {
-        headers: { headers },
-        body: JSON.stringify({
+   const body = {
           "content": text,
           "encrypted": false,
           "from": `${httpSmsPhone}`,
-          "to": recipient,
-          "send_at": date
-        })
-    });
+          "to": recipient
+      }
+  try {
+      const response = await axios.post(`${BASE_URL}`, body)
+  
      const data = await response.data;
      console.log(data);
      return data;
@@ -37,15 +38,13 @@ async function sendScheduledSms(recipient, text, date) {
 
 async function sendSms(recipient, text) { 
   try {
-      const response = await axios.post(`${BASE_URL}`, {
-        headers: { headers },
-        body: JSON.stringify({
+      const body = {
           "content": text,
           "encrypted": false,
           "from": `${httpSmsPhone}`,
           "to": recipient
-        })
-    });
+      }
+      const response = await axios.post(`${BASE_URL}`, body)
      const data = await response.data;
      return data;
   } catch (err) {
@@ -74,10 +73,7 @@ async function sendBulkSmsCSV  (name, phone, intention, datetime, timezone) {
     const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
     const { formData } = convertToCsv(csvData);
     try {
-      const res = await axios.post(`${BASE_URL}`, { // Replace with your server endpoint
-        headers: { headers },
-        body: formData,
-      });
+      const res = await axios.post(`${BASE_URL}`, formData);
       const response = await res.data;
       if (res.ok) {
          console.log('CSV uploaded successfully!');

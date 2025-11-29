@@ -83,9 +83,9 @@ const SimpleForm = () => {
       await saveReminder(datetime, phone, timezone);
       setDateScheduled(datetime);
       // await sendVerificationSMS(phone, datetime, intention);
-      // await sendInitialSMS(timezone, phone, datetime, intention)
-      // await createNudgeReminders(profileName, phone, intention, datetime, timezone);
-      await createLeaveWorkflow(phone, datetime, timezone, intention);
+      await sendInitialSMS(timezone, phone, datetime, intention)
+      await createNudgeReminders(profileName, phone, intention, datetime, timezone);
+      // await createLeaveWorkflow(phone, datetime, timezone, intention);
     } catch (err) {
       setDateScheduled('');
       console.log('Error saving reminder: ', err);

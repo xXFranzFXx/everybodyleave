@@ -15,14 +15,14 @@ function fifteenMinuteLimit (reminder, receivedAt) {
     const duration = dayjs.duration(y.diff(x)).asMinutes();
     return duration <= 15 
   }
-async function getEventDate (phone, id) {
-  const user = await User.getUser(phone);
-  const userId = new mongoose.Types.ObjectId(`${user._id}`)
-  const event = await SignedUpEvent.getSignedUpEvent(id, userId);
-  const eventDate = event.date
-  return eventDate;
+// async function getEventDate (phone, id) {
+//   const user = await User.getUser(phone);
+//   const userId = new mongoose.Types.ObjectId(`${user._id}`)
+//   const event = await SignedUpEvent.getSignedUpEvent(id, userId);
+//   const eventDate = event.date
+//   return eventDate;
 
-}
+// }
 async function textBeeSendSms(message, recipient) {
    const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
       recipient: recipient,
@@ -62,7 +62,7 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
         { event: id },
         {  $addToSet: { recipients: phoneList },
            $set: { eventDate: eventDate },
-           $set: { smsId: result.smsId }
+           $set: { smsId: result.data.smsBatchId }
          },
         { new: true, upsert: true },
       )
@@ -122,7 +122,7 @@ async function findDateFromSmsLog(phone) {
 async function textBeeInitialSms (profileName, phone, dateScheduled, intention, logins) {
  const message = logins === 1 ? 
         `Congratulations ${profileName}! You have scheduled your first leave for ${dateScheduled}. Your intention for the leave is ${intention}  You will receive 4 nudge reminders on the day of your scheduled leave.  You response is required on the final reminder text. Thank you!`:
-        `You have scheduled an EbL leave for ${dateScheduled}. You have set an intention for ${intention}.`
+        `Hello ${profileName}! You have scheduled an EbL leave for ${dateScheduled}. You have set an intention for ${intention}.`
     const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
     recipients: [phone],
         message: message,

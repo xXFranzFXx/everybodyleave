@@ -278,8 +278,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        // url: `http://localhost:4000/api//httpSms/initialSms`,
-        url: `https://everybodyleave.onrender.com/api/httpSms/initialSms`,
+        url: `http://localhost:4000/api/httpSms/initialSms`,
+        // url: `https://everybodyleave.onrender.com/api/httpSms/initialSms`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -305,7 +305,6 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        // url: `http://localhost:4000/api//httpSms/initialSms`,
         url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -317,6 +316,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           intention: intention,
           timezone: timezone, 
           logins: logins,
+          mongoId: mongoId
 
         },
       });
