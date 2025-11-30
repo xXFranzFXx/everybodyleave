@@ -69,36 +69,21 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
  // const data = [
     //   { FromPhoneNumber: phone, ToPhoneNumber: recipient, Content: message, SendTime(optional): date},
     // ];
-async function sendBulkSmsCSV  (name, phone, intention, datetime, timezone) {
-    const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
-    const { formData } = convertToCsv(csvData);
-    try {
-      const res = await axios.post(`${BASE_URL}`, formData);
-      const response = await res.data;
-      if (res.ok) {
-         console.log('CSV uploaded successfully!');
-        return response; 
-      } else {
-        console.error('Failed to upload CSV:', res.statusText);
-      }
-    } catch (error) {
-      console.error('Error uploading CSV:', error);
-    }
-  };
 
-  function convertToCsv (data) {
+  async function convertToCsv (data) {
     const headers = Object.keys(data[0]);
-    const csvRows = [];
+    let csvRows = [];
     csvRows.push(headers.join(','));
     for (const row of data) {
       const values = headers.map(header => row[header]);
       csvRows.push(values.join(','));
     }
      const csvString = csvRows.join('\n');
+     console.log("csvString: ", csvString)
      const blob = new Blob([csvString], { type: 'text/csv' });
 
     // Create a FormData object
-    const formData = new FormData();
+    let formData = new FormData();
     formData.append('file', blob, 'bulksms.csv'); // 'file' is the field name on the server, 'data.csv' is the filename
     return formData;
   };
@@ -110,45 +95,93 @@ async function sendBulkSmsCSV  (name, phone, intention, datetime, timezone) {
 
 //if timezone is honolulu, and the reminder is at 7am, send nudge night before at 9pm
 //otherwise set nudge times starting at 9am and for every other hour until 2 hours prior to reminder time
-  function getNudgeReminders(datetime, timezone) {   
+  async function getNudgeReminders(datetime, timezone) {   
     let nudgeTimes = [];
     let nudgeReminders = [];
     const reminderHour = dayjs(datetime).get('hour');
     const firstNudge = dayjs(datetime).subtract(4, 'hour');
+    const firstNudgeHour = dayjs(firstNudge).get('hour');
+    console.log("reminderHour: ", reminderHour)
+    console.log("firstNudgeHour: ", firstNudgeHour)
     if(timezone === 'America/Honolulu' && reminderHour === 17 || reminderHour === 18) {
         nudgeReminders.push(dayjs(datetime).subtract(10, 'hour'));
-        return nudgeReminders;
     } else {
-        nudgeTimes = range(firstNudge, reminderHour, 2)
-        nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time));
-        return nudgeReminders;
+        nudgeTimes = range(firstNudgeHour, reminderHour, 2)
+        nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate());
+        
     }
+    console.log("nudgeReminders: ", nudgeReminders)
+      return nudgeReminders;
   };
 
-  function nudgeReminderContent(name, intention, datetime, timezone) {
-    const { nudgeReminders } = getNudgeReminders(datetime, timezone);
-         if(timezone === 'America/Honolulu' && nudgeReminders.length === 1) {        
+  async function nudgeReminderContent(name, intention, datetime, timezone) {
+    const  nudgeReminders  = await getNudgeReminders(datetime, timezone);
+         if(timezone == 'America/Honolulu' && nudgeReminders.length == 1) {        
           return `Good Evening ${name}! You have scheduled a reminder for tomorrow.  Your intention is to focus on ${intention}.`
          } else {
-         `Hello ${name}! This is just a quick reminder that you have scheduled an event to focus on ${intention}.`
+         return `Hello ${name}! This is just a quick reminder that you have scheduled an event to focus on ${intention}.`
          }
   }
 
   async function createCsvObj(name, phone, intention, datetime, timezone) {
-    const data = [];
-    const { nudgeReminders } = getNudgeReminders(datetime, timezone);
-    data = await nudgeReminders.map(nudgeDate => {
-        let sendAt = dayjs.utc(nudgeDate).tz(timezone);
-        const dataRow = {
+    let data = [];
+    let dataRow = {}
+    const nudgeReminders = await getNudgeReminders(datetime, timezone);
+    // nudgeReminders.forEach((nudgeDate, index) => {
+      for(let i=0; i < nudgeReminders?.length; i++) {
+
+        let sendAt = dayjs.utc(nudgeReminders[i]).tz(timezone).toDate();
+        dataRow = {
             FromPhoneNumber: httpSmsPhone, 
             ToPhoneNumber: phone, 
-            Content: nudgeReminderContent(name, intention, datetime, timezone), 
+            Content: await nudgeReminderContent(name, intention, datetime, timezone), 
             SendTime: sendAt
         }
-        return dataRow;
-    });
+        data.push(dataRow);
+        dataRow = {}
+    // });
+  }
+  console.log("dataRows: ", data)
     return data;
   }
+  async function sendBulkSmsCSV  (name, phone, intention, datetime, timezone) {
+    const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
+    const formData  = await convertToCsv(csvData);
+    // try {
+      await axios({
+          method: "post",
+          url: 'https://api.httpsms.com/v1/messages/bulk-send',
+          data: formData,
+          headers: { 
+            'x-api-key': process.env.HTTPSMS_API_KEY,
+            'Content-Type': 'multipart/form-data' 
+          },
+      })
+        .then(function (response) {
+          //handle success
+          // console.log(response);
+          if (response.ok) {
+            console.log('CSV uploaded successfully!');
+            return response.data; 
+          }
+        })
+        .catch(function (error) {
+          //handle error
+          console.error('Failed to upload CSV:', error)
+      });
+    //   const res = await axios.post(`${BASE_URL}`, formData);
+    //   const response = await res.data;
+    //   if (res.ok) {
+    //      console.log('CSV uploaded successfully!');
+    //     return response; 
+    //   } else {
+    //     console.error('Failed to upload CSV:', res.statusText);
+    //   }
+    // } catch (error) {
+    //   console.error('Error uploading CSV:', error);
+    // }
+  };
+
 /**
  * 
  to send nudgreminders for a single reminder date, send bulk scheduled message via CSV

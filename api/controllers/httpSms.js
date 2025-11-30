@@ -1,6 +1,6 @@
 const Sms = require('../models/SmsModel');
 const mongoose = require('mongoose');
-const { sendScheduledSms, sendBulkSmsCSV } = require('../helpers/httpsms')
+const { sendScheduledSms, sendBulkSmsCSV, sendSms } = require('../helpers/httpsms')
 
 const dayjs =  require('dayjs');
 
@@ -40,12 +40,23 @@ exports.httpSmsWebhook =  async (req, res) => {
   res.status(200).json({ status: "success" });
 };
 
-
+exports.sendConfirmationSms = async (req, res) => {
+    const { timezone, phone, dateScheduled, intention, profileName } = req.body;
+    const text = `Hello ${profileName}! You have scheduled a leave for ${dateScheduled} for the intention of ${intention}.`
+    try {
+          const sms = await sendSms(phone, text);
+          console.log("Confirmation sms sent, ", sms)
+          return res.status(200).json({ sms })
+      } catch (err) {
+          console.log("error sending confirmation sms. ", err );
+          res.status(401).json({ err });
+      }
+}
 exports.scheduleInitialSms = async (req, res) => {
     const { timezone, phone, dateScheduled, intention, profileName } = req.body;
     const hour = dayjs(dateScheduled).hour()
     const date = dayjs(dateScheduled).hour(15).minute(0).second(0).millisecond(0)
-    const text = `Hello ${profileName}! You have scheduled a leave today at ${hour} for the intention of ${intention}.  Please respond with 1 to confirm or 2 if you wish to cancel.`
+    const text = `Hello ${profileName}! You have scheduled a leave for ${dateScheduled} for the intention of ${intention}.  Please respond with 1 to confirm or 2 if you wish to cancel.`
     try {
         const sms = await sendScheduledSms(phone, text, date);
         console.log("Scheduled initial sms, ", sms)
