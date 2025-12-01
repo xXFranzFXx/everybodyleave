@@ -130,12 +130,13 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
     // nudgeReminders.forEach((nudgeDate, index) => {
       for(let i=0; i < nudgeReminders?.length; i++) {
 
-        let sendAt = dayjs.utc(nudgeReminders[i]).tz(timezone).toDate();
+        let sendAt = dayjs.utc(nudgeReminders[i]).tz(timezone).format('YYYY-MM-DDTHH:MM:ss');
+        // let sendAt = nudgeReminders[i]
         dataRow = {
             FromPhoneNumber: httpSmsPhone, 
             ToPhoneNumber: phone, 
             Content: await nudgeReminderContent(name, intention, datetime, timezone), 
-            SendTime: sendAt
+            'SendTime(optional)': sendAt
         }
         data.push(dataRow);
         dataRow = {}
@@ -150,7 +151,7 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
     // try {
       await axios({
           method: "post",
-          url: 'https://api.httpsms.com/v1/messages/bulk-send',
+          url: 'https://api.httpsms.com/v1/bulk-messages',
           data: formData,
           headers: { 
             'x-api-key': process.env.HTTPSMS_API_KEY,
