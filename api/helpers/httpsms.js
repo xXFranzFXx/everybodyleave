@@ -81,10 +81,11 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
      const csvString = csvRows.join('\n');
      console.log("csvString: ", csvString)
      const blob = new Blob([csvString], { type: 'text/csv' });
-
+     const fileName = "httpsms-bulk.csv";
+     const file = new File([blob], fileName, { type: blob.type })
     // Create a FormData object
     let formData = new FormData();
-    formData.append('file', blob, 'bulksms.csv'); // 'file' is the field name on the server, 'data.csv' is the filename
+    formData.append("file", file, file.name); // 'file' is the field name on the server, 'data.csv' is the filename
     return formData;
   };
 
@@ -106,7 +107,7 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
     if(timezone === 'America/Honolulu' && reminderHour === 17 || reminderHour === 18) {
         nudgeReminders.push(dayjs(datetime).subtract(10, 'hour'));
     } else {
-        nudgeTimes = range(firstNudgeHour, reminderHour, 2)
+        nudgeTimes = range(firstNudgeHour, reminderHour, 1)
         nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate());
         
     }
@@ -136,7 +137,7 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
             FromPhoneNumber: httpSmsPhone, 
             ToPhoneNumber: phone, 
             Content: await nudgeReminderContent(name, intention, datetime, timezone), 
-            'SendTime(optional)': sendAt
+            SendTime: sendAt
         }
         data.push(dataRow);
         dataRow = {}
@@ -149,10 +150,7 @@ async function sendFirstSms(name, phone, intention, dateScheduled) {
     const csvData = await createCsvObj(name, phone, intention, datetime, timezone);
     const formData  = await convertToCsv(csvData);
     // try {
-      await axios({
-          method: "post",
-          url: 'https://api.httpsms.com/v1/bulk-messages',
-          data: formData,
+      await axios.post('https://api.httpsms.com/v1/bulk-messages', formData, {
           headers: { 
             'x-api-key': process.env.HTTPSMS_API_KEY,
             'Content-Type': 'multipart/form-data' 

@@ -102,7 +102,7 @@ const checkTimeFinalCall = (time) => {
       const reminders = scheduledReminders.result;
       scheduled = reminders.map((result) => dayjs(result).date());
       return (
-        (!isInCurrentMonth(date) &&   weekDayArr.includes(weekday) )||
+        (!isInCurrentMonth(date) ||   weekDayArr.includes(weekday)  ) ||
         // (!isInCurrentMonth(date)  && !isInSameWeek(date, firstWeekNextMonth)) || 
         
         reminders.includes(`${pickerDate}`) ||
