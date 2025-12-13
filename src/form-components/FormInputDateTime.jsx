@@ -106,19 +106,19 @@ const checkTimeFinalCall = (time) => {
       console.log("dayDate: ", dayDate)
 
       return (
-        (!isInCurrentMonth(date) ||   weekDayArr.includes(weekday)  ) ||
+       (!isInCurrentMonth(date) ||   weekDayArr.includes(weekday)  ) ||
         // (!isInCurrentMonth(date)  && !isInSameWeek(date, firstWeekNextMonth)) || 
         
         reminders.includes(`${pickerDate}`) ||
         scheduled.includes(dayDate) ||
-        (weekDayArr.includes(weekday) &&
+        (weekDayArr.includes(weekday) ||
         !dateSet.has(dayDate) )
       );
     } else {
       return  (
-        (!isInCurrentMonth(date)  && date > firstWeekNextMonth) || 
-      !isInCurrentMonth(date) || 
-      (weekDayArr.includes(weekday) && !dateSet.has(dayDate)));
+        (!isInCurrentMonth(date)  && date > firstWeekNextMonth) ||  (weekDayArr.includes(weekday) || !dateSet.has(dayDate)) ||
+      !isInCurrentMonth(date) 
+     );
     }
   };
 
