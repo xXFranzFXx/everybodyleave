@@ -16,7 +16,7 @@ const SignedUpEventSchema = mongoose.Schema({
         default: false
     }
 })
-SignedUpEventSchema.static('getSignedUpEventbyDate', function(datetime, mongoId, filters = {}) {
+SignedUpEventSchema.static('getSignedUpEventByDate', function(datetime, mongoId, filters = {}) {
   return this.findOne({
     ...filters,
     $and: [

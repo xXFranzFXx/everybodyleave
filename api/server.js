@@ -118,7 +118,7 @@ app.use('/api', calendarRoutes);
 app.use('/api', textBeeRoutes);
 app.use('/api', httpSmsRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
-app.use('api', inngestWorkflowRoutes);
+app.use('/api', inngestWorkflowRoutes);
 
 
   http.listen(PORT, () => {

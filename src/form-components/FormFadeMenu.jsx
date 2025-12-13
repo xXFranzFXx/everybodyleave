@@ -1,4 +1,4 @@
-import * as React from 'react';
+import {useState}from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -7,16 +7,20 @@ import useCalendar from '../hooks/useCalendar';
 import { useSettingsContext } from '../context/SettingsProvider';
 
 export default function FadeMenu({ label, callback, buttonLabel, sx, date }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setOpen] = useState(false)
   const { isMobile } = useSettingsContext();
   const { fifteenMinuteLimit, outsideFifteenMinutes } = useCalendar();
-  const open = Boolean(anchorEl);
+
+  // const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget); 
+    setOpen(true)
   };
   const handleClose = () => {
   
     setAnchorEl(null);
+    setOpen(false)
   };
 
   return (

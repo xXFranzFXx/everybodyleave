@@ -98,9 +98,13 @@ const checkTimeFinalCall = (time) => {
     const datesArr = events.map((event) => dayjs(event.date).date());
     const dateSet = new Set(datesArr);
     const pickerDate = dayjs.utc(date).format();
+    console.log("pickerDate: ", pickerDate)
     if (scheduledReminders?.result.length > 0) {
       const reminders = scheduledReminders.result;
       scheduled = reminders.map((result) => dayjs(result).date());
+      console.log("scheduled: ", scheduled);
+      console.log("dayDate: ", dayDate)
+
       return (
         (!isInCurrentMonth(date) ||   weekDayArr.includes(weekday)  ) ||
         // (!isInCurrentMonth(date)  && !isInSameWeek(date, firstWeekNextMonth)) || 
@@ -128,7 +132,7 @@ const checkTimeFinalCall = (time) => {
     return oneWeek;
   };
  useEffect(() => {
-  checkTimeFinalCall(17)
+  // checkTimeFinalCall(17)
  },[])
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>

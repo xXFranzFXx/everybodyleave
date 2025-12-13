@@ -79,7 +79,7 @@ exports.removeReminder = async (req, res) => {
     console.log('Transaction successful');
     return res.status(200).json({ event });
   } catch (error) {
-    await session.abortTransaction();
+    // await session.abortTransaction();
     console.log('Transaction failed: ', error);
     res.status(401).json({ error: 'Error cancelling reminder' });
     throw error;
@@ -311,7 +311,7 @@ exports.getLatestTime = async (req, res) => {
 exports.getReminders = async (req, res) => {
   const { id } = req.query;
   const mongoId = new mongoose.Types.ObjectId(`${id}`)
-  console.log("req: ", req)
+  // console.log("req: ", req)
   try {
     const agg = [
       {

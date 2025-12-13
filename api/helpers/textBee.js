@@ -25,7 +25,7 @@ function fifteenMinuteLimit (reminder, receivedAt) {
 // }
 async function textBeeSendSms(message, recipient) {
    const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
-      recipient: recipient,
+      recipients: [recipient],
           message: message,
           }, {
           headers: {

@@ -5,8 +5,13 @@ const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
+const dayjs = require('dayjs');
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+dayjs.extend(utc);
+dayjs.extend(timezone);
 const { textBeeBulkSms, webhookResponse, textBeeInitialSms, textBeeSendSms } = require('../helpers/textBee');
-
+const { sendSms } = require('../helpers/httpsms');
 
   
 function generateHmacSha256(key, data) {
@@ -280,24 +285,38 @@ const scheduleReminder = inngest.createFunction(
   },
   { event: "reminders/create.leave" },
     async ({ event, step }) => {
-      const { mongoId, phone, datetime, timezone, profileName, intention, logins, eventId, message } = event.data
-      const remindAt = dayjs(datetime).subtract(15, 'minute');
-      console.log("remindAt: ", remindAt)
+      
+      const { mongoId, phone, dateScheduled, timezone, profileName, intention, logins, eventId, message, nudgeTimeUtc,  nudgeMessage,
+        nudgeReminderTs } = event.data;
+      const finalTime = dayjs(nudgeTimeUtc).subtract(15, 'minute');
+      const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
       await step.run('send-textBee-initialSms', async () => { 
-        await textBeeInitialSms(profileName, phone, datetime, intention, logins)
-      }),
-      await step.sleepUntil('sleep-until-remind-at-time', remindAt);
-      await step.run('send-textBee-reminder', async () => {
-       console.log("sending phonelist to textBee for followup")
-          await textBeeBulkSms(message, phone, eventId);
-    });
+        await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
+      });
+      
+      for( let i = 0; i < nudgeReminderTs.length; i++) {
+            await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
+            await step.run('send-textBee-nudgeText', async () => {
+              await sendSms(phone, nudgeMessage)
+            });
+      }
+
+      await step.sleepUntil('sleep-until-final-reminder-time', new Date(finalTime));
+      await step.run('send-textBee-final-Reminder', async () => {
+        await textBeeSendSms(message, phone)
+      })
+      
+    //   await step.run('send-textBee-reminder', async () => {
+    //    console.log("sending phonelist to textBee for followup");
+    //       await textBeeBulkSms(message, phone, eventId);
+    // });
   }
 );
 const functions = [ 
   // prepareReminders,
   scheduleReminder,
   textBeeWhFunction,
-  sendBulkSms,
+  // sendBulkSms,
   sendBulkSmsFollowup
 ];
 

@@ -28,7 +28,7 @@ export const socketEvents = ({ state }) => {
     currentState.scheduledReminder = true;
     console.log('currentState.currentReminder: ', currentState.currentReminder);
 
-    return { state: currentState };
+    return {...state };
   });
 
   socket.on('reminder cancelled', ({ date }) => {
@@ -51,3 +51,4 @@ export const socketEvents = ({ state }) => {
     return { state: currentState };
   });
 };
+
