@@ -1,6 +1,5 @@
 const { Inngest, NonRetriableError } = require('inngest');
 const inngest = new Inngest({ id: "weekly_reminders" });
-const crypto = require('crypto');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
@@ -8,49 +7,49 @@ const EventBucket = require('../models/EventBucketModel');
 const dayjs = require('dayjs');
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
-dayjs.extend(utc);
-dayjs.extend(timezone);
+const { processWebhook } = require('../helpers/webhook')
 const { textBeeBulkSms, webhookResponse, textBeeInitialSms, textBeeSendSms } = require('../helpers/textBee');
 const { sendSms } = require('../helpers/httpsms');
-
+dayjs.extend(utc);
+dayjs.extend(timezone);
   
-function generateHmacSha256(key, data) {
-  const hmac = crypto.createHmac('sha256', key);
-  hmac.update(data);
-  return hmac.digest('hex');
-}
+// function generateHmacSha256(key, data) {
+//   const hmac = crypto.createHmac('sha256', key);
+//   hmac.update(data);
+//   return hmac.digest('hex');
+// }
 
-// Function to verify HMAC-SHA256
-function verifyHmacSha256(key, message, expectedHmac) {
-  const computedHmac = generateHmacSha256(key, message);
-  return computedHmac === expectedHmac;
-}
+// // Function to verify HMAC-SHA256
+// function verifyHmacSha256(key, message, expectedHmac) {
+//   const computedHmac = generateHmacSha256(key, message);
+//   return computedHmac === expectedHmac;
+// }
 
+// async function processWebhook(data) {
+//   const rawBody = await data.raw;
+//   const signature = await data.headers['X-Signature'];
+//   const buffer = await JSON.stringify(rawBody)
+//   console.log("buffer: ", Buffer.from(rawBody))
+  
+
+//   if (!verifyHmacSha256( process.env.WEBHOOK_SECRET, rawBody, signature)) {
+//       throw new NonRetriableError("failed signature verification");
+//     }
+
+//   const payload =  await JSON.parse(rawBody);
+//   const { sender, message, receivedAt } =  payload;
+// }
 const textBeeWhFunction = inngest.createFunction(
   { id: "textBee-sms-received" },
   { event: "textBee/sms.received" },
   async ({ event, step }) => {
-    const rawBody = await event.data.raw;
-    const signature = await event.data.headers['X-Signature'];
-    console.log("rawBody: ", rawBody);
-    console.log("signature: ", signature);
-    console.log("data: ", event.data)
-    //  if (!rawBody || !signature || !process.env.WEBHOOK_SECRET) {
-    //   throw new Error("Missing required data for HMAC verification.");
-    // 
-    const buffer = JSON.stringify(rawBody)
-    console.log("buffer: ", Buffer.from(rawBody))
-    // console.log("string: ", string)
-    console.log("type: ", typeof(buffer));
-  if (!verifyHmacSha256( process.env.WEBHOOK_SECRET, rawBody, signature)) {
-      throw new NonRetriableError("failed signature verification");
-    }
-
-    
+ 
 
     // Your business logic here...
     await step.run("process-wh-data", async () => {
-    const payload = await JSON.parse(rawBody);
+    // const payload = await JSON.parse(rawBody);
+    const payload = await processWebhook(data)
+
      const { sender, message, receivedAt } = await payload;
       console.log("Webhook payload:", payload);
       console.log("sender is: ", sender);
@@ -250,7 +249,7 @@ const sendBulkSmsFollowup = inngest.createFunction(
 
       const result = await cursor[0].userDetails;
       const phoneList = await result.map(user => user.phone);
-      const message = "Hello!  This is just a follow up to see how your leave went.  Please respond in within 15 min with 1 if you successfully completed it, and 2 if you did not.  Thank you!"
+      const message = "Hello!  This is just a follow up to see how your leave went.  Please respond within 15 min with 1 if you successfully completed it, and 2 if you did not.  Thank you!"
       return { phoneList, message, eventId }
         } catch (err) {
            if (err.name === "TypeError") {
@@ -277,27 +276,24 @@ const scheduleReminder = inngest.createFunction(
     cancelOn: [{
       event: "reminders/delete.leave", // The event name that cancels this function
       // Ensure the cancellation event (async) and the triggering event (event)'s reminderId are the same:
-      and: [
-         { if: "async.data.eventId == event.data.eventId" },
-         { if: "async.data.userId == event.data.userId" },
-        ]
+      if: "async.data.eventId == event.data.eventId && async.data.userId == event.data.userId"  
     }],
   },
   { event: "reminders/create.leave" },
     async ({ event, step }) => {
       
-      const { mongoId, phone, dateScheduled, timezone, profileName, intention, logins, eventId, message, nudgeTimeUtc,  nudgeMessage,
+      const { userId, phone, dateScheduled, timezone, profileName, intention, logins, eventId, message, nudgeTimeUtc,  nudgeMessage,
         nudgeReminderTs } = event.data;
       const finalTime = dayjs(nudgeTimeUtc).subtract(15, 'minute');
       const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
       await step.run('send-textBee-initialSms', async () => { 
-        await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
+        const result = await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
       });
       
       for( let i = 0; i < nudgeReminderTs.length; i++) {
             await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
             await step.run('send-textBee-nudgeText', async () => {
-              await sendSms(phone, nudgeMessage)
+              await textBeeSendSms(nudgeMessage, phone)
             });
       }
 
@@ -305,7 +301,15 @@ const scheduleReminder = inngest.createFunction(
       await step.run('send-textBee-final-Reminder', async () => {
         await textBeeSendSms(message, phone)
       })
-      
+      const smsResponse = await step.waitForEvent('wait-for-sms-response', {
+        event: 'reminders/textBee.sms.response.received', timeout: '20m', match: 'data.phone'
+      })
+
+      if (!smsResponse) {
+
+      } else {
+
+      }
     //   await step.run('send-textBee-reminder', async () => {
     //    console.log("sending phonelist to textBee for followup");
     //       await textBeeBulkSms(message, phone, eventId);
@@ -317,7 +321,7 @@ const functions = [
   scheduleReminder,
   textBeeWhFunction,
   // sendBulkSms,
-  sendBulkSmsFollowup
+  // sendBulkSmsFollowup
 ];
 
 module.exports = { inngest, functions }

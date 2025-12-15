@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useCalendar from '../hooks/useCalendar';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -42,9 +42,8 @@ const NextAvailable = ({handleSaveReminder, control}) => {
     }
   }
  
-  
   const handleDialogClose = () => {
-    handleSaveReminder(selectedDate, phone, timezone, intention)
+   
     setDialogOpen(false)
   }
   const sx = { fontSize: isMobile? '1.1rem': '.8rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}
@@ -87,12 +86,12 @@ const NextAvailable = ({handleSaveReminder, control}) => {
                 <Box sx={{ display: 'inline-flex' }}>
                   <DialogTitle>Please Set An Intention For Your Leave </DialogTitle>
                 </Box>
-                <Divider sx={{ my: 1 }} />
-                <DialogContent sx={{ paddingBottom: 0 }}>
-                  <Divider sx={{ my: 2 }} />
+     <Divider sx={{ my: 1 }} />
+                  {/* <Divider sx={{ my: 2 }} />
                
-                      <FormInputText name="intention" label="intention" control={control}/>                 
-                     
+                      <FormInputText name="intention" label="intention" control={control}/>                 */}
+                                     <DialogContent sx={{ paddingBottom: 0 }}>
+
                   <DialogActions>
                     <Button onClick={handleDialogClose}>Ok</Button>
                   </DialogActions>

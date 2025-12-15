@@ -268,7 +268,7 @@ exports.getAllDates = async (req, res) => {
 
     const cursor = await Event.aggregate(agg);
     // const result = await cursor.toArray();
-    console.log('cursor: ', cursor);
+    // console.log('cursor: ', cursor);
     req.io.emit('all dates', cursor);
     return res.status(200).json({ cursor });
   } catch (error) {
@@ -298,7 +298,7 @@ exports.getLatestTime = async (req, res) => {
     ];
     const cursor = await Event.aggregate(agg);
     // const result = await cursor.toArray();
-    console.log('cursor: ', cursor);
+    // console.log('cursor: ', cursor);
     req.io.emit('latest time', cursor);
     return res.status(200).json({ cursor });
   } catch (error) {
@@ -336,7 +336,7 @@ exports.getReminders = async (req, res) => {
     ];
 
     const cursor = await User.aggregate(agg);
-    console.log('cursor: ', cursor);
+    // console.log('cursor: ', cursor);
     const result = await cursor[0].eventDates
     req.io.emit('scheduleReminders',  { scheduledReminders: result } );
     return res.status(200).json({ result });

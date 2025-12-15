@@ -21,28 +21,33 @@ dayjs.extend(timezone);
     const firstNudgeHour = dayjs(firstNudge).get('hour');
     const currentHour = dayjs().get('hour');
     const diffHours = reminderHour - currentHour
+
     console.log("reminderHour: ", reminderHour)
     console.log("firstNudgeHour: ", firstNudgeHour)
-    if((timezone === 'America/Honolulu' && reminderHour === 17) || (reminderHour === 18 && dayjs(datetime) < dayjs())) {
-        nudgeReminders.push(dayjs(datetime).subtract(10, 'hour').toDate());
+    if((timezone === 'America/Honolulu' && reminderHour === 9) || (reminderHour === 10 && dayjs(datetime) > dayjs())) {
+       //if the earliest timeslot is 10am or 9am set the nudgeReminder to the night before.
+      const newDate = dayjs(datetime).subtract(13, 'hour').minute(0).second(0).millisecond(0).utc().format();
+       console.log(`nudgeReminder for ${datetime} is ${newDate}`)
+       nudgeReminders.push(newDate)
+       return nudgeReminders;
     }  
     if(dayjs(datetime).date() > dayjs().date()) {
         nudgeTimes = range(firstNudgeHour, reminderHour, 1)
-        nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate());
+       return  nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate());
         }  
         if ((dayjs(datetime).date() === dayjs().date()) && (diffHours > 1 && diffHours < 4)) {
-            nudgeReminders.push(dayjs(datetime).subtract(2, 'hour').toDate())
+          return  nudgeReminders.push(dayjs(datetime).subtract(2, 'hour').toDate())
 
         }
          if ((dayjs(datetime).date() === dayjs().date()) && (diffHours > 5)) {
             const nudgeTimeBegin = dayjs(datetime).subtract(7, 'hour')
             nudgeTimes = range(firstNudgeHour, reminderHour, 3)
-            nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate())
+           return nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate())
 
-        }
+         }
     
-    console.log("nudgeReminders: ", nudgeReminders)
-      return nudgeReminders;
+    // console.log("nudgeReminders: ", nudgeReminders)
+    //   return nudgeReminders;
   };
   async function nudgeReminderTimestamps(datetime, timezone) {
     let timestamps = [];

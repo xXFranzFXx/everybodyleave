@@ -33,6 +33,8 @@ async function textBeeSendSms(message, recipient) {
           }
       });
       const result = await response.data;
+      console.log("TextBee Sms Sent: ", result.id)
+
       return result;
 }
 async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
@@ -133,6 +135,7 @@ async function textBeeInitialSms (profileName, phone, dateScheduled, intention, 
     });
 
     const result = await response.data;
+    console.log("TextBee Initial Sms Sent: ", result.id)
     return result;
 
 }
