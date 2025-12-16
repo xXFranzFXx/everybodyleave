@@ -81,6 +81,49 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
   }
 }
 
+async function textBeeFinalSms(message, recipient, eventId, eventDate) {
+  const id = new mongoose.Types.ObjectId(`${eventId}`)
+ 
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`,
+      {
+         recipients: [recipient],
+          message: message,
+          }, {
+          headers: {
+              'x-api-key': API_KEY
+          }
+      },
+      {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      }
+    );
+    const result = await response.data;
+   
+      const log = await SmsLog.findOneAndUpdate(
+        { event: id },
+        {  $addToSet: { recipients: { recipient : 1 } },
+           $set: { eventDate: eventDate },
+           $set: { smsId: result.data.smsId }
+         },
+        { new: true, upsert: true },
+      )
+        await log;
+      console.log("Updated call log ", log);
+
+      await event.updateOne({ id }, { $set: { status: 'closed'}}, {new: true} );
+      console.log("event is now closed");
+    
+    console.log('textbee final reminder bulk sms sent: ', result);
+    return result;
+  } catch (error) {
+    console.log('Failed to send bulk sms reminders:  ', error);
+  }
+}
+
 async function textBeeReceiveSms() {
   const response = await axios.get(`https://api.textbee.dev/api/v1/gateway/devices/${DEVICE_ID}/get-received-sms`, {
     headers: {
@@ -141,7 +184,7 @@ async function textBeeInitialSms (profileName, phone, dateScheduled, intention, 
 }
 async function webhookResponse(payload) {
    const { sender, message, receivedAt } = payload;
-   const { eventDetails } = await findDateFromSmsLog(sender);
+   const  eventDetails  = await findDateFromSmsLog(sender);
    const {  _id, date, endsAt } = await eventDetails;
    const id = new mongoose.Types.ObjectId(`${_id}`)
    const smsLog =  SmsLog.findOne({ event: id });
@@ -159,7 +202,7 @@ async function webhookResponse(payload) {
     || (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))){
     await smsLog.log.set(sender, "2");
     const response = `You must reply prior to the start of your leave.  Failure to reply and late replies negatively effect your progress chart.`
-    await textBeeSendSms(sender, response);
+    await textBeeSendSms(response, sender);
    }
 }
-module.exports = { textBeeBulkSms, textBeeSendSms, textBeeReceiveSms, webhookResponse, textBeeInitialSms };
+module.exports = { textBeeBulkSms, textBeeSendSms, textBeeReceiveSms, webhookResponse, textBeeInitialSms, textBeeFinalSms };

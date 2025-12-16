@@ -64,7 +64,7 @@ exports.saveCalendarReminder = async (req, res) => {
 
     await session.commitTransaction();
     req.io.emit('created calendar reminder', { calendar: event });
-    console.log('Transaction successful: ', event);
+    // console.log('Transaction successful: ', event);
     return res.status(200).json({ event });
   } catch (error) {
     if (error) await session.abortTransaction();
@@ -102,7 +102,7 @@ exports.getCalendarReminders = async (req, res) => {
     ];
 
     const cursor = await User.aggregate(agg);
-    console.log('successfully fetched calendar reminders: ', cursor);
+    // console.log('successfully fetched calendar reminders: ', cursor);
     const result = await cursor[0].calendarreminders;
     req.io.emit('fetched calendar reminders', cursor);
     return res.status(200).json({ result });

@@ -4,48 +4,41 @@ const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
+const SmsLog = require('../models/SmsLogModel');
 const dayjs = require('dayjs');
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
 const { processWebhook } = require('../helpers/webhook')
-const { textBeeBulkSms, webhookResponse, textBeeInitialSms, textBeeSendSms } = require('../helpers/textBee');
+const { textBeeBulkSms, webhookResponse, textBeeInitialSms, textBeeSendSms, textBeeFinalSms } = require('../helpers/textBee');
 const { sendSms } = require('../helpers/httpsms');
 dayjs.extend(utc);
 dayjs.extend(timezone);
-  
-// function generateHmacSha256(key, data) {
-//   const hmac = crypto.createHmac('sha256', key);
-//   hmac.update(data);
-//   return hmac.digest('hex');
-// }
 
-// // Function to verify HMAC-SHA256
-// function verifyHmacSha256(key, message, expectedHmac) {
-//   const computedHmac = generateHmacSha256(key, message);
-//   return computedHmac === expectedHmac;
-// }
+//helper functions
+const getFutureTime =  (minutesAhead) => {
+  const now = new Date()
+  now.setHours(now.getHours() + 1, 0, 0, 0)
+  // now.setMinutes(now.getMinutes() + minutesAhead);
+  console.log("future time is: ", now)
+  return now;
+}
+const oneHourAgo =  () => {
+  const now = new Date()
+  now.setHours(now.getHours() -1, 0, 0, 0)
+  // now.setMinutes(now.getMinutes() + minutesAhead);
+  console.log("future time is: ", now)
+  return now;
+}
+const isEmpty = (arr) => {
+  return Array.isArray(arr) && arr.length === 0;
+} 
 
-// async function processWebhook(data) {
-//   const rawBody = await data.raw;
-//   const signature = await data.headers['X-Signature'];
-//   const buffer = await JSON.stringify(rawBody)
-//   console.log("buffer: ", Buffer.from(rawBody))
-  
-
-//   if (!verifyHmacSha256( process.env.WEBHOOK_SECRET, rawBody, signature)) {
-//       throw new NonRetriableError("failed signature verification");
-//     }
-
-//   const payload =  await JSON.parse(rawBody);
-//   const { sender, message, receivedAt } =  payload;
-// }
+// webhook function for processing sms replies.
 const textBeeWhFunction = inngest.createFunction(
   { id: "textBee-sms-received" },
   { event: "textBee/sms.received" },
   async ({ event, step }) => {
  
-
-    // Your business logic here...
     await step.run("process-wh-data", async () => {
     // const payload = await JSON.parse(rawBody);
     const payload = await processWebhook(data)
@@ -54,7 +47,7 @@ const textBeeWhFunction = inngest.createFunction(
       console.log("Webhook payload:", payload);
       console.log("sender is: ", sender);
       console.log("response is: ", message);
-      webhookResponse( sender, message, receivedAt)
+      await webhookResponse( sender, message, receivedAt)
       // TODO: update user document and event document with the response received in this webhook
     });
 
@@ -83,43 +76,17 @@ const getFutureDate = (daysAhead) => {
   return { firstGroup, secondGroup }
 }
 
-const getFutureTime =  (minutesAhead) => {
-  const now = new Date()
-  now.setHours(now.getHours() + 1, 0, 0, 0)
-  // now.setMinutes(now.getMinutes() + minutesAhead);
-  console.log("future time is: ", now)
-  return now;
-}
-const oneHourAgo =  () => {
-  const now = new Date()
-  now.setHours(now.getHours() -1, 0, 0, 0)
-  // now.setMinutes(now.getMinutes() + minutesAhead);
-  console.log("future time is: ", now)
-  return now;
-}
-const isEmpty = (arr) => {
-  return Array.isArray(arr) && arr.length === 0;
-} 
 
-
+/** Not Usings
+ * database task to create timeslots.
+ */
 const prepareReminders = inngest.createFunction(
   { id: "prepare-weekly-reminders" },
   [
     { cron: "TZ=America/Los_Angeles 0 0 * * 6"},
-    // { cron: "TZ=America/New_York 0 0 * * 6"},
-    // { cron: "TZ=America/Chicago 0 0 * * 6"},
-    // { cron: "TZ=America/Denver 0 0 * * 6"},
-    // { cron: "TZ=America/Anchorage 0 0 * * 6"},
-    // { cron: "TZ=Pacific/Honolulu 0 0 * * 6"},
   ],
   async ({ step, event }) => {
-    // create event documents in mongo db
-    // console.log("event: ", event)
-    // const regex = /(?<=TZ=)([^\s]+)/gm;
-    // const str = event.data.cron;
-    // console.log("cron: ", str)
-    // let tz = regex.exec(str)
-    // console.log("tz", tz[0])
+  
     const weeklyReminders = await step.run(
       "create-reminders",
       async () => {
@@ -148,7 +115,7 @@ const prepareReminders = inngest.createFunction(
       }
     );
 
-/**
+/** Not Using
  * Get phone numbers of users for each event and send them to textbee to send a bulk reminder sms
  */
 const sendBulkSms = inngest.createFunction(
@@ -211,6 +178,11 @@ const sendBulkSms = inngest.createFunction(
     }
   })
 
+/** Not Using ***
+ * TextBee Bulk Sms function.  
+   triggered daily by cron
+   checks mongoDb for users attending any events and then sends the sms followup one hour after the event
+ */
 const sendBulkSmsFollowup = inngest.createFunction(
   { id: "textbee-bulk-sms-followup" },
   [
@@ -269,13 +241,27 @@ const sendBulkSmsFollowup = inngest.createFunction(
           })
     }
   })
-// workflow
+
+
+
+/**. TEXTBEE SMS REMINDER WORKFLOW
+ * user creates a leave, then the initial verification sms is sent.
+   the nudgreminders get calculated and the function sleeps until the specified nudgereminder times.
+   Nudgreminder sms is sent at each time.
+   Function sleeps until 15 min prior to leave time.  
+   Final sms is sent.
+   Function waits for 20 min to receive webhook response.
+   If no response is received, update the sms log to reflect "no-show" response.
+   If a response is received, process the webhook.
+   If the response is valid sleep until the leave ends.
+   Send a followup sms.
+   Workflow will cancel if user cancels the leave.
+ */
 const scheduleReminder = inngest.createFunction(
   {
     id: "create-leave",
     cancelOn: [{
-      event: "reminders/delete.leave", // The event name that cancels this function
-      // Ensure the cancellation event (async) and the triggering event (event)'s reminderId are the same:
+      event: "reminders/delete.leave", 
       if: "async.data.eventId == event.data.eventId && async.data.userId == event.data.userId"  
     }],
   },
@@ -286,6 +272,7 @@ const scheduleReminder = inngest.createFunction(
         nudgeReminderTs } = event.data;
       const finalTime = dayjs(nudgeTimeUtc).subtract(15, 'minute');
       const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
+
       await step.run('send-textBee-initialSms', async () => { 
         const result = await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
       });
@@ -299,29 +286,34 @@ const scheduleReminder = inngest.createFunction(
 
       await step.sleepUntil('sleep-until-final-reminder-time', new Date(finalTime));
       await step.run('send-textBee-final-Reminder', async () => {
-        await textBeeSendSms(message, phone)
+        await textBeeFinalSms(message, phone, eventId, dateScheduled)
       })
       const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-        event: 'reminders/textBee.sms.response.received', timeout: '20m', match: 'data.phone'
+        event: 'textBee/sms.received', timeout: '20m', match: 'data.phone'
       })
 
       if (!smsResponse) {
-
+          const log = await SmsLog.findOneAndUpdate(
+                { event: eventId },
+                {  $set: { recipients: { phone : 2 } }
+                 },
+                { new: true, upsert: true },
+              )
+                await log;
+              console.log("Updated call log ", log);
       } else {
-
-      }
-    //   await step.run('send-textBee-reminder', async () => {
-    //    console.log("sending phonelist to textBee for followup");
-    //       await textBeeBulkSms(message, phone, eventId);
-    // });
+          const message = "Hello!  This is just a follow up to see how your leave went. Please complete the process in app at your convenience. Thank you!"
+          await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime))
+          await step.run('send-textBee-followup', async () => {
+          console.log("sending phonelist to textBee for followup");
+          await textBeeSendSms(message, phone);
+    });
+      } 
   }
 );
 const functions = [ 
-  // prepareReminders,
   scheduleReminder,
   textBeeWhFunction,
-  // sendBulkSms,
-  // sendBulkSmsFollowup
 ];
 
 module.exports = { inngest, functions }

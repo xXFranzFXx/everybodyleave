@@ -17,8 +17,14 @@ dayjs.extend(timezone);
     let nudgeTimes = [];
     let nudgeReminders = [];
     const reminderHour = dayjs(datetime).get('hour');
-    const firstNudge = dayjs(datetime).subtract(4, 'hour');
-    const firstNudgeHour = dayjs(firstNudge).get('hour');
+    // const firstNudge = dayjs(datetime).subtract(4, 'hour');
+    const firstNudge = dayjs(datetime).hour(7).minute(0).second(0).millisecond(0)
+    const secondNudge =  dayjs(datetime).hour(9).minute(0).second(0).millisecond(0)
+    const thirdNudge = dayjs(datetime).hour(12).minute(0).second(0).millisecond(0)
+    const normalNudgeTimes = [
+        firstNudge, secondNudge, thirdNudge
+    ];
+    const firstNudgeHour = dayjs(firstNudge).get('hour')
     const currentHour = dayjs().get('hour');
     const diffHours = reminderHour - currentHour
 
@@ -31,19 +37,21 @@ dayjs.extend(timezone);
        nudgeReminders.push(newDate)
        return nudgeReminders;
     }  
-    if(dayjs(datetime).date() > dayjs().date()) {
-        nudgeTimes = range(firstNudgeHour, reminderHour, 1)
-       return  nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate());
+    if(dayjs(datetime).date() > dayjs().date()) {    
+        console.log("normal nudgeTime: ", normalNudgeTimes)
+       return normalNudgeTimes;
         }  
         if ((dayjs(datetime).date() === dayjs().date()) && (diffHours > 1 && diffHours < 4)) {
-          return  nudgeReminders.push(dayjs(datetime).subtract(2, 'hour').toDate())
-
+             nudgeReminders.push(dayjs(datetime).subtract(2, 'hour'))
+             console.log("nudgeReminders second condition: ", nudgeReminders)
+            return nudgeReminders;
         }
          if ((dayjs(datetime).date() === dayjs().date()) && (diffHours > 5)) {
-            const nudgeTimeBegin = dayjs(datetime).subtract(7, 'hour')
-            nudgeTimes = range(firstNudgeHour, reminderHour, 3)
-           return nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time).toDate())
+            nudgeTimes = range(currentHour, reminderHour, 3)
+           nudgeReminders = nudgeTimes.map(time => dayjs(datetime).hour(time))
+                       console.log("nudgeReminders 3rd if: ", nudgeReminders)
 
+            return nudgeReminders;
          }
     
     // console.log("nudgeReminders: ", nudgeReminders)

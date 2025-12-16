@@ -118,7 +118,7 @@ exports.saveReminder = async (req, res) => {
       await session.commitTransaction();
       const { date } = event;
       req.io.emit('created reminder', { reminder: date });
-      console.log('Transaction successful: ', event);
+      console.log('Transaction successful');
       return res.status(200).json({ date });
     } else {
       const event = await SignedUpEvent.findOneAndUpdate(
@@ -143,7 +143,7 @@ exports.saveReminder = async (req, res) => {
       await session.commitTransaction();
       const { date } = event;
       req.io.emit('created reminder', { reminder: date });
-      console.log('Transaction successful: ', event);
+      console.log('Transaction successful');
       return res.status(200).json({ date });
     }
   } catch (error) {
@@ -246,7 +246,7 @@ exports.getAllOpenDates = async (req, res) => {
     };
     const cursor = await Event.find(filter);
     // const result = await cursor.toArray();
-    console.log('open dates: ', cursor);
+    // console.log('open dates: ', cursor);
     req.io.emit('all open dates', cursor);
     return res.status(200).json({ cursor });
   } catch (error) {
