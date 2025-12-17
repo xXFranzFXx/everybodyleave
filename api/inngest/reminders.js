@@ -1,66 +1,70 @@
 const { Inngest, NonRetriableError } = require('inngest');
-const inngest = new Inngest({ id: "weekly_reminders" });
+const inngest = new Inngest({ id: 'weekly_reminders' });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const EventBucket = require('../models/EventBucketModel');
 const SmsLog = require('../models/SmsLogModel');
 const dayjs = require('dayjs');
-const utc = require("dayjs/plugin/utc");
-const timezone = require("dayjs/plugin/timezone");
-const { processWebhook } = require('../helpers/webhook')
-const { textBeeBulkSms, webhookResponse, textBeeInitialSms, textBeeSendSms, textBeeFinalSms } = require('../helpers/textBee');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+const { processWebhook } = require('../helpers/webhook');
+const {
+  textBeeBulkSms,
+  webhookResponse,
+  textBeeInitialSms,
+  textBeeSendSms,
+  textBeeFinalSms,
+} = require('../helpers/textBee');
 const { sendSms } = require('../helpers/httpsms');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 //helper functions
-const getFutureTime =  (minutesAhead) => {
-  const now = new Date()
-  now.setHours(now.getHours() + 1, 0, 0, 0)
+const getFutureTime = (minutesAhead) => {
+  const now = new Date();
+  now.setHours(now.getHours() + 1, 0, 0, 0);
   // now.setMinutes(now.getMinutes() + minutesAhead);
-  console.log("future time is: ", now)
+  console.log('future time is: ', now);
   return now;
-}
-const oneHourAgo =  () => {
-  const now = new Date()
-  now.setHours(now.getHours() -1, 0, 0, 0)
+};
+const oneHourAgo = () => {
+  const now = new Date();
+  now.setHours(now.getHours() - 1, 0, 0, 0);
   // now.setMinutes(now.getMinutes() + minutesAhead);
-  console.log("future time is: ", now)
+  console.log('future time is: ', now);
   return now;
-}
+};
 const isEmpty = (arr) => {
   return Array.isArray(arr) && arr.length === 0;
-} 
+};
 
 // webhook function for processing sms replies.
 const textBeeWhFunction = inngest.createFunction(
-  { id: "textBee-sms-received" },
-  { event: "textBee/sms.received" },
+  { id: 'textBee-sms-received' },
+  { event: 'textBee/sms.received' },
   async ({ event, step }) => {
- 
-    await step.run("process-wh-data", async () => {
-    // const payload = await JSON.parse(rawBody);
-    const payload = await processWebhook(data)
+    await step.run('process-wh-data', async () => {
+      // const payload = await JSON.parse(rawBody);
+      const payload = await processWebhook(data);
 
-     const { sender, message, receivedAt } = await payload;
-      console.log("Webhook payload:", payload);
-      console.log("sender is: ", sender);
-      console.log("response is: ", message);
-      await webhookResponse( sender, message, receivedAt)
+      const { sender, message, receivedAt } = await payload;
+      console.log('Webhook payload:', payload);
+      console.log('sender is: ', sender);
+      console.log('response is: ', message);
+      await webhookResponse(sender, message, receivedAt);
       // TODO: update user document and event document with the response received in this webhook
     });
 
-    return { status: "success" };
-  
- }
-)
+    return { status: 'success' };
+  }
+);
 /**
- * Timezones: 
+ * Timezones:
  * EST/New_York, 17:00/21:00UTC same day 19:00/23:00UTC same day
  * CST/Chicago,  17:00/22:00UTC same day 19:00/00:00UTC next day
  * MST/Denver, 17:00/23:00UTC same day 19:00/01:00UTC next day
- * PST/Los_Angeles/17:00/00:00UTC next day 19:00/02:00UTC next day, 
+ * PST/Los_Angeles/17:00/00:00UTC next day 19:00/02:00UTC next day,
  * AKST/Anchorage, 17:00/01:00UTC next day 19:00/03:00UTC next day
  * HST/Honolulu 17:00/03:00UTC next day 19:00/05:00UTC next day
  */
@@ -68,115 +72,107 @@ const textBeeWhFunction = inngest.createFunction(
 const getFutureDate = (daysAhead) => {
   const today = new Date();
   const newDate = new Date(today.setDate(today.getDate() + daysAhead));
-  console.log("newDate: ", newDate)
-  const firstGroup = newDate.setHours(18,0,0,0);
-  console.log("firstGroup: ", firstGroup)
-  const secondGroup = newDate.setHours(20,0,0.0);
-  
-  return { firstGroup, secondGroup }
-}
+  console.log('newDate: ', newDate);
+  const firstGroup = newDate.setHours(18, 0, 0, 0);
+  console.log('firstGroup: ', firstGroup);
+  const secondGroup = newDate.setHours(20, 0, 0.0);
 
+  return { firstGroup, secondGroup };
+};
 
 /** Not Usings
  * database task to create timeslots.
  */
 const prepareReminders = inngest.createFunction(
-  { id: "prepare-weekly-reminders" },
-  [
-    { cron: "TZ=America/Los_Angeles 0 0 * * 6"},
-  ],
+  { id: 'prepare-weekly-reminders' },
+  [{ cron: 'TZ=America/Los_Angeles 0 0 * * 6' }],
   async ({ step, event }) => {
-  
-    const weeklyReminders = await step.run(
-      "create-reminders",
-      async () => {
-        const mon5 = getFutureDate(3).firstGroup;
-        const mon7 = getFutureDate(3).secondGroup;
-        const wed5 = getFutureDate(5).firstGroup;
-        const wed7 = getFutureDate(5).secondGroup;
-        const fri5 = getFutureDate(7).firstGroup;
-        const fri7 = getFutureDate(7).secondGroup;
-        const data = [
-          {date: mon5, usersAttending: []},  
-          {date: mon7, usersAttending: []},  
-          {date: wed5, usersAttending: []},  
-          {date: wed7, usersAttending: []},  
-          {date: fri5, usersAttending: []},
-          {date: fri7, usersAttending: []}  
-        ]
-        await Event.insertMany(data)  
-            .then((result) => {
-                  console.log("result ", result);
+    const weeklyReminders = await step.run('create-reminders', async () => {
+      const mon5 = getFutureDate(3).firstGroup;
+      const mon7 = getFutureDate(3).secondGroup;
+      const wed5 = getFutureDate(5).firstGroup;
+      const wed7 = getFutureDate(5).secondGroup;
+      const fri5 = getFutureDate(7).firstGroup;
+      const fri7 = getFutureDate(7).secondGroup;
+      const data = [
+        { date: mon5, usersAttending: [] },
+        { date: mon7, usersAttending: [] },
+        { date: wed5, usersAttending: [] },
+        { date: wed7, usersAttending: [] },
+        { date: fri5, usersAttending: [] },
+        { date: fri7, usersAttending: [] },
+      ];
+      await Event.insertMany(data)
+        .then((result) => {
+          console.log('result ', result);
         })
-          .catch(err => {
-            console.error("error ", err);
+        .catch((err) => {
+          console.error('error ', err);
         });
-      });
-      }
-    );
+    });
+  }
+);
 
 /** Not Using
  * Get phone numbers of users for each event and send them to textbee to send a bulk reminder sms
  */
 const sendBulkSms = inngest.createFunction(
-  { id: "textbee-bulk-sms" },
-  [
-    { cron: "TZ=America/Los_Angeles 45 9,15,16,18 * * 1,3,5"},
-  ],
+  { id: 'textbee-bulk-sms' },
+  [{ cron: 'TZ=America/Los_Angeles 45 9,15,16,18 * * 1,3,5' }],
   async ({ step, event }) => {
-    const newTime = getFutureTime(15)
-    const userList = await step.run(
-      "get-users",
-      async () => {
-        const datetime = new Date();
-        // datetime.setMinutes(datetime.getMinutes() + 15)
-        console.log("inngest datetime: ", datetime)
-        try {
+    const newTime = getFutureTime(15);
+    const userList = await step.run('get-users', async () => {
+      const datetime = new Date();
+      // datetime.setMinutes(datetime.getMinutes() + 15)
+      console.log('inngest datetime: ', datetime);
+      try {
         const agg = [
-           {
-              $match: {
-                'date': newTime
-              }
-              },{
-                $lookup: {
-                  'from': 'users', 
-                  'localField': 'usersAttending', 
-                  'foreignField': '_id', 
-                  'as': 'userDetails'
-                }
-                },{
-                  $project: {
-                    'userDetails.phone': 1
-                  }
-              }
+          {
+            $match: {
+              date: newTime,
+            },
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'usersAttending',
+              foreignField: '_id',
+              as: 'userDetails',
+            },
+          },
+          {
+            $project: {
+              'userDetails.phone': 1,
+            },
+          },
         ];
-      const cursor = await SignedUpEvent.aggregate(agg);
-      // console.log("cursor: ", cursor);
-      const eventId = await cursor[0]._id;
+        const cursor = await SignedUpEvent.aggregate(agg);
+        // console.log("cursor: ", cursor);
+        const eventId = await cursor[0]._id;
 
-      const result = await cursor[0].userDetails;
-      const phoneList = await result.map(user => user.phone);
-      const message = "This is your final scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you cannot participate. Please respond before your leave starts.  If no response is received, it will be defaulted to non-participation.  Thank you!"
-      return { phoneList, message, eventId }
-        } catch (err) {
-           if (err.name === "TypeError") {
-          throw new NonRetriableError("No users signed up for this event");
+        const result = await cursor[0].userDetails;
+        const phoneList = await result.map((user) => user.phone);
+        const message =
+          'This is your final scheduled reminder from EverybodyLeave. Respond with 1 if you will be participating, or 2 if you cannot participate. Please respond before your leave starts.  If no response is received, it will be defaulted to non-participation.  Thank you!';
+        return { phoneList, message, eventId };
+      } catch (err) {
+        if (err.name === 'TypeError') {
+          throw new NonRetriableError('No users signed up for this event');
         }
         throw err;
-        } 
-  });
-  
+      }
+    });
 
-  if(userList){
-    const { phoneList, message, eventId } = userList;
-      await step.run("send-textbee-bulk-sms", 
-        async () =>{
-          const eventDate = new Date(newTime)
-          console.log("sending phonelist to textBee")
-          await textBeeBulkSms(message, phoneList, eventId, eventDate);
-          })
+    if (userList) {
+      const { phoneList, message, eventId } = userList;
+      await step.run('send-textbee-bulk-sms', async () => {
+        const eventDate = new Date(newTime);
+        console.log('sending phonelist to textBee');
+        await textBeeBulkSms(message, phoneList, eventId, eventDate);
+      });
     }
-  })
+  }
+);
 
 /** Not Using ***
  * TextBee Bulk Sms function.  
@@ -184,65 +180,61 @@ const sendBulkSms = inngest.createFunction(
    checks mongoDb for users attending any events and then sends the sms followup one hour after the event
  */
 const sendBulkSmsFollowup = inngest.createFunction(
-  { id: "textbee-bulk-sms-followup" },
-  [
-    { cron: "TZ=America/Los_Angeles 0 11,17,18,20 * * 1,3,5"},
-  ],
+  { id: 'textbee-bulk-sms-followup' },
+  [{ cron: 'TZ=America/Los_Angeles 0 11,17,18,20 * * 1,3,5' }],
   async ({ step, event }) => {
     const newTime = oneHourAgo();
-    const userList = await step.run(
-      "get-users",
-      async () => {
-        const datetime = new Date();
-        // datetime.setMinutes(datetime.getMinutes() + 15)
-        console.log("inngest datetime: ", datetime)
-        try {
+    const userList = await step.run('get-users', async () => {
+      const datetime = new Date();
+      // datetime.setMinutes(datetime.getMinutes() + 15)
+      console.log('inngest datetime: ', datetime);
+      try {
         const agg = [
-           {
-              $match: {
-                'date': newTime
-              }
-              },{
-                $lookup: {
-                  'from': 'users', 
-                  'localField': 'usersAttending', 
-                  'foreignField': '_id', 
-                  'as': 'userDetails'
-                }
-                },{
-                  $project: {
-                    'userDetails.phone': 1
-                  }
-              }
+          {
+            $match: {
+              date: newTime,
+            },
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'usersAttending',
+              foreignField: '_id',
+              as: 'userDetails',
+            },
+          },
+          {
+            $project: {
+              'userDetails.phone': 1,
+            },
+          },
         ];
-      const cursor = await SignedUpEvent.aggregate(agg);
-      // console.log("cursor: ", cursor);
-      const eventId = await cursor[0]._id;
+        const cursor = await SignedUpEvent.aggregate(agg);
+        // console.log("cursor: ", cursor);
+        const eventId = await cursor[0]._id;
 
-      const result = await cursor[0].userDetails;
-      const phoneList = await result.map(user => user.phone);
-      const message = "Hello!  This is just a follow up to see how your leave went.  Please respond within 15 min with 1 if you successfully completed it, and 2 if you did not.  Thank you!"
-      return { phoneList, message, eventId }
-        } catch (err) {
-           if (err.name === "TypeError") {
-          throw new NonRetriableError("No users signed up for this event");
+        const result = await cursor[0].userDetails;
+        const phoneList = await result.map((user) => user.phone);
+        const message =
+          'Hello!  This is just a follow up to see how your leave went.  Please respond within 15 min with 1 if you successfully completed it, and 2 if you did not.  Thank you!';
+        return { phoneList, message, eventId };
+      } catch (err) {
+        if (err.name === 'TypeError') {
+          throw new NonRetriableError('No users signed up for this event');
         }
         throw err;
-        } 
-  });
-  
+      }
+    });
 
-  if(userList){
-    const { phoneList, message, eventId } = userList;
-      await step.run("send-textbee-bulk-sms-followup", 
-        async () =>{
-          console.log("sending phonelist to textBee for followup")
-          await textBeeBulkSms(message, phoneList, eventId);
-          })
+    if (userList) {
+      const { phoneList, message, eventId } = userList;
+      await step.run('send-textbee-bulk-sms-followup', async () => {
+        console.log('sending phonelist to textBee for followup');
+        await textBeeBulkSms(message, phoneList, eventId);
+      });
     }
-  })
-
-
+  }
+);
 
 /**. TEXTBEE SMS REMINDER WORKFLOW
  * user creates a leave, then the initial verification sms is sent.
@@ -259,61 +251,73 @@ const sendBulkSmsFollowup = inngest.createFunction(
  */
 const scheduleReminder = inngest.createFunction(
   {
-    id: "create-leave",
-    cancelOn: [{
-      event: "reminders/delete.leave", 
-      if: "async.data.eventId == event.data.eventId && async.data.userId == event.data.userId"  
-    }],
+    id: 'create-leave',
+    cancelOn: [
+      {
+        event: 'reminders/delete.leave',
+        if: 'async.data.eventId == event.data.eventId && async.data.userId == event.data.userId',
+      },
+    ],
   },
-  { event: "reminders/create.leave" },
-    async ({ event, step }) => {
-      
-      const { userId, phone, dateScheduled, timezone, profileName, intention, logins, eventId, message, nudgeTimeUtc,  nudgeMessage,
-        nudgeReminderTs } = event.data;
-      const finalTime = dayjs(nudgeTimeUtc).subtract(15, 'minute');
-      const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
+  { event: 'reminders/create.leave' },
+  async ({ event, step }) => {
+    const {
+      userId,
+      phone,
+      dateScheduled,
+      timezone,
+      profileName,
+      intention,
+      logins,
+      eventId,
+      message,
+      nudgeTimeUtc,
+      nudgeMessage,
+      nudgeReminderTs,
+    } = event.data;
+    const finalTime = dayjs(nudgeTimeUtc).subtract(15, 'minute');
+    const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
 
-      await step.run('send-textBee-initialSms', async () => { 
-        const result = await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
-      });
-      
-      for( let i = 0; i < nudgeReminderTs.length; i++) {
-            await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
-            await step.run('send-textBee-nudgeText', async () => {
-              await textBeeSendSms(nudgeMessage, phone)
-            });
-      }
-
-      await step.sleepUntil('sleep-until-final-reminder-time', new Date(finalTime));
-      await step.run('send-textBee-final-Reminder', async () => {
-        await textBeeFinalSms(message, phone, eventId, dateScheduled)
-      })
-      const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-        event: 'textBee/sms.received', timeout: '20m', match: 'data.phone'
-      })
-
-      if (!smsResponse) {
-          const log = await SmsLog.findOneAndUpdate(
-                { event: eventId },
-                {  $set: { recipients: { phone : 2 } }
-                 },
-                { new: true, upsert: true },
-              )
-                await log;
-              console.log("Updated call log ", log);
-      } else {
-          const message = "Hello!  This is just a follow up to see how your leave went. Please complete the process in app at your convenience. Thank you!"
-          await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime))
-          await step.run('send-textBee-followup', async () => {
-          console.log("sending phonelist to textBee for followup");
-          await textBeeSendSms(message, phone);
+    await step.run('send-textBee-initialSms', async () => {
+      const result = await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
     });
-      } 
+
+    for (let i = 0; i < nudgeReminderTs.length; i++) {
+      await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
+      await step.run('send-textBee-nudgeText', async () => {
+        await textBeeSendSms(nudgeMessage, phone);
+      });
+    }
+
+    await step.sleepUntil('sleep-until-final-reminder-time', new Date(finalTime));
+    await step.run('send-textBee-final-Reminder', async () => {
+      await textBeeFinalSms(message, phone, eventId, dateScheduled);
+    });
+    const smsResponse = await step.waitForEvent('wait-for-sms-response', {
+      event: 'textBee/sms.received',
+      timeout: '20m',
+      match: 'data.phone',
+    });
+
+    if (!smsResponse) {
+      const log = await SmsLog.findOneAndUpdate(
+        { event: eventId },
+        { $set: { recipients: { phone: 2 } } },
+        { new: true, upsert: true }
+      );
+      await log;
+      console.log('Updated call log ', log);
+    } else {
+      const message =
+        'Hello!  This is just a follow up to see how your leave went. Please complete the process in app at your convenience. Thank you!';
+      await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
+      await step.run('send-textBee-followup', async () => {
+        console.log('sending phonelist to textBee for followup');
+        await textBeeSendSms(message, phone);
+      });
+    }
   }
 );
-const functions = [ 
-  scheduleReminder,
-  textBeeWhFunction,
-];
+const functions = [scheduleReminder, textBeeWhFunction];
 
-module.exports = { inngest, functions }
+module.exports = { inngest, functions };
