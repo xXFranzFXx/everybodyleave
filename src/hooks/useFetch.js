@@ -112,7 +112,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'GET',
-        //   url: `http://localhost:4000/api/calendarReminders/getReminders`,
+          // url: `http://localhost:4000/api/calendarReminders/getReminders`,
         url: `https://everybodyleave.onrender.com/api/calendarReminders/getReminders`,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -272,21 +272,21 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
 
 
   //httpSms, this will send the first sms  in the morning of the leave
-  const sendInitialSMS = async (timezone, phone, datetime, intention ) => {
+  const sendConfirmationSMS = async (timezone, phone, datetime, intention ) => {
     const { profileName, logins } = user;
     const token = await getAccessTokenSilently();
     try {
       const response = await axios({
         method: 'POST',
-        url: `http://localhost:4000/api/httpSms/initialSms`,
-        // url: `https://everybodyleave.onrender.com/api/httpSms/initialSms`,
+        // url: `http://localhost:4000/api/httpSms/confirmationSms`,
+        url: `https://everybodyleave.onrender.com/api/httpSms/initialSms`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
         data: {
           profileName: profileName,
           phone: phone,
-          dateScheduled: datetime,
+          dateScheduled: formatReminder(datetime),
           intention: intention,
           timezone: timezone
         },
@@ -299,12 +299,37 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
   };
 
   //inngest 
-  const createLeaveWorkflow = async( phone, datetime, timezone, intention) => {
+  const cancelLeaveWorkflow = async( datetime) => {
    const { profileName, logins, mongoId } = user;
     const token = await getAccessTokenSilently();
     try {
       const response = await axios({
         method: 'POST',
+        // url: `http://localhost:4000/api/inngestWorkflows/cancelLeave`,
+        url: `https://everybodyleave.onrender.com/api/inngestWorkflows/cancelLeave`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          datetime: datetime,
+          mongoId: mongoId
+
+        },
+      });
+      const res = await response.data;
+      console.log("created inngest workflow: ", res)
+      return res;
+    } catch (err) {
+      console.log('Error cancelling inngest workflow: ', err);
+    }
+  }
+  const createLeaveWorkflow = async( phone, datetime, timezone, intention, nudgeTimeUtc) => {
+   const { profileName, logins, mongoId } = user;
+    const token = await getAccessTokenSilently();
+    try {
+      const response = await axios({
+        method: 'POST',
+        // url: `http://localhost:4000/api/inngestWorkflows/createLeave`,
         url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -312,11 +337,12 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         data: {
           profileName: profileName,
           phone: phone,
-          dateScheduled: datetime,
+          dateScheduled: formatReminder(datetime),
           intention: intention,
           timezone: timezone, 
           logins: logins,
-          mongoId: mongoId
+          mongoId: mongoId,
+          nudgeTimeUtc: nudgeTimeUtc
 
         },
       });
@@ -334,8 +360,9 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     saveCalendarReminder,
     deleteCalendarReminder,
     createNudgeReminders,
-    sendInitialSMS,
+    sendConfirmationSMS,
     createLeaveWorkflow,
+    cancelLeaveWorkflow,
     scheduledReminders,
     calendarData,
   };

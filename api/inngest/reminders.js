@@ -20,7 +20,9 @@ const { sendSms } = require('../helpers/httpsms');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-//helper functions
+//helper functions if not using dayjs
+
+//get a time in the future
 const getFutureTime = (minutesAhead) => {
   const now = new Date();
   now.setHours(now.getHours() + 1, 0, 0, 0);
@@ -28,15 +30,28 @@ const getFutureTime = (minutesAhead) => {
   console.log('future time is: ', now);
   return now;
 };
+
 const oneHourAgo = () => {
   const now = new Date();
   now.setHours(now.getHours() - 1, 0, 0, 0);
-  // now.setMinutes(now.getMinutes() + minutesAhead);
-  console.log('future time is: ', now);
+  console.log('time an hour ago is: ', now);
   return now;
 };
-const isEmpty = (arr) => {
-  return Array.isArray(arr) && arr.length === 0;
+
+// const isEmpty = (arr) => {
+//   return Array.isArray(arr) && arr.length === 0;
+// };
+
+//*Only for testing
+//calculates timeslots for certain days in future
+const getFutureDate = (daysAhead) => {
+  const today = new Date();
+  const newDate = new Date(today.setDate(today.getDate() + daysAhead));
+  console.log('newDate: ', newDate);
+  const firstGroup = newDate.setHours(18, 0, 0, 0);
+  console.log('firstGroup: ', firstGroup);
+  const secondGroup = newDate.setHours(20, 0, 0.0);
+  return { firstGroup, secondGroup };
 };
 
 // webhook function for processing sms replies.
@@ -46,14 +61,12 @@ const textBeeWhFunction = inngest.createFunction(
   async ({ event, step }) => {
     await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
-      const payload = await processWebhook(data);
-
+      const payload = await processWebhook(event.data);
       const { sender, message, receivedAt } = await payload;
       console.log('Webhook payload:', payload);
       console.log('sender is: ', sender);
       console.log('response is: ', message);
       await webhookResponse(sender, message, receivedAt);
-      // TODO: update user document and event document with the response received in this webhook
     });
 
     return { status: 'success' };
@@ -69,18 +82,8 @@ const textBeeWhFunction = inngest.createFunction(
  * HST/Honolulu 17:00/03:00UTC next day 19:00/05:00UTC next day
  */
 
-const getFutureDate = (daysAhead) => {
-  const today = new Date();
-  const newDate = new Date(today.setDate(today.getDate() + daysAhead));
-  console.log('newDate: ', newDate);
-  const firstGroup = newDate.setHours(18, 0, 0, 0);
-  console.log('firstGroup: ', firstGroup);
-  const secondGroup = newDate.setHours(20, 0, 0.0);
 
-  return { firstGroup, secondGroup };
-};
-
-/** Not Usings
+/** Not Using
  * database task to create timeslots.
  */
 const prepareReminders = inngest.createFunction(
@@ -296,15 +299,18 @@ const scheduleReminder = inngest.createFunction(
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
       timeout: '20m',
-      match: 'data.phone',
+      if: 'data.phone == async.data.sender',
     });
 
     if (!smsResponse) {
-      const log = await SmsLog.findOneAndUpdate(
-        { event: eventId },
-        { $set: { recipients: { phone: 2 } } },
-        { new: true, upsert: true }
-      );
+        const fieldPath = `log.${phone}`;
+          const log = await SmsLog.findOneAndUpdate(
+            { event: id },
+            {
+              $set: {[fieldPath]: '2' }
+            },
+            { new: true, upsert: true }
+          );
       await log;
       console.log('Updated call log ', log);
     } else {

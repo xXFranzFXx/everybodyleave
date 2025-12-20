@@ -14,7 +14,7 @@ import FadeMenu from '../form-components/FormFadeMenu';
 import useFetch from '../hooks/useFetch';
 import dayjs from 'dayjs';
 
-const NextAvailable = ({handleSaveReminder, control}) => {
+const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   const { events } = useCalendarContext();
   const { isMobile } = useSettingsContext();
   
@@ -34,6 +34,7 @@ const NextAvailable = ({handleSaveReminder, control}) => {
   const available = sorted.filter( ( el ) => !currentSchedule?.includes( el ) );
   // console.log("available: ", available)
   const checkIntention = (date) => {
+    const intention = getValues("intention");
     setSelectedDate(date)
     if (intention) {
       handleSaveReminder(date, phone, timezone, intention); 
@@ -87,9 +88,9 @@ const NextAvailable = ({handleSaveReminder, control}) => {
                   <DialogTitle>Please Set An Intention For Your Leave </DialogTitle>
                 </Box>
      <Divider sx={{ my: 1 }} />
-                  {/* <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ my: 2 }} />
                
-                      <FormInputText name="intention" label="intention" control={control}/>                 */}
+                      <FormInputText name="intention" label="intention" control={control}/>                
                                      <DialogContent sx={{ paddingBottom: 0 }}>
 
                   <DialogActions>

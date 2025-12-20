@@ -15,13 +15,19 @@ import useCalendar from '../hooks/useCalendar';
 import FormDialog from '../form-components/FormDialog';
 import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
 import NextAvailable from './NextAvailable';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 const dialog = {
   saveMessage: `By scheduling this reminder, you are agreeing to receive an sms text message up to 15 minutes prior to the chosen time.`,
   saveTitle: `You Have Scheduled an SMS Reminder`,
 };
 
 const SimpleForm = () => {
+  
   const { formatReminder } = useCalendar();
   const { user } = useAuth0();
   const { name } = user;
@@ -48,7 +54,7 @@ const SimpleForm = () => {
     reset,
     formState: { errors },
   } = methods;
-  const { saveReminder, saveCalendarReminder, sendVerificationSMS, sendInitialSMS, createNudgeReminders, createLeaveWorkflow } = useFetch();
+  const { saveReminder, saveCalendarReminder, sendVerificationSMS, sendConfirmationSMS, createNudgeReminders, createLeaveWorkflow } = useFetch();
   const [dateScheduled, setDateScheduled] = useState('');
   const [error, setError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -80,12 +86,17 @@ const SimpleForm = () => {
     // const newDate = new Date(datetime);
     // const httpSmsData = { name: profileName, phone:phone, intention:intention, datetime: datetime, timezone: timezone }
     try {
-      await saveReminder(datetime, phone, timezone);
+      const reminder  = await saveReminder(datetime, phone, timezone);
+      const nudgeTimeUtc = await reminder.date;
       setDateScheduled(datetime);
+
       // await sendVerificationSMS(phone, datetime, intention);
-      await sendInitialSMS(timezone, phone, datetime, intention)
-      await createNudgeReminders(profileName, phone, intention, datetime, timezone);
-      // await createLeaveWorkflow(phone, datetime, timezone, intention);
+      // await sendInitialSMS(timezone, phone, datetime, intention)
+      // await sendConfirmationSMS(timezone, phone, datetime, intention );
+      // await createNudgeReminders(profileName, phone, intention, datetime, timezone);
+      console.log("datetime creating workflow: ", datetime)
+      console.log("before creating workflow: ", reminder)
+       await createLeaveWorkflow(phone, datetime, timezone, intention, nudgeTimeUtc);
     } catch (err) {
       setDateScheduled('');
       console.log('Error saving reminder: ', err);
@@ -94,11 +105,16 @@ const SimpleForm = () => {
   
   const onSubmit = (data) => {
     const { datetime, intention } = data;
-    const adjustedTime = dayjs(datetime).set('minutes', 0).set('seconds', 0).set('milliseconds', 0).toDate();
-    const zeroSeconds = new Date(datetime).setMilliseconds(0);
+    const adjustedTime = dayjs(datetime).minute(0).second(0).millisecond(0); 
+    const localTime =  dayjs.utc(adjustedTime).format('YYYY-MM-DDTHH:MM:ss');
+    console.log("local time: ", localTime)
+     
+    console.log("local time milliseconds: ", dayjs.utc(adjustedTime).tz(timezone).valueOf())
+
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
-    handleSaveReminder(zeroSeconds, phone, timezone, intention);
+    console.log("utcdate: ", state['utcdate'])
+    handleSaveReminder(adjustedTime, phone, timezone, intention);
     resetField("datetime");
     resetField("intention");
   };
@@ -232,7 +248,7 @@ const SimpleForm = () => {
                 width: isMobile ? '100%' : '45%',
                 height: 300}}>
             <Grid2 item size={12}>
-            <NextAvailable handleSaveReminder={handleSaveReminder}/>
+            <NextAvailable handleSaveReminder={handleSaveReminder} getValues={getValues} control={control}/>
             </Grid2>
             </Box>
           </Grid2>

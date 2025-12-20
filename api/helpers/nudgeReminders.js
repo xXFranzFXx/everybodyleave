@@ -19,8 +19,8 @@ async function getNudgeReminders(datetime, timezone) {
   const reminderHour = dayjs(datetime).get('hour');
   // const firstNudge = dayjs(datetime).subtract(4, 'hour');
   const firstNudge = dayjs(datetime).hour(7).minute(0).second(0).millisecond(0);
-  const secondNudge = dayjs(datetime).hour(9).minute(0).second(0).millisecond(0);
-  const thirdNudge = dayjs(datetime).hour(12).minute(0).second(0).millisecond(0);
+  const secondNudge = dayjs(datetime).hour(12).minute(0).second(0).millisecond(0);
+  const thirdNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0);
   const normalNudgeTimes = [firstNudge, secondNudge, thirdNudge];
   const firstNudgeHour = dayjs(firstNudge).get('hour');
   const currentHour = dayjs().get('hour');
@@ -35,7 +35,7 @@ async function getNudgeReminders(datetime, timezone) {
     nudgeReminders.push(newDate);
     return nudgeReminders;
   }
-  if (dayjs(datetime).date() > dayjs().date()) {
+  if ((dayjs(datetime).date() > dayjs().date()) && reminderHour < 18 ) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   }
@@ -51,6 +51,8 @@ async function getNudgeReminders(datetime, timezone) {
 
     return nudgeReminders;
   }
+  console.log("no nudge reminders scheduled due to time constraints")
+  return nudgeReminders
 }
 
 async function nudgeReminderTimestamps(datetime, timezone) {

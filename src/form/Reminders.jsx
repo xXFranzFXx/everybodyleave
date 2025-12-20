@@ -21,7 +21,7 @@ export const Reminders = ({ dateScheduled }) => {
    errorTitle: `Reminders must be cancelled before cut-off time`
 }
   const { isBeforeNow, formatReminder, fifteenMinuteLimit } = useCalendar();
-  const { scheduledReminders, sendCancellationSMS } = useFetch();
+  const { scheduledReminders, sendCancellationSMS, cancelLeaveWorkflow } = useFetch();
   const { state } = useSocketContext();
   const { events } = useCalendarContext();
   let eventDates = [];
@@ -65,9 +65,12 @@ export const Reminders = ({ dateScheduled }) => {
 
     }
     try {
+      await cancelLeaveWorkflow(date)
       const response = await axios({
         method: 'PUT',
-        // url: `http://localhost:4000/api/events/remove`,
+        // url: `http://localhost:4000/api/events/remove`, //event buckets
+        // url: `http://localhost:4000/api/events/cancel`,
+
         url: `https://everybodyleave.onrender.com/api/events/cancel`,
 
         headers: {
