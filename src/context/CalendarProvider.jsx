@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { format } from 'date-fns';
 import { subscribe } from "valtio";
+import useCalendar from "../hooks/useCalendar";
 
 dayjs.extend(isSameOrBefore);
 
@@ -13,11 +14,13 @@ dayjs.extend(isSameOrBefore);
   export const CalendarContext = createContext();
   const CalendarProvider = ({ children }) => {
   const { user, getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { checkDst } = useCalendar();
   const { state } = useSocketContext();
   const { phone } = state;
   const [events, setEvents] = useState([]);
   const [calendarData, setCalendarData] = useState([]);
   const [latestTime, setLatestTime] = useState('');
+  const [eventsLocal, setEventsLocal] = useState([])
   const [scheduled, setScheduled] = useState([]);
   const [times, setTimes] = useState([]);
   const [dates, setDates] = useState([]);
@@ -28,7 +31,13 @@ dayjs.extend(isSameOrBefore);
   const [simpleDtMap, setSimpleDtMap] = useState(new Map());
   const now = dayjs();
 //get all SMS reminders
-
+ const datesArr = events?.map(event => event.date);
+  const localTime =  (date, ianaCode) => {
+      return dayjs(date).utc('z').local().tz(ianaCode).format('ddd, MMM D, H:mm z')
+  } 
+  const eventLocaltimes = datesArr?.map(date => {
+    return dayjs(date).local().format();
+  })
   const getEvents = async () => {
     try {
       const response = await axios({
@@ -41,6 +50,7 @@ dayjs.extend(isSameOrBefore);
       const result = await res.cursor;
       const hours = await result?.map((event) => dayjs(event.date).hour());
       const hourSet = new Set(hours);
+      
       setTimes(Array.from(hourSet));
    
       const available = await result.filter(
