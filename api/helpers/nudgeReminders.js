@@ -67,9 +67,9 @@ async function nudgeReminderContent(name, intention, datetime, timezone) {
   if (timezone == 'America/Honolulu' && nudgeReminders.length == 1) {
     return `Good Evening ${name}! You have scheduled a reminder for tomorrow.  Your intention is to focus on ${intention}.`;
   } else {
-    return `Hello ${name}! This is just a quick reminder that you have scheduled an event that takes place ${dayjs(
-      datetime
-    ).toDate()} to focus on ${intention}.`;
+    intention 
+    ? `Hello ${name}! This is just a quick reminder that you have scheduled an event that takes place ${datetime} to focus on ${intention}.` 
+     : `Hello ${name}! This is just a quick reminder that you have scheduled an event that takes place ${datetime}`
   }
 }
 
