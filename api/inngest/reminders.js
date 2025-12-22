@@ -66,6 +66,7 @@ const textBeeWhFunction = inngest.createFunction(
       console.log('Webhook payload:', payload);
       console.log('sender is: ', sender);
       console.log('response is: ', message);
+      console.log('received at: ', receivedAt);
       await webhookResponse(sender, message, receivedAt);
     });
 
