@@ -242,9 +242,9 @@ async function webhookResponse(sender, message, receivedAt) {
   const event = await findDateFromSmsLog(sender, receivedAt);
   if (event === undefined) {
     const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`
-    // await textBeeSendSms(response, sender);
+    await textBeeSendSms(response, sender);
     console.log('User responded to event that does not exist')
-    return;
+    return { status: 'User responded incorrectly.  Please check date and time to verify the leave.'};
   } else {
   const { _id, date, endsAt } = await event;
   const tooEarly = dayjs(endsAt).subtract(2, 'hour');
@@ -258,11 +258,12 @@ async function webhookResponse(sender, message, receivedAt) {
     const response = `You must reply prior to the start of your leave.  Failure to reply and late replies negatively effect your progress chart.`;
     await textBeeSendSms(response, sender);
     console.log(`User responded late with ${message}`)
-    return
+    return { status: `User responded late with ${message}.`}
   } else if ( (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))){
      await smsLog.log.set(sender, '2');
     const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
     await textBeeSendSms(response, sender);
+    return { status: `User responded late to the followup sms`}
   }
 
   if (dayjs(receivedAt) < dayjs(tooEarly)) {
@@ -270,25 +271,35 @@ async function webhookResponse(sender, message, receivedAt) {
     const response = `You have replied with ${message}.  Thank you for your timely response, however your response is too early.  You may respond to the final reminder which will be sent 15 min prior to your leave.`;
     await textBeeSendSms(response, sender);
     console.log("User responded too early.")
-    return 
-  } else if (message === '1' && (fifteenMinuteLimit(endsAt, receivedAt) || followUpMinuteLimit(endsAt, receivedAt))) {
+    return { status: 'User responded too early'}
+  } else if (message === '1' && fifteenMinuteLimit(date, receivedAt) ) {
     const response = `Great Job! Thank you for participating`;
     await textBeeSendSms(response, sender);
     console.log(`User responded with ${message}`)
-    return 
-  } else if (message === '2' && (fifteenMinuteLimit(endsAt, receivedAt) || followUpMinuteLimit(endsAt, receivedAt))) {
+    return { status: `User responded on time with ${message}.`}
+  } else if(message === '1' && followUpMinuteLimit(endsAt, receivedAt)) {
+     const response = `Great Job! You have successfully completed your leave.`;
+     await textBeeSendSms(response, sender);
+     return { status: `User responded on time to followup sms.`}
+  } else if (message === '2' && fifteenMinuteLimit(endsAt, receivedAt)) {
     const response = `There's always next time!`;
     await smsLog.log.set(sender, '2');
     await textBeeSendSms(response, sender);
     console.log(`User responded with ${message}`)
-    return 
+    return { status: `User will not participate in leave`}
+  } else if (message === '2' && followUpMinuteLimit(endsAt, receivedAt)) {
+    const response = `There's always next time!`;
+    await smsLog.log.set(sender, '2');
+    await textBeeSendSms(response, sender);
+    console.log(`User responded with ${message}`)
+    return {status: `User was not able to complete the leave successfully, but responded to the followup on time`}
  } else if ((message !== '1' || message !== '2') && (dayjs(receivedAt).isBefore(date, 'min') || dayjs(receivedAt).isAfter(endsAt, 'min'))) {
     console.log("message: ", message)
     console.log(message !== '1')
     const response = `You're response cannot be accepted, because it is either incorrect or at the wrong time.`
     await textBeeSendSms(response, sender);
     console.log("User sent incorrect response.")
-    return
+    return { status: 'User sent incorrect response'}
   } 
   }
 }

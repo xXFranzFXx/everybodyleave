@@ -302,11 +302,24 @@ const scheduleReminder = inngest.createFunction(
       timeout: '20m',
       if: 'data.phone == async.data.sender',
     });
-
-    if (!smsResponse) {
+//if no response is received within 20 min or the user responds with 2
+//update the smslog and cancel the followup reminder, otherwise send the followup
+    if (!smsResponse ) {
         const fieldPath = `log.${phone}`;
           const log = await SmsLog.findOneAndUpdate(
-            { event: id },
+            { event: eventId },
+            {
+              $set: {[fieldPath]: '0' }
+            },
+            { new: true, upsert: true }
+          );
+      await log;
+      console.log('Updated call log ', log);
+      return { status: 'user failed to participate' }
+    }else if(smsResponse.message == '2') {
+      const fieldPath = `log.${phone}`;
+          const log = await SmsLog.findOneAndUpdate(
+            { event: eventId },
             {
               $set: {[fieldPath]: '2' }
             },
@@ -314,13 +327,16 @@ const scheduleReminder = inngest.createFunction(
           );
       await log;
       console.log('Updated call log ', log);
+      return { status: 'User responded with 2. No followup will be sent.'}
+    
     } else {
       const message =
-        'Hello!  This is just a follow up to see how your leave went. Please complete the process in app at your convenience. Thank you!';
-      await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
-      await step.run('send-textBee-followup', async () => {
-        console.log('sending phonelist to textBee for followup');
-        await textBeeSendSms(message, phone);
+        'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes once again with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
+         await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
+         await step.run('send-textBee-followup', async () => {
+         console.log('sending phonelist to textBee for followup');
+         await textBeeSendSms(message, phone);
+         return { status: 'Leave completed successfully.'}
       });
     }
   }
