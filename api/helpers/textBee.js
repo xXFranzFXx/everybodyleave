@@ -7,15 +7,23 @@ const User = require('../models/UserModel');
 const event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const dayjs = require('dayjs')
+
 const mongoose = require('mongoose');
 
 function fifteenMinuteLimit(reminder, receivedAt) {
   const x = dayjs(reminder);
   const y = dayjs(receivedAt);
-
-  const duration = dayjs.duration(y.diff(x)).asMinutes();
+  const duration = x.diff(y, 'minutes');
   return duration <= 15;
 }
+
+function followUpMinuteLimit(endsAt, receivedAt) {
+  const x = dayjs(endsAt)
+  const y = dayjs(receivedAt)
+  const duration = y.diff(x, 'minutes');
+  return duration <= 15
+}
+
 async function getEventTime (phone, id) {
   const user = await User.getUser(phone);
   const userId = new mongoose.Types.ObjectId(`${user._id}`)
@@ -180,6 +188,7 @@ async function findDateFromSmsLog(phone, receivedAt) {
         endsAt: '$eventInfo.endsAt',
       },
     },
+    //only return event with date that contains the receivedAt date ** Not working
     // {
     // $match: {
     //   $expr: {
@@ -193,6 +202,9 @@ async function findDateFromSmsLog(phone, receivedAt) {
     // }
   ];
   const cursor = await SmsLog.aggregate(agg);
+  // only return the datetime for the event that contains the date of the received response. 
+  // The dates should be the same since the user is required to respond on the same date
+  // user must also be a recipient for the event in the smslog.
   const event = Object.values(cursor).filter(key => dayjs(key.date[0]).format('YYYY-MM-DD') === dayjs(receivedAt).format('YYYY-MM-DD'))[0]
   console.log('cursor: ', cursor);
   console.log('event: ', event);
@@ -240,14 +252,17 @@ async function webhookResponse(sender, message, receivedAt) {
   const smsLog = SmsLog.findOne({ event: id });
 
   if (
-    (dayjs(receivedAt).isAfter(date, 'min') && dayjs(receivedAt).isBefore(endsAt, 'min')) ||
-    (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))
+    (dayjs(receivedAt).isAfter(date, 'min') && dayjs(receivedAt).isBefore(endsAt, 'min')) 
   ) {
     await smsLog.log.set(sender, '2');
     const response = `You must reply prior to the start of your leave.  Failure to reply and late replies negatively effect your progress chart.`;
     await textBeeSendSms(response, sender);
     console.log(`User responded late with ${message}`)
     return
+  } else if ( (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))){
+     await smsLog.log.set(sender, '2');
+    const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
+    await textBeeSendSms(response, sender);
   }
 
   if (dayjs(receivedAt) < dayjs(tooEarly)) {
@@ -256,26 +271,21 @@ async function webhookResponse(sender, message, receivedAt) {
     await textBeeSendSms(response, sender);
     console.log("User responded too early.")
     return 
-  } else if (message === '1' && fifteenMinuteLimit(endsAt, receivedAt)) {
+  } else if (message === '1' && (fifteenMinuteLimit(endsAt, receivedAt) || followUpMinuteLimit(endsAt, receivedAt))) {
     const response = `Great Job! Thank you for participating`;
     await textBeeSendSms(response, sender);
     console.log(`User responded with ${message}`)
     return 
-  } else if (message === '2' && fifteenMinuteLimit(endsAt, receivedAt)) {
+  } else if (message === '2' && (fifteenMinuteLimit(endsAt, receivedAt) || followUpMinuteLimit(endsAt, receivedAt))) {
     const response = `There's always next time!`;
+    await smsLog.log.set(sender, '2');
     await textBeeSendSms(response, sender);
     console.log(`User responded with ${message}`)
     return 
- }  else if (( (message === '1' || message === '2') && dayjs(receivedAt).isBefore(date, 'min') )) {
-    await smsLog.log.set(sender, message);
-    const response = `You have replied with ${message}.  Thank you for your timely response.`;
-    await textBeeSendSms(response, sender);
-    console.log(`User responded on time with ${message}`);
-    return
- } else if ( (message !== '1' || message !== '2') && dayjs(receivedAt).isBefore(date, 'min')) {
+ } else if ((message !== '1' || message !== '2') && (dayjs(receivedAt).isBefore(date, 'min') || dayjs(receivedAt).isAfter(endsAt, 'min'))) {
     console.log("message: ", message)
     console.log(message !== '1')
-    const response = `incorrect response only a response of 1 or 2 is accpeted.`
+    const response = `You're response cannot be accepted, because it is either incorrect or at the wrong time.`
     await textBeeSendSms(response, sender);
     console.log("User sent incorrect response.")
     return
