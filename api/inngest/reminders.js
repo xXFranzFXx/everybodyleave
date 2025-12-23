@@ -1,5 +1,5 @@
 const { Inngest, NonRetriableError } = require('inngest');
-const inngest = new Inngest({ id: 'weekly_reminders' });
+const inngest = new Inngest({ id: 'weekly_reminders', eventKey: process.env.INNGEST_EVENT_KEY });
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
