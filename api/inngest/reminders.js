@@ -274,7 +274,7 @@ const scheduleReminder = inngest.createFunction(
       intention,
       logins,
       eventId,
-      message,
+      
       nudgeTimeUtc,
       nudgeMessage,
       nudgeReminderTs,
@@ -295,8 +295,19 @@ const scheduleReminder = inngest.createFunction(
 
     await step.sleepUntil('sleep-until-final-reminder-time', new Date(finalTime));
     await step.run('send-textBee-final-Reminder', async () => {
+      const current = dayjs();
+      const timeLeft = finalTime.diff(current, 'minutes');
+      const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`; 
       await textBeeFinalSms(message, phone, eventId, dateScheduled);
     });
+
+      await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
+         await step.run('send-textBee-followup', async () => {
+          const message =
+        'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes once again with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
+         console.log('sending phonelist to textBee for followup');
+         await textBeeSendSms(message, phone);
+      });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
       timeout: '20m',
@@ -316,29 +327,10 @@ const scheduleReminder = inngest.createFunction(
       await log;
       console.log('Updated call log ', log);
       return { status: 'user failed to participate' }
-    }else if(smsResponse.message == '2') {
-      const fieldPath = `log.${phone}`;
-          const log = await SmsLog.findOneAndUpdate(
-            { event: eventId },
-            {
-              $set: {[fieldPath]: '2' }
-            },
-            { new: true, upsert: true }
-          );
-      await log;
-      console.log('Updated call log ', log);
-      return { status: 'User responded with 2. No followup will be sent.'}
-    
+       
     } else {
-      const message =
-        'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes once again with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
-         await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
-         await step.run('send-textBee-followup', async () => {
-         console.log('sending phonelist to textBee for followup');
-         await textBeeSendSms(message, phone);
-         return { status: 'Leave completed successfully.'}
-      });
-    }
+      return { status: 'Leave completed successfully.'}
+  }
   }
 );
 const functions = [scheduleReminder, textBeeWhFunction];

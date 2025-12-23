@@ -33,7 +33,6 @@ exports.createLeave = async (req, res) => {
  
   const nudgeReminderTs = await getNudgeReminders(nudgeTimeUtc, timezone);
   const nudgeMessage = await nudgeReminderContent(profileName, intention, nudgeTimeUtc, timezone);
-  const message = `This is your scheduled reminder from EbL. Please reply with 1 if you are still attending the event. Respond with 2 if you aren't. Please respond before the event begins.  Late responses will not be accepted.  A late response or failure to respond will count against your progress level.`;
 
   try {
     await inngest.send({
@@ -47,7 +46,6 @@ exports.createLeave = async (req, res) => {
         logins,
         intention,
         eventId,
-        message,
         nudgeTimeUtc,
         nudgeMessage,
         nudgeReminderTs

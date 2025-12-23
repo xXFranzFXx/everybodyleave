@@ -250,16 +250,8 @@ async function webhookResponse(sender, message, receivedAt) {
   const tooEarly = dayjs(endsAt).subtract(2, 'hour');
   const id = new mongoose.Types.ObjectId(`${_id}`);
   const smsLog = SmsLog.findOne({ event: id });
-
-  if (
-    (dayjs(receivedAt).isAfter(date, 'min') && dayjs(receivedAt).isBefore(endsAt, 'min')) 
-  ) {
-    await smsLog.log.set(sender, '2');
-    const response = `You must reply prior to the start of your leave.  Failure to reply and late replies negatively effect your progress chart.`;
-    await textBeeSendSms(response, sender);
-    console.log(`User responded late with ${message}`)
-    return { status: `User responded late with ${message}.`}
-  } else if ( (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))){
+  const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
+  if ( (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt))){
      await smsLog.log.set(sender, '2');
     const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
     await textBeeSendSms(response, sender);
@@ -272,21 +264,11 @@ async function webhookResponse(sender, message, receivedAt) {
     await textBeeSendSms(response, sender);
     console.log("User responded too early.")
     return { status: 'User responded too early'}
-  } else if (message === '1' && fifteenMinuteLimit(date, receivedAt) ) {
+  } else if (message === '1' && followUpMinuteLimit(endsAt, receivedAt) ) {
     const response = `Great Job! Thank you for participating`;
     await textBeeSendSms(response, sender);
     console.log(`User responded with ${message}`)
     return { status: `User responded on time with ${message}.`}
-  } else if(message === '1' && followUpMinuteLimit(endsAt, receivedAt)) {
-     const response = `Great Job! You have successfully completed your leave.`;
-     await textBeeSendSms(response, sender);
-     return { status: `User responded on time to followup sms.`}
-  } else if (message === '2' && fifteenMinuteLimit(endsAt, receivedAt)) {
-    const response = `There's always next time!`;
-    await smsLog.log.set(sender, '2');
-    await textBeeSendSms(response, sender);
-    console.log(`User responded with ${message}`)
-    return { status: `User will not participate in leave`}
   } else if (message === '2' && followUpMinuteLimit(endsAt, receivedAt)) {
     const response = `There's always next time!`;
     await smsLog.log.set(sender, '2');

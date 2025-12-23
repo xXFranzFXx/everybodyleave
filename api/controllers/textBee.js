@@ -13,7 +13,7 @@ exports.textBeeSms = async (req, res) => {
 
 exports.textBeeBulkSms = async (req, res) => {
     const { phone, dateScheduled } = req.body; 
-    const message = `This is your scheduled reminder from EbL. Please reply with 1 if you are still attending the event. Respond with 2 if you aren't before the event begins.  Late responses will not be accepted.  A late response or failure to respond will count against your progress level.`
+    const message = `This is your scheduled reminder from EbL. Your leave will begin in 15 minutes.`
     let smsLogObj = {
         phone: "",
         response: "",

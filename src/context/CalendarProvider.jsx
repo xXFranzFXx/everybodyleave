@@ -93,7 +93,6 @@ dayjs.extend(isSameOrBefore);
   useEffect(() => {
     getEvents();
     console.log("times: ", times )
-    // getLatestTime();
   }, []);
 
    useEffect(
