@@ -41,7 +41,7 @@ async function getNudgeReminders(datetime, timezone) {
     nudgeReminders.push(newDate);
     return nudgeReminders;
   } else
-  if ((dayjs(datetime).date() > dayjs().date() && (reminderHour >= 3 ))) {
+  if ((dayjs(datetime).date() > dayjs().date() && (reminderHour >= 0 ))) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   } else
