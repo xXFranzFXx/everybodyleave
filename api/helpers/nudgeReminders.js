@@ -30,7 +30,9 @@ async function getNudgeReminders(datetime, timezone) {
   const normalNudgeTimes = [firstNudge, secondNudge, thirdNudge];
   const firstNudgeHour = dayjs(firstNudge).get('hour');
   const currentHour = dayjs().get('hour');
-  const diffHours = reminderHour - currentHour;
+  const x = dayjs(datetime);
+  const y = dayjs()
+  const diffHours = x.diff(y, 'hour');
 
   console.log('reminderHour: ', reminderHour);
   console.log('firstNudgeHour: ', firstNudgeHour);
@@ -41,16 +43,16 @@ async function getNudgeReminders(datetime, timezone) {
     nudgeReminders.push(newDate);
     return nudgeReminders;
   } else
-  if ((dayjs(datetime).date() > dayjs().date() && (diffHours > 8))) {
+  if (diffHours > 8) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   } else
-  if (dayjs(datetime).date() === dayjs().date() && (diffHours > 1 && diffHours < 4)) {
+  if ( diffHours > 1 && diffHours <= 4) {
     nudgeReminders.push(dayjs(datetime).subtract(1, 'hour'));
     console.log('nudgeReminders second condition: ', nudgeReminders);
     return nudgeReminders;
   } else
-  if (dayjs(datetime).date() === dayjs().date() && (reminderHour > 22 || reminderHour <=1) && diffHours > 5) {
+  if ( diffHours > 5 && diffHours <= 8) {
     nudgeTimes = range(currentHour, reminderHour, 2);
     nudgeReminders = nudgeTimes.map((time) => dayjs(datetime).hour(time));
     console.log('nudgeReminders 3rd condition: ', nudgeReminders);
