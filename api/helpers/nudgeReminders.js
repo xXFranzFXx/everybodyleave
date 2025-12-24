@@ -19,13 +19,13 @@ async function getNudgeReminders(datetime, timezone) {
   const reminderHour = dayjs(datetime).get('hour');
   // const firstNudge = dayjs(datetime).subtract(4, 'hour');
   // const firstNudge = dayjs(datetime).hour(7).minute(0).second(0).millisecond(0);  //local
-    const firstNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0);  //utc
+    const firstNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0).utc().format();  //utc
 
   // const secondNudge = dayjs(datetime).hour(12).minute(0).second(0).millisecond(0);//local
-    const secondNudge = dayjs(datetime).hour(20).minute(0).second(0).millisecond(0);  //utc
+    const secondNudge = dayjs(datetime).hour(20).minute(0).second(0).millisecond(0).utc().format();  //utc
 
   // const thirdNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0);  //local
-    const thirdNudge = dayjs(datetime).hour(23).minute(0).second(0).millisecond(0);  //utc
+    const thirdNudge = dayjs(datetime).hour(23).minute(0).second(0).millisecond(0).utc().format();  //utc
 
   const normalNudgeTimes = [firstNudge, secondNudge, thirdNudge];
   const firstNudgeHour = dayjs(firstNudge).get('hour');
@@ -41,7 +41,7 @@ async function getNudgeReminders(datetime, timezone) {
     nudgeReminders.push(newDate);
     return nudgeReminders;
   } else
-  if ((dayjs(datetime).date() > dayjs().date() && (reminderHour >= 0 ))) {
+  if ((dayjs(datetime).date() > dayjs().date() && (diffHours > 8))) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   } else
@@ -53,7 +53,7 @@ async function getNudgeReminders(datetime, timezone) {
   if (dayjs(datetime).date() === dayjs().date() && (reminderHour > 22 || reminderHour <=1) && diffHours > 5) {
     nudgeTimes = range(currentHour, reminderHour, 2);
     nudgeReminders = nudgeTimes.map((time) => dayjs(datetime).hour(time));
-    console.log('nudgeReminders 3rd if: ', nudgeReminders);
+    console.log('nudgeReminders 3rd condition: ', nudgeReminders);
 
     return nudgeReminders;
   } else {
