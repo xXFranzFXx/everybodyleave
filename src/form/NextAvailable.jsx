@@ -47,8 +47,10 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   }
  
   const handleDialogClose = () => {
-   setAnchorEl(null)
     setDialogOpen(false)
+  }
+  const handleClose = () => {
+       setAnchorEl(null)
   }
   const sx = { fontSize: isMobile? '1.1rem': '.8rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}
   return (
@@ -78,7 +80,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
         }}}
        >
         {available.map((date, i) => (
-          <FadeMenu key ={`av-${i}`} TransitionComponent={Fade} anchorEl={anchorEl} onClose={handleClose} open={open} date={date} label={formatReminder(date)} sx={sx} callback={() => checkIntention(date)} buttonLabel="Schedule Reminder"/>
+          <FadeMenu key ={`av-${i}`}  anchorEl={anchorEl} onClose={handleClose} open={open} date={date} label={formatReminder(date)} sx={sx} callback={() => checkIntention(date)} buttonLabel="Schedule Reminder"/>
           // <Typography key={i}  sx={{ fontSize: isMobile? '1.3rem': '1rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}}>
           //   {formatReminder(date)}
           // </Typography>
