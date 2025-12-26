@@ -24,6 +24,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   const { isBeforeNow, formatReminder, fifteenMinuteLimit } = useCalendar();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const [newIntention, setNewIntention] = useState("");
  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -37,16 +38,13 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   const available = sorted.filter( ( el ) => !currentSchedule?.includes( el ) );
   // console.log("available: ", available)
   const checkIntention = (date) => {
-    const intention2 = getValues("intention2");
     setSelectedDate(date)
-    if (intention2) {
-      handleSaveReminder(date, phone, timezone, intention2); 
-    } else {
-      setDialogOpen(true);
-    }
+    setDialogOpen(true);
   }
  
   const handleDialogClose = () => {
+    const intention = getValues("intention2");
+    handleSaveReminder(date, phone, timezone, intention)
     setDialogOpen(false)
   }
   const handleClose = () => {
