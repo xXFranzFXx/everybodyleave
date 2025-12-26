@@ -24,7 +24,10 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   const { isBeforeNow, formatReminder, fifteenMinuteLimit } = useCalendar();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+ const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
+ 
   
   let eventDates = [];
   eventDates = events.filter((event) => !isBeforeNow(event.date)).map((e) => e.date);
@@ -44,7 +47,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   }
  
   const handleDialogClose = () => {
-   
+   setAnchorEl(null)
     setDialogOpen(false)
   }
   const sx = { fontSize: isMobile? '1.1rem': '.8rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}
@@ -75,7 +78,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
         }}}
        >
         {available.map((date, i) => (
-          <FadeMenu key ={`av-${i}`} date={date} label={formatReminder(date)} sx={sx} callback={() => checkIntention(date)} buttonLabel="Schedule Reminder"/>
+          <FadeMenu key ={`av-${i}`} TransitionComponent={Fade} anchorEl={anchorEl} onClose={handleClose} open={open} date={date} label={formatReminder(date)} sx={sx} callback={() => checkIntention(date)} buttonLabel="Schedule Reminder"/>
           // <Typography key={i}  sx={{ fontSize: isMobile? '1.3rem': '1rem', mt: 2, ml: 6, width: '75%',pt: 1, height: 85}}>
           //   {formatReminder(date)}
           // </Typography>
@@ -90,7 +93,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
      <Divider sx={{ my: 1 }} />
                   <Divider sx={{ my: 2 }} />
                
-                      <FormInputText name="intention2" label="intention2" control={control}/>                
+                      <FormInputText name="intention2" label="intention" control={control}/>                
                                      <DialogContent sx={{ paddingBottom: 0 }}>
 
                   <DialogActions>
