@@ -44,7 +44,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
  
   const handleDialogClose = () => {
     const intention = getValues("intention2");
-    handleSaveReminder(date, phone, timezone, intention)
+    handleSaveReminder(selectedDate, phone, timezone, intention)
     setDialogOpen(false)
   }
   const handleClose = () => {
