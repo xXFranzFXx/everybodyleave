@@ -34,10 +34,10 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
   const available = sorted.filter( ( el ) => !currentSchedule?.includes( el ) );
   // console.log("available: ", available)
   const checkIntention = (date) => {
-    const intention = getValues("intention");
+    const intention2 = getValues("intention2");
     setSelectedDate(date)
-    if (intention) {
-      handleSaveReminder(date, phone, timezone, intention); 
+    if (intention2) {
+      handleSaveReminder(date, phone, timezone, intention2); 
     } else {
       setDialogOpen(true);
     }
@@ -90,7 +90,7 @@ const NextAvailable = ({handleSaveReminder, control, getValues}) => {
      <Divider sx={{ my: 1 }} />
                   <Divider sx={{ my: 2 }} />
                
-                      <FormInputText name="intention" label="intention" control={control}/>                
+                      <FormInputText name="intention2" label="intention2" control={control}/>                
                                      <DialogContent sx={{ paddingBottom: 0 }}>
 
                   <DialogActions>

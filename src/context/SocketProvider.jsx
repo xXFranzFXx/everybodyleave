@@ -11,6 +11,7 @@ const SocketProvider = ({ children }) => {
             currentReminder: "",
             reminders:[],
             intention:"",
+            intention2: "", 
             acceptTerms: false,
             scheduledEvent: false,
             dialogOpen:false,

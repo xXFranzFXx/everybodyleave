@@ -41,6 +41,7 @@ const SimpleForm = () => {
     utcdate: '',
     timezone: '',
     intention: '',
+    intention2: '', 
     saveCalendar: false,
     rememberSetting: false,
   };
@@ -94,8 +95,8 @@ const SimpleForm = () => {
       // await sendInitialSMS(timezone, phone, datetime, intention)
       // await sendConfirmationSMS(timezone, phone, datetime, intention );
       // await createNudgeReminders(profileName, phone, intention, datetime, timezone);
-      console.log("datetime creating workflow: ", datetime)
-      console.log("before creating workflow: ", reminder)
+      // console.log("datetime creating workflow: ", datetime)
+      // console.log("before creating workflow: ", reminder)
        await createLeaveWorkflow(phone, datetime, timezone, intention, nudgeTimeUtc);
     } catch (err) {
       setDateScheduled('');
