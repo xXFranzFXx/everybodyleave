@@ -7,7 +7,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 function range(start, end, step) {
-  const length = Math.ceil((end - start) / step); // Calculate length, ensuring inclusivity for the end value
+  const length = Math.ceil(Math.abs(end - start) / step); // Calculate length, ensuring inclusivity for the end value
   return Array.from({ length }, (_, i) => start + i * step);
 }
 
