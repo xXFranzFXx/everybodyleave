@@ -42,6 +42,7 @@ const SimpleForm = () => {
     timezone: '',
     intention: '',
     intention2: '', 
+    intention3: '',
     saveCalendar: false,
     rememberSetting: false,
   };
@@ -105,7 +106,7 @@ const SimpleForm = () => {
   };
   
   const onSubmit = (data) => {
-    const { datetime, intention } = data;
+    const { datetime, intention, intention2 } = data;
     const adjustedTime = dayjs(datetime).minute(0).second(0).millisecond(0); 
     const localTime =  dayjs.utc(adjustedTime).format('YYYY-MM-DDTHH:MM:ss');
     console.log("local time: ", localTime)
@@ -115,9 +116,10 @@ const SimpleForm = () => {
     const date = new Date(datetime);
     state['utcdate'] = date.toUTCString();
     console.log("utcdate: ", state['utcdate'])
-    handleSaveReminder(adjustedTime, phone, timezone, intention);
+    handleSaveReminder(adjustedTime, phone, timezone, intention || intention2);
     resetField("datetime");
     resetField("intention");
+    resetField("intention2")
   };
 
   useEffect(
@@ -249,7 +251,7 @@ const SimpleForm = () => {
                 width: isMobile ? '100%' : '45%',
                 height: 300}}>
             <Grid2 item size={12}>
-            <NextAvailable handleSaveReminder={handleSaveReminder} getValues={getValues} control={control}/>
+            <NextAvailable handleSaveReminder={handleSaveReminder} onSubmit={onSubmit} getValues={getValues} control={control}/>
             </Grid2>
             </Box>
           </Grid2>

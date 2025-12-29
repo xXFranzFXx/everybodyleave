@@ -150,7 +150,7 @@ export const Reminders = ({ dateScheduled }) => {
                     {upcomingReminders?.map((date, i) => (
                   
 <>
-                      <FadeMenu key ={i} sx={menuSx} label={formatReminder(date)} date={date} callback={() => onDelete(date)} buttonLabel="Cancel Reminder" />
+                      <FadeMenu key ={i} sx={menuSx} showIntention={false} label={formatReminder(date)} date={date} callback={() => onDelete(date)} buttonLabel="Cancel Reminder" />
                         <Divider sx={{ paddingTop: '.5px'}} />
                       <Typography key={`ur-${i}`}  sx={{ fontSize: isMobile? '1.1rem': '1rem', justifySelf: 'center', paddingTop: '3px', paddingBottom: '10px'}}>
                         {i + 1} of {upcomingReminders.length}
