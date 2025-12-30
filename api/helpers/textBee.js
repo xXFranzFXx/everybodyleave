@@ -241,7 +241,7 @@ async function webhookResponse(sender, message, receivedAt) {
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
   const event = await findDateFromSmsLog(sender, receivedAt);
   try {
-    if (event === undefined || message !== '1' || message !== '2') {
+    if (event === undefined || (message !== '1' && message !== '2')) {
       const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`;
       await textBeeSendSms(response, sender);
       console.log('User responded to event that does not exist');
