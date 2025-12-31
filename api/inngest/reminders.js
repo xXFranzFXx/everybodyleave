@@ -305,7 +305,7 @@ const scheduleReminder = inngest.createFunction(
       await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
          await step.run('send-textBee-followup', async () => {
           const message =
-        'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes once again with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
+        'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
          console.log('sending phonelist to textBee for followup');
          await textBeeSendSms(message, phone);
       });

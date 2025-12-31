@@ -279,7 +279,7 @@ async function webhookResponse(sender, message, receivedAt) {
           status: `User was not able to complete the leave successfully, but responded to the followup on time`,
         };
       } else if (
-        (message !== '1' || message !== '2') &&
+        (message !== '1' && message !== '2') &&
         (dayjs(receivedAt).isBefore(date, 'min') || dayjs(receivedAt).isAfter(endsAt, 'min'))
       ) {
         console.log('message: ', message);
