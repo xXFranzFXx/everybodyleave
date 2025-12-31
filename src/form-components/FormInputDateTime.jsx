@@ -92,6 +92,7 @@ const checkTimeFinalCall = (time) => {
     const startOfNextMonth = dayjs(currentMonth).add(1, 'month').toDate();
    
     const firstWeekNextMonth = dayjs(startOfNextMonth).add(7, 'day').toDate()
+    const thirdWeekNextMonth = dayjs(startOfNextMonth).add(21, 'day').toDate()
    
     const dayDate = dayjs(date).date();
     const weekday = dayjs(date).day();
@@ -106,7 +107,7 @@ const checkTimeFinalCall = (time) => {
       console.log("dayDate: ", dayDate)
 
       return (
-       (!isInCurrentMonth(date) ||   weekDayArr.includes(weekday)  ) ||
+       (!isInCurrentMonth(date)  && date > firstWeekNextMonth  ) || weekDayArr.includes(weekday)   ||
         // (!isInCurrentMonth(date)  && !isInSameWeek(date, firstWeekNextMonth)) || 
         
         reminders.includes(`${pickerDate}`) ||
@@ -116,7 +117,7 @@ const checkTimeFinalCall = (time) => {
       );
     } else {
       return  (
-        (!isInCurrentMonth(date)  && date > firstWeekNextMonth) ||  (weekDayArr.includes(weekday) || !dateSet.has(dayDate)) ||
+        (!isInCurrentMonth(date)  && date > firstWeekNextMonth ) ||  (weekDayArr.includes(weekday) || !dateSet.has(dayDate)) ||
       !isInCurrentMonth(date) 
      );
     }
