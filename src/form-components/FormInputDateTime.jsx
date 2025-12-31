@@ -91,7 +91,7 @@ const checkTimeFinalCall = (time) => {
     const currentMonth = dayjs().startOf('month').toDate();
     const startOfNextMonth = dayjs(currentMonth).add(1, 'month').toDate();
    
-    const firstWeekNextMonth = dayjs(startOfNextMonth).add(7, 'day').toDate()
+    const firstWeekNextMonth = dayjs(startOfNextMonth).add(8, 'day').toDate()
     const thirdWeekNextMonth = dayjs(startOfNextMonth).add(21, 'day').toDate()
    
     const dayDate = dayjs(date).date();
