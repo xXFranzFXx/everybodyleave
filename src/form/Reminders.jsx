@@ -52,7 +52,7 @@ export const Reminders = ({ dateScheduled }) => {
   }
   const handleDeleteDate = (date) => {
     setUpcomingReminders(upcomingReminders.filter((dates) => dates !== date));
-    state.hasCancelled = date;
+    state.hasCancelled = true;
     setDialogOpen(true)
     sendCancellationSMS(name, date)
   };

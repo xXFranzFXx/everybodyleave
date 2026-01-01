@@ -99,6 +99,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       let reminders = [];
       reminders = await response.data;
       setScheduledReminders(reminders);
+      state.hasCancelled = false;
       return reminders;
     } catch (err) {
       console.log('Error getting scheduled reminders: ', err);
@@ -142,6 +143,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         const callback = () => {
           if (state.hasCancelled === true) {
             getScheduledReminders();
+            // state.hasCancelled = false;
           } else if (state.scheduledReminder === true) {
             getScheduledReminders();
             // state.scheduledReminder = false;

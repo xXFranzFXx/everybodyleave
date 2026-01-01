@@ -52,6 +52,7 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
         anchorEl={anchorEl || []}
         open={open}
         onClose={handleClose}
+        onClick={handleClose}
       >
       { showIntention && 
         <MenuItem sx={{ color: 'white'}} disabled={!outsideFifteenMinutes(date)}><FormInputText name="intention2" label="intention" control={control} /></MenuItem>
