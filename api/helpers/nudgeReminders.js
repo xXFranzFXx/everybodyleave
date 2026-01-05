@@ -47,12 +47,12 @@ async function getNudgeReminders(datetime, timezone) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   } else
-  if ( diffHours > 1 && diffHours <= 4) {
+  if ( diffHours > 1 && diffHours <= 5) {
     nudgeReminders.push(dayjs(datetime).subtract(1, 'hour'));
     console.log('nudgeReminders second condition: ', nudgeReminders);
     return nudgeReminders;
   } else
-  if ( diffHours > 5 && diffHours <= 8) {
+  if ( diffHours > 4 && diffHours < 8) {
     nudgeTimes = range(currentHour, reminderHour, 4);
     nudgeReminders = nudgeTimes.map((time) => dayjs(datetime).hour(time));
     console.log('nudgeReminders 3rd condition: ', nudgeReminders);
