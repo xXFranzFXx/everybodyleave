@@ -43,17 +43,20 @@ async function getNudgeReminders(datetime, timezone) {
     nudgeReminders.push(newDate);
     return nudgeReminders;
   } else
-  if (diffHours > 8) {
+  //if there is more than 24 hours between now and reminder time
+  if ((x.date() > y.date()) && (diffHours > 8)) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   } else
-  if ( diffHours > 1 && diffHours <= 5) {
+  //if reminder is scheduled on the same day within the next 5 hours, 1 nudgreminder is scheduled
+  if ( (x.date() === y.date()) && (diffHours > 1 && diffHours <= 5)) {
     nudgeReminders.push(dayjs(datetime).subtract(1, 'hour'));
     console.log('nudgeReminders second condition: ', nudgeReminders);
     return nudgeReminders;
   } else
-  if ( diffHours > 4 && diffHours < 8) {
-    nudgeTimes = range(currentHour, reminderHour, 4);
+  //if reminder is scheduled on same day within next 8 hours, nudgereminders are scheduled 3 hours apart
+  if ( (x.date() === y.date()) && (diffHours > 4 && diffHours <= 8)) {
+    nudgeTimes = range(currentHour, reminderHour, 3);
     nudgeReminders = nudgeTimes.map((time) => dayjs(datetime).hour(time));
     console.log('nudgeReminders 3rd condition: ', nudgeReminders);
 
