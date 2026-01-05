@@ -22,7 +22,7 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
 
  
   const handleClose = () => {
-  
+    callback(date)
     setAnchorEl(null);
     // setOpen(false)
   };
@@ -52,12 +52,12 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
         anchorEl={anchorEl || []}
         open={open}
         onClose={handleClose}
-        onClick={handleClose}
+        
       >
       { showIntention && 
         <MenuItem sx={{ color: 'white'}} disabled={!outsideFifteenMinutes(date)}><FormInputText name="intention2" label="intention" control={control} /></MenuItem>
 }
-        <MenuItem sx={{background: 'cornflowerblue', color: 'white'}} disabled={!outsideFifteenMinutes(date)} onClick={() => callback(date)}>{buttonLabel}</MenuItem>
+        <MenuItem sx={{background: 'cornflowerblue', color: 'white'}} disabled={!outsideFifteenMinutes(date)} onClick={handleClose}>{buttonLabel}</MenuItem>
       </Menu>
     </div>
   );
