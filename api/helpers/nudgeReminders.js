@@ -19,13 +19,13 @@ async function getNudgeReminders(datetime, timezone) {
   const reminderHour = dayjs(datetime).get('hour');
   // const firstNudge = dayjs(datetime).subtract(4, 'hour');
   // const firstNudge = dayjs(datetime).hour(7).minute(0).second(0).millisecond(0);  //local
-    const firstNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0).utc().format();  //utc
+    const firstNudge = dayjs(datetime).subtract(9, 'h').utc().format();  //utc
 
   // const secondNudge = dayjs(datetime).hour(12).minute(0).second(0).millisecond(0);//local
-    const secondNudge = dayjs(datetime).hour(20).minute(0).second(0).millisecond(0).utc().format();  //utc
+    const secondNudge = dayjs(datetime).subtract(6, 'h').utc().format();  //utc
 
   // const thirdNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0);  //local
-    const thirdNudge = dayjs(datetime).hour(23).minute(0).second(0).millisecond(0).utc().format();  //utc
+    const thirdNudge = dayjs(datetime).subtract(3, 'h').utc().format();  //utc
 
   const normalNudgeTimes = [firstNudge, secondNudge, thirdNudge];
   const firstNudgeHour = dayjs(firstNudge).get('hour');
