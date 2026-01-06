@@ -7,6 +7,7 @@ import useCalendar from '../hooks/useCalendar';
 import { useSettingsContext } from '../context/SettingsProvider';
 import { useFormContext } from 'react-hook-form';
 import { FormInputText } from './FormInputText';
+import { ClickAwayListener } from '@mui/material';
 export default function FadeMenu({ label, callback, buttonLabel, sx, date, showIntention, control}) {
   const [anchorEl, setAnchorEl] = useState(null);
   // const [open, setOpen] = useState(false)
@@ -19,16 +20,23 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
     setAnchorEl(event.currentTarget); 
     // setOpen(true)
   };
-
+  const handleClickAway = () => {
+    resetField("intention2")
+    setAnchorEl(null);
+  };
  
   const handleClose = () => {
-    callback(date)
+   resetField("intention2")
     setAnchorEl(null);
     // setOpen(false)
   };
-
+ const handleCallback = () => {
+   callback(date)
+   
+ }
 
   return (
+    <ClickAwayListener onClickAway={handleClickAway}>
     <div>
       <Button
         id="fade-button"
@@ -57,8 +65,9 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
       { showIntention && 
         <MenuItem sx={{ color: 'white'}} disabled={!outsideFifteenMinutes(date)}><FormInputText name="intention2" label="intention" control={control} /></MenuItem>
 }
-        <MenuItem sx={{background: 'cornflowerblue', color: 'white'}} disabled={!outsideFifteenMinutes(date)} onClick={handleClose}>{buttonLabel}</MenuItem>
+        <MenuItem sx={{background: 'cornflowerblue', color: 'white',  zIndex: 1500}} disabled={!outsideFifteenMinutes(date)} onClick={handleCallback}>{buttonLabel}</MenuItem>
       </Menu>
     </div>
+    </ClickAwayListener>
   );
 }
