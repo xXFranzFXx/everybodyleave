@@ -20,6 +20,10 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
     setAnchorEl(event.currentTarget); 
     // setOpen(true)
   };
+  
+  const avoidBubblingUp = (e) => {
+  e.stopPropagation();
+}
   const handleClickAway = () => {
     resetField("intention2")
     setAnchorEl(null);
@@ -36,7 +40,7 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
  }
 
   return (
-    <ClickAwayListener onClickAway={handleClickAway}>
+    // <ClickAwayListener onClickAway={handleClickAway}>
     <div>
       <Button
         id="fade-button"
@@ -63,11 +67,11 @@ export default function FadeMenu({ label, callback, buttonLabel, sx, date, showI
         
       >
       { showIntention && 
-        <MenuItem sx={{ color: 'white'}} disabled={!outsideFifteenMinutes(date)}><FormInputText name="intention2" label="intention" control={control} /></MenuItem>
+        <MenuItem onKeyDown={avoidBubblingUp} sx={{ color: 'white',  zIndex: 1500}} disabled={!outsideFifteenMinutes(date)}><FormInputText name="intention2" label="intention" control={control} /></MenuItem>
 }
-        <MenuItem sx={{background: 'cornflowerblue', color: 'white',  zIndex: 1500}} disabled={!outsideFifteenMinutes(date)} onClick={handleCallback}>{buttonLabel}</MenuItem>
+        <MenuItem sx={{background: 'cornflowerblue', color: 'white'}} disabled={!outsideFifteenMinutes(date)} onClick={handleCallback}>{buttonLabel}</MenuItem>
       </Menu>
     </div>
-    </ClickAwayListener>
+    // </ClickAwayListener>
   );
 }

@@ -15,10 +15,10 @@ import useFetch from '../hooks/useFetch';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 
-const NextAvailable = ({ handleSaveReminder, control }) => {
+const NextAvailable = ({ onSubmit, control }) => {
   const { events } = useCalendarContext();
   const { isMobile } = useSettingsContext();
-  const { resetField, getValues } = useFormContext();
+  const { resetField, getValues, handleSubmit, setValue } = useFormContext();
   const { saveReminder, scheduledReminders } = useFetch();
   const { state } = useSocketContext();
   const { phone, timezone, intention } = state;
@@ -32,14 +32,16 @@ const NextAvailable = ({ handleSaveReminder, control }) => {
   eventDates.sort((a, b) => dayjs(a).diff(dayjs(b)));
   const sorted = Array.from(new Set(eventDates));
   const currentSchedule = scheduledReminders.result?.filter((el) => !isBeforeNow(el));
-  const available = sorted.filter((el) => !currentSchedule?.includes(el));
+  console.log("current schedule: ", currentSchedule)
+  const scheduledDates = currentSchedule.map(event => dayjs(event).date());
+ //do not display timeslots for dates that have a scheduled reminder already
+  const available = sorted.filter((el) => !scheduledDates?.includes(dayjs(el).date()));
   // console.log("available: ", available)
   const checkIntention = (date) => {
     // setSelectedDate(date);
     // setDialogOpen(true);
-    const intention = getValues("intention2")
-    handleSaveReminder(date, phone, timezone, intention);
-    resetField("intention3")
+    setValue("datetime", date)
+    handleSubmit(onSubmit);
   };
  
   const handleDialogClose = () => {
@@ -78,7 +80,6 @@ const NextAvailable = ({ handleSaveReminder, control }) => {
         {available.map((date, i) => (
           <div key={`av-${i}`}>
             <FadeMenu
-              handleSaveReminder={handleSaveReminder}
               showIntention={true}
               date={date}
               label={formatReminder(date)}
@@ -87,29 +88,6 @@ const NextAvailable = ({ handleSaveReminder, control }) => {
               buttonLabel="Schedule Reminder"
               control={control}
             />
-{/*         
-            <Typography
-              key={i}
-              sx={{ fontSize: isMobile ? '1.3rem' : '1rem', mt: 2, ml: 6, width: '75%', pt: 1, height: 85 }}
-            >
-         
-            </Typography> */}
-            {/* {!intention && (
-              <Dialog open={dialogOpen} onClose={handleDialogClose}>
-                <Box sx={{ display: 'inline-flex' }}>
-                  <DialogTitle>Please Set An Intention For Your Leave </DialogTitle>
-                </Box>
-                <Divider sx={{ my: 1 }} />
-                <Divider sx={{ my: 2 }} />
-
-                <FormInputText name="intention2" label="intention" control={control} />
-                <DialogContent sx={{ paddingBottom: 0 }}>
-                  <DialogActions>
-                    <Button onClick={handleDialogClose}>Ok</Button>
-                  </DialogActions>
-                </DialogContent>
-              </Dialog>
-            )} */}
           </div>
         ))}
       </Carousel>
