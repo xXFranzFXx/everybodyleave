@@ -33,7 +33,7 @@ const NextAvailable = ({ onSubmit, control }) => {
   const sorted = Array.from(new Set(eventDates));
   const currentSchedule = scheduledReminders.result?.filter((el) => !isBeforeNow(el));
   console.log("current schedule: ", currentSchedule)
-  const scheduledDates = currentSchedule.map(event => dayjs(event).date());
+  const scheduledDates = currentSchedule?.map(event => dayjs(event).date());
  //do not display timeslots for dates that have a scheduled reminder already
   const available = sorted.filter((el) => !scheduledDates?.includes(dayjs(el).date()));
   // console.log("available: ", available)
