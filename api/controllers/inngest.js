@@ -60,7 +60,7 @@ exports.createLeave = async (req, res) => {
 exports.nudgeTexts = async (req, res) => {
   const { name, phone, intention, dateScheduled, timezone, nudgeTimeUtc } = req.body;
   const nudgeReminderTs = await getNudgeReminders(nudgeTimeUtc, timezone);
-  const message = await nudgeReminderContent(name, intention, dateScheduled, timezone);
+  const nudgeMessage = await nudgeReminderContent(name, intention, dateScheduled, timezone);
     try {
       await inngest.send({
         name: 'notifications/reminder.scheduled',
@@ -70,7 +70,7 @@ exports.nudgeTexts = async (req, res) => {
           intention,
           dateScheduled,
           nudgeReminderTs,
-          message
+          nudgeMessage
         },
         // ts: timestamp, //this will schedule the function
       });

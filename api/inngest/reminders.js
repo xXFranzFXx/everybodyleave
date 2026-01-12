@@ -314,8 +314,7 @@ const scheduleReminder = inngest.createFunction(
       timeout: '20m',
       if: 'data.phone == async.data.sender',
     });
-//if no response is received within 20 min or the user responds with 2
-//update the smslog and cancel the followup reminder, otherwise send the followup
+//if no response is received within 20 min update the smslog with 0
     if (!smsResponse ) {
         const fieldPath = `log.${phone}`;
           const log = await SmsLog.findOneAndUpdate(
