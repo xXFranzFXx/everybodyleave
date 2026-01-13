@@ -32,7 +32,7 @@ exports.createLeave = async (req, res) => {
   console.log('original datetime: ', dateScheduled);
  
   const nudgeReminderTs = await getNudgeReminders(nudgeTimeUtc, timezone);
-  const nudgeMessage = await nudgeReminderContent(profileName, intention, nudgeTimeUtc, timezone);
+  const nudgeMessage = await nudgeReminderContent(profileName, intention, dateScheduled, timezone);
   console.log("nudge message is: ", nudgeMessage);
   try {
     await inngest.send({
