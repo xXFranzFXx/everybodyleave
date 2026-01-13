@@ -33,7 +33,7 @@ exports.createLeave = async (req, res) => {
  
   const nudgeReminderTs = await getNudgeReminders(nudgeTimeUtc, timezone);
   const nudgeMessage = await nudgeReminderContent(profileName, intention, nudgeTimeUtc, timezone);
-
+  console.log("nudge message is: ", nudgeMessage);
   try {
     await inngest.send({
       name: 'reminders/create.leave',
@@ -47,8 +47,8 @@ exports.createLeave = async (req, res) => {
         intention,
         eventId,
         nudgeTimeUtc,
+        nudgeReminderTs,
         nudgeMessage,
-        nudgeReminderTs
       },
     });
     res.json({ message: 'Leave created' });
