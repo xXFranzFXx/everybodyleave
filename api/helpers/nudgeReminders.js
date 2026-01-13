@@ -76,13 +76,16 @@ async function nudgeReminderTimestamps(datetime, timezone) {
 
 async function nudgeReminderContent(name, intention, datetime, timezone) {
   const nudgeReminders = await getNudgeReminders(datetime, timezone);
-  if (timezone === 'America/Honolulu' && nudgeReminders.length === 1) {
-    return `Good Evening ${name}! You have scheduled a reminder for tomorrow ${datetime}.  Your intention is to focus on ${intention}.`;
+  let message = ''
+  if (timezone == 'America/Honolulu' && nudgeReminders.length == 1) {
+    message =  `Good Evening ${name}! You have scheduled a reminder for tomorrow ${datetime}.  Your intention is to focus on ${intention}.`;
   } else {
-   
-   `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime} to focus on ${intention}.` 
-    //  : `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime}.`
+    message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime} to focus on ${intention}.` 
+   //  : `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime}.`
   }
+  return message;
+   
+
 }
 
 async function convertToCsv(data) {
