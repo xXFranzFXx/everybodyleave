@@ -312,7 +312,7 @@ const scheduleReminder = inngest.createFunction(
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
       timeout: '20m',
-      if: 'data.phone == async.data.sender',
+      if: 'event.data.phone == async.data.sender',
     });
 //if no response is received within 20 min update the smslog with 0
     if (!smsResponse ) {

@@ -35,7 +35,7 @@ const NextAvailable = ({ onSubmit, control }) => {
   console.log("current schedule: ", currentSchedule)
   const scheduledDates = currentSchedule?.map(event => dayjs(event).date());
  //do not display timeslots for dates that have a scheduled reminder already
-  const available = sorted.filter((el) => !scheduledDates?.includes(dayjs(el).date()));
+  const available = sorted.filter((el) => !scheduledDates?.includes(dayjs(el).date()) && (dayjs(el).date() < dayjs(el).add(7, 'd').date()));
   // console.log("available: ", available)
   const checkIntention = (date) => {
     // setSelectedDate(date);
