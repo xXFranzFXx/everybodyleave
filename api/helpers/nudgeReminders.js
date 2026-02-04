@@ -2,6 +2,9 @@ const dayjs = require('dayjs');
 const duration = require('dayjs/plugin/duration');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
+const { Readable } = require('stream'); 
+const XLSX = require('xlsx');
+const httpSmsPhone = process.env.HTTPSMS_PHONE;
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -19,19 +22,19 @@ async function getNudgeReminders(datetime, timezone) {
   const reminderHour = dayjs(datetime).get('hour');
   // const firstNudge = dayjs(datetime).subtract(4, 'hour');
   // const firstNudge = dayjs(datetime).hour(7).minute(0).second(0).millisecond(0);  //local
-    const firstNudge = dayjs(datetime).subtract(9, 'h').utc().format();  //utc
+  const firstNudge = dayjs(datetime).subtract(9, 'h').utc().format(); //utc
 
   // const secondNudge = dayjs(datetime).hour(12).minute(0).second(0).millisecond(0);//local
-    const secondNudge = dayjs(datetime).subtract(6, 'h').utc().format();  //utc
+  const secondNudge = dayjs(datetime).subtract(6, 'h').utc().format(); //utc
 
   // const thirdNudge = dayjs(datetime).hour(15).minute(0).second(0).millisecond(0);  //local
-    const thirdNudge = dayjs(datetime).subtract(3, 'h').utc().format();  //utc
+  const thirdNudge = dayjs(datetime).subtract(3, 'h').utc().format(); //utc
 
   const normalNudgeTimes = [firstNudge, secondNudge, thirdNudge];
   const firstNudgeHour = dayjs(firstNudge).get('hour');
   const currentHour = dayjs().get('hour');
   const x = dayjs(datetime);
-  const y = dayjs()
+  const y = dayjs();
   const diffHours = x.diff(y, 'hour');
 
   console.log('reminderHour: ', reminderHour);
@@ -42,29 +45,29 @@ async function getNudgeReminders(datetime, timezone) {
     console.log(`nudgeReminder for ${datetime} is ${newDate}`);
     nudgeReminders.push(newDate);
     return nudgeReminders;
-  } else
+  }
   //if there is more than 24 hours between now and reminder time
-  if ((x.date() > y.date()) && (diffHours > 8)) {
+  else if (x.date() > y.date() && diffHours > 8) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
-  } else
+  }
   //if reminder is scheduled on the same day within the next 5 hours, 1 nudgreminder is scheduled
-  if ( (x.date() === y.date()) && (diffHours > 1 && diffHours <= 5)) {
+  else if ((x.date() === y.date()) && (diffHours > 1 && diffHours <= 5)) {
     nudgeReminders.push(dayjs(datetime).subtract(1, 'hour'));
     console.log('nudgeReminders second condition: ', nudgeReminders);
     return nudgeReminders;
-  } else
+  }
   //if reminder is scheduled on same day within next 8 hours, nudgereminders are scheduled 3 hours apart
-  if ( (x.date() === y.date()) && (diffHours > 4 && diffHours <= 8)) {
+  else if ((x.date() === y.date()) && (diffHours > 4 && diffHours <= 8)) {
     nudgeTimes = range(currentHour, reminderHour, 3);
     nudgeReminders = nudgeTimes.map((time) => dayjs(datetime).hour(time));
     console.log('nudgeReminders 3rd condition: ', nudgeReminders);
 
     return nudgeReminders;
   } else {
-  console.log("no nudge reminders scheduled due to time constraints")
-  return nudgeReminders
-}
+    console.log('no nudge reminders scheduled due to time constraints');
+    return nudgeReminders;
+  }
 }
 
 async function nudgeReminderTimestamps(datetime, timezone) {
@@ -76,16 +79,14 @@ async function nudgeReminderTimestamps(datetime, timezone) {
 
 async function nudgeReminderContent(name, intention, datetime, timezone) {
   const nudgeReminders = await getNudgeReminders(datetime, timezone);
-  let message = ''
+  let message = '';
   if (timezone == 'America/Honolulu' && nudgeReminders.length == 1) {
-    message =  `Good Evening ${name}! You have scheduled a reminder for tomorrow ${datetime}.  Your intention is to focus on ${intention}.`;
+    message = `Good Evening ${name}! You have scheduled a reminder for tomorrow ${datetime}.  Your intention is to focus on ${intention}.`;
   } else {
-    message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime} to focus on ${intention}.` 
-   //  : `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime}.`
+    message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime} to focus on ${intention}.`;
+    //  : `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime}.`
   }
   return message;
-   
-
 }
 
 async function convertToCsv(data) {
@@ -98,19 +99,47 @@ async function convertToCsv(data) {
   }
   const csvString = csvRows.join('\n');
   console.log('csvString: ', csvString);
-  const blob = new Blob([csvString], { type: 'text/csv' });
-  const buf = await blob.arrayBuffer(); // Assuming 'data' is your Blob
+  return csvString;
+} 
 
-  const fileName = 'httpsms-bulk.csv';
-  const file = new File([blob], fileName, { type: blob.type });
-  // Create a FormData object
-  let formData = new FormData();
-  formData.append('type', 'text/csv');
-  formData.append('file', Buffer.from(buf), { filename: fileName });
-  // formData.append("file", file, file.name); // 'file' is the field name on the server, 'data.csv' is the filename
-  return formData;
+async function createCsvfile(csvString) {
+  const  FormData  = require('form-data');
+
+   const csvBuffer =  Buffer.from(csvString, 'utf-8');
+    const form = new FormData();
+   
+    form.append('file', csvBuffer, {
+        name: 'document',
+        filename: 'httpsms-bulk.csv',
+        contentType: 'text/csv',
+    });
+  return form;
 }
+async function convertCsvToXlsx(csvString) {
+  const  FormData  = require('form-data');
 
+  const workbook = XLSX.read(csvString, { type: 'string' });
+  const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+  console.log("created buffer: ", buffer.length)
+  const fdata = new FormData();
+  fdata.append('file', buffer, {
+    filename: 'httpsms-bulk.xlsx',
+    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  // fdata.append('file', new File([buffer], 'sheetjs.xlsx'));
+  return fdata;
+}
+async function convertToXlsx(jsonData) {
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(jsonData);
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  const fileBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+  const blob = new Blob([fileBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const fdata = new FormData();
+  
+  fdata.append("file", blob, "httpsms-bulk.xlsx")
+  return fdata;
+}
 async function createCsvObj(name, phone, intention, datetime, timezone) {
   let data = [];
   let dataRow = {};
@@ -134,4 +163,4 @@ async function createCsvObj(name, phone, intention, datetime, timezone) {
   console.log('dataRows: ', data);
   return data;
 }
-module.exports = { getNudgeReminders, nudgeReminderContent, createCsvObj, convertToCsv, nudgeReminderTimestamps };
+module.exports = { getNudgeReminders, nudgeReminderContent, createCsvObj, createCsvfile, convertCsvToXlsx, convertToXlsx, convertToCsv, nudgeReminderTimestamps };
