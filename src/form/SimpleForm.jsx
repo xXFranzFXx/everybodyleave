@@ -17,7 +17,6 @@ import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-
 import NextAvailable from './NextAvailable';
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -223,6 +222,7 @@ const SimpleForm = () => {
                   Save
                 </Button>
               </Grid2>
+            
               {/* )} */}
             </Box>
             <Box
@@ -242,7 +242,7 @@ const SimpleForm = () => {
                 <Reminders dateScheduled={dateScheduled}  />
               </Grid2>
             </Box>
-            <Box 
+            {/* <Box 
               px={1}
               py={2}
               sx={{ 
@@ -253,7 +253,7 @@ const SimpleForm = () => {
             <Grid2 item size={12}>
             <NextAvailable handleSaveReminder={handleSaveReminder} onSubmit={onSubmit} getValues={getValues} control={control}/>
             </Grid2>
-            </Box>
+            </Box> */}
           </Grid2>
         </Box>
       </FormProvider>
