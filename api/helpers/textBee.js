@@ -21,7 +21,7 @@ function followUpMinuteLimit(endsAt, receivedAt) {
   const x = dayjs(endsAt);
   const y = dayjs(receivedAt);
   const duration = y.diff(x, 'minutes');
-  return duration <= 15;
+  return duration <= 25;
 }
 
 async function getEventTime(phone, id) {
