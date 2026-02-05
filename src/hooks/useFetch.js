@@ -266,6 +266,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         },
       });
       const res = await response.data;
+      console.log(res)
       return res;
     } catch (err) {
       console.log('Error creating nudgeReminders ', err);
@@ -340,6 +341,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
           profileName: profileName,
           phone: phone,
           dateScheduled: formatReminder(datetime),
+          datetime: datetime,
           intention: intention,
           timezone: timezone, 
           logins: logins,
