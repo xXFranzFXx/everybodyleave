@@ -1,46 +1,69 @@
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useAuth0 } from "@auth0/auth0-react";
+import axios from 'axios';
 
 const Payments = () =>  {
-    function createOrder() {
-        return fetch("/my-server/create-paypal-order", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            // use the "body" param to optionally pass additional order information
-            // like product ids and quantities
-            body: JSON.stringify({
-                cart: [
-                    {
-                        id: "YOUR_PRODUCT_ID",
-                        quantity: "YOUR_PRODUCT_QUANTITY",
-                    },
-                ],
-            }),
-        })
-            .then((response) => response.json())
-            .then((order) => order.id);
-    }
-    function onApprove(data) {
-          return fetch("/my-server/capture-paypal-order", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              orderID: data.orderID
-            })
-          })
-          .then((response) => response.json())
-          .then((orderData) => {
-                const name = orderData.payer.name.given_name;
-                alert(`Transaction completed by ${name}`);
-          });
-
-        }
+    const { user, getAccessTokenSilently } = useAuth0();
     
+    const createOrder = async () => {
+      const { mongoId, name, profileName } = user;
+
+      const token = await getAccessTokenSilently();
+      console.log('mongoId: ', mongoId);
+      
+      try {
+        const response = await axios({
+          method: 'POST',
+        //  url: `http://localhost:4000/api/payments/createPayment`,
+          url: `https://everybodyleave.onrender.com/api/payments/createPayment`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            id: `${process.env.REACT_APP_PRODUCT_ID}`,
+            user: mongoId
+          },
+        });
+        const order = await response.data;
+        console.log("Created Paypal order: ", order.id);
+        return order.id;
+       
+      } catch (err) {
+        console.log('Error creating Paypal order: ', err);
+      }
+    };
+ 
+ const onApprove = async (orderData) => {
+      const { mongoId, name, profileName } = user;
+
+      const token = await getAccessTokenSilently();
+      console.log('mongoId: ', mongoId);
+      
+      try {
+        const response = await axios({
+          method: 'POST',
+        //  url: `http://localhost:4000/api/payments/capturePayment`,
+          url: `https://everybodyleave.onrender.com/api/payments/capturePayment`,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            orderID: orderData.orderID
+          },
+        });
+        const paymentOrder = await response.data;
+        const name = paymentOrder.payer.name.given_name;
+        console.log("Transaction successful: ", name);
+
+        return paymentOrder;
+       
+      } catch (err) {
+        console.log('Error completing Paypal order: ', err);
+      }
+    };
+  
     return (
-        <PayPalScriptProvider options={{ clientId: "test" }}>
+        <PayPalScriptProvider options={{ clientId: `${process.env.REACT_APP_PAYPAL_CLIENT_ID}` }}>
             <PayPalButtons
                 createOrder={createOrder}
                 onApprove={onApprove}
