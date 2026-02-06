@@ -27,7 +27,7 @@ const calendarRoutes = require('./routes/calendarReminders');
 const textBeeRoutes = require('./routes/textBee');
 const httpSmsRoutes = require('./routes/httpSms');
 const inngestWorkflowRoutes = require('./routes/inngestWorkflows');
-// const paymentsRoutes = require('./routes/paypal');
+const paymentsRoutes = require('./routes/paypal');
 
 app.use(cors());
 app.use(express.urlencoded({
