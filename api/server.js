@@ -26,7 +26,8 @@ const eventRoutes = require('./routes/events');
 const calendarRoutes = require('./routes/calendarReminders');
 const textBeeRoutes = require('./routes/textBee');
 const httpSmsRoutes = require('./routes/httpSms');
-const inngestWorkflowRoutes = require('./routes/inngestWorkflows')
+const inngestWorkflowRoutes = require('./routes/inngestWorkflows');
+const paymentsRoutes = require('./routes/paypal');
 
 app.use(cors());
 app.use(express.urlencoded({
@@ -119,7 +120,7 @@ app.use('/api', textBeeRoutes);
 app.use('/api', httpSmsRoutes);
 app.use('/api/inngest', serve({ client: inngest, functions }));
 app.use('/api', inngestWorkflowRoutes);
-
+app.use('/api', paymentsRoutes);
 
   http.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
