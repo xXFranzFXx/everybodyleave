@@ -116,9 +116,11 @@ async function textBeeFinalSms(message, recipient, eventId, eventDate) {
       { event: id },
       {
         $addToSet: { recipients: recipient },
-        $set: { eventDate: eventDate },
-        $set: { smsId: result.data.smsBatchId },
-        $set: { [fieldPath]: 1 },
+        $set: { [fieldPath]: 1  },
+        $setOnInsert: { 
+          eventDate: eventDate,
+          smsId: result.data.smsBatchId,
+        },
       },
       { new: true, upsert: true }
     );
@@ -253,7 +255,8 @@ async function webhookResponse(sender, message, receivedAt) {
       const smsLog = await SmsLog.findOne({ event: id });
       const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
       if (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt)) {
-        await smsLog.log.set(sender, '2');
+        // await smsLog.log.set(sender, '2');
+        await updateSmsLogResponse(id, sender, message);
         const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
         await textBeeSendSms(response, sender);
         return { status: `User responded late to the followup sms` };
@@ -272,7 +275,8 @@ async function webhookResponse(sender, message, receivedAt) {
         return { status: `User responded on time with ${message}.` };
       } else if (message === '2' && followUpMinuteLimit(endsAt, receivedAt)) {
         const response = `There's always next time!`;
-        await smsLog.log.set(sender, '2');
+        await updateSmsLogResponse(id, sender, message);
+        // await smsLog.log.set(sender, '2');
         await textBeeSendSms(response, sender);
         console.log(`User responded with ${message}`);
         return {

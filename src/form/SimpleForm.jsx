@@ -13,7 +13,6 @@ import { Reminders } from './Reminders';
 import useFetch from '../hooks/useFetch';
 import useCalendar from '../hooks/useCalendar';
 import FormDialog from '../form-components/FormDialog';
-import LogoutButton from '../components/LogoutButton';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -144,7 +143,7 @@ const SimpleForm = () => {
 
   return (
     <>
-      <LogoutButton sx={{ position: 'absolute', right: 0, mr: '5%' }} />
+    
 
       <FormProvider {...methods}>
         <FormDialog
@@ -176,9 +175,9 @@ const SimpleForm = () => {
             marginTop: '30px',
           }}
         >
-          <Typography variant="h6" align="center" margin="dense" sx={{ fontWeight: 'bold' }}>
+          {/* <Typography variant="h6" align="center" margin="dense" sx={{ fontWeight: 'bold' }}>
             EverybodyLeave Weekly Reminders
-          </Typography>
+          </Typography> */}
 
           <Grid2 container spacing={{ xs: 2, md: 3 }} sx={{ width: '800px' }}>
             <Box
