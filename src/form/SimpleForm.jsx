@@ -248,9 +248,9 @@ const SimpleForm = () => {
       
            </Box>
            </>}
-        { view === 'calendar'  && 
+        {/* { view === 'calendar'  && 
           <CalendarComponent/>
-        }
+        } */}
             {/* <Box
               px={1}
               py={2}
