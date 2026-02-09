@@ -9,6 +9,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useSocketContext } from './context/SocketProvider';
 import CalendarComponent from './components/calendar/CalendarComponent';
 import NextAvailable from './form/NextAvailable';
+import CalendarViewButton from './components/calendar/CalendarViewButton';
+import { Box } from '@mui/material';
 import NavBar from './components/NavBar';
 function App() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
@@ -74,8 +76,11 @@ function App() {
         <>
         {/* <NextAvailable/> */}
         <NavBar/>
-          <SimpleForm  />
-          {/* <CalendarComponent/> */}
+       
+     
+          <SimpleForm  /> 
+       
+     
         </>
       ) : (
         <LoginButton />

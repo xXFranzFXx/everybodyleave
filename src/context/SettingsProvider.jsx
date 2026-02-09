@@ -8,11 +8,13 @@ const SettingsProvider = ({ children }) => {
     const [primaryColor, setPrimaryColor] = useState('#000000');
     const [secondaryColor, setSecondaryColor] = useState('#FFFFFF');
     const [dataDisplay, setDataDisplay] = useState('list');
+    const [view, setView] = React.useState('datepicker');
 
     const changePrimaryColor = (color) => {
         setPrimaryColor(color.hex);
     };
 
+    
     const changeSecondaryColor = (color) => {
         setSecondaryColor(color.hex);
     };
@@ -29,7 +31,9 @@ const SettingsProvider = ({ children }) => {
             changeSecondaryColor,
             dataDisplay,
             changeDataDisplay,
-            isMobile
+            isMobile,
+            setView,
+            view
         }}
         >
           { children }
@@ -46,6 +50,8 @@ export function useSettingsContext () {
             setDataDisplay,
             phoneNumber,
             setPhoneNumber,
+            setView,
+            view,
             isMobile } = useContext(SettingsContext);
 
             return {
@@ -57,7 +63,9 @@ export function useSettingsContext () {
                 setDataDisplay,
                 phoneNumber,
                 setPhoneNumber,
-                isMobile
+                isMobile,
+                setView,
+                view
             }
 }
 export default SettingsProvider;

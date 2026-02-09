@@ -95,7 +95,7 @@ const  NavBar = () => {
           </Box>
         
           <Typography
-            variant="h5"
+            variant="h6"
             noWrap
             component="a"
             href="#app-bar-with-responsive-menu"

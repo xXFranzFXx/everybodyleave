@@ -8,8 +8,9 @@ import { FormInputCheckBox } from '../form-components/FormInputCheckBox';
 import { useSettingsContext } from '../context/SettingsProvider';
 import { useAuth0 } from '@auth0/auth0-react';
 import { subscribe } from 'valtio';
-import { Typography, Button, Grid2, Box, Paper } from '@mui/material';
+import { Typography, Button, Grid2, Box, Paper, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import { Reminders } from './Reminders';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useFetch from '../hooks/useFetch';
 import useCalendar from '../hooks/useCalendar';
 import FormDialog from '../form-components/FormDialog';
@@ -17,6 +18,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import NextAvailable from './NextAvailable';
+import CalendarComponent from '../components/calendar/CalendarComponent';
+import CalendarViewButton from '../components/calendar/CalendarViewButton';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const dialog = {
@@ -29,6 +32,7 @@ const SimpleForm = () => {
   const { formatReminder } = useCalendar();
   const { user } = useAuth0();
   const { name } = user;
+  const { view } = useSettingsContext();
   const { isMobile } = useSettingsContext();
   const { state } = useSocketContext();
   const { phone, timezone, scheduledReminder, profileName, intention } = state;
@@ -175,19 +179,21 @@ const SimpleForm = () => {
             marginTop: '30px',
           }}
         >
-          {/* <Typography variant="h6" align="center" margin="dense" sx={{ fontWeight: 'bold' }}>
-            EverybodyLeave Weekly Reminders
-          </Typography> */}
 
           <Grid2 container spacing={{ xs: 2, md: 3 }} sx={{ width: '800px' }}>
+          <Grid2 size={12} sx={{ display: 'flex', justifyContent: 'flex-end'}}>
+          <CalendarViewButton/>
+          </Grid2>
+           { view === 'datepicker' && <>
             <Box
               px={3}
               py={2}
-              sx={{ border: '2px solid black', borderRadius: '5px', width: isMobile ? '100%' : '45%', minWidth: '25%' }}
+              sx={{ border: '2px solid black', borderRadius: '5px', width: '100%', minWidth: '25%' }}
             >
               <Typography variant="h6" align="left" margin="dense" sx={{ fontWeight: 'bold' }}>
                 Schedule a Reminder
               </Typography>
+                
               <Grid2 size={12} sx={{ width: '100%', my: 2 }}>
                 {user && <FormInputTel name="phone" control={control} label="Your Phone" />}
               </Grid2>
@@ -223,8 +229,29 @@ const SimpleForm = () => {
               </Grid2>
             
               {/* )} */}
-            </Box>
-            <Box
+                             <Grid2 item mt={3} size={12}>
+
+               <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+        >
+          <Typography component="span">Schedule</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+                       <Reminders dateScheduled={dateScheduled}  />
+
+        </AccordionDetails>
+      </Accordion>
+      </Grid2>
+      
+           </Box>
+           </>}
+        { view === 'calendar'  && 
+          <CalendarComponent/>
+        }
+            {/* <Box
               px={1}
               py={2}
               sx={{
@@ -240,7 +267,7 @@ const SimpleForm = () => {
               <Grid2 item>
                 <Reminders dateScheduled={dateScheduled}  />
               </Grid2>
-            </Box>
+            </Box> */}
             {/* <Box 
               px={1}
               py={2}
