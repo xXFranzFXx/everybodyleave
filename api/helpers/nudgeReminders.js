@@ -81,21 +81,21 @@ async function nudgeReminderContent(name, intention, dateScheduled, datetime, ti
   const nudgeReminders = await getNudgeReminders(datetime, timezone);
   const reminderDate = dayjs(datetime).date();
   const creationDate = dayjs().date()
-  const regex = creationDate < reminderDate ? /,.+/g : /\d.+/g ;
+  // const regex = creationDate < reminderDate ? /,.+/g : /\d.+/g ;
   // const regex =/(\d:.*)$/g
-
+  const regex = /\d:.*$/gm;
   console.log("datetime: ", datetime)
   console.log("dateScheduled: ", dateScheduled)
   console.log("regex: ", regex)
-  const reminderTimeStr = regex.exec(dateScheduled);
+  const reminderTimeStr = regex.exec(dateScheduled)[0];
   console.log("reminderTimeStr: ", reminderTimeStr)
   let message = '';
   if ((timezone == 'America/Honolulu' && nudgeReminders.length == 1) || ( dayjs(datetime).date() > dayjs().date() && nudgeReminders.length === 1 )) {
     message = `Good Evening ${name}! You have scheduled a reminder for tomorrow ${datetime}.  Your intention is to focus on ${intention}.`;
   } else if(dayjs(datetime).date() === dayjs().date()){
-     message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${datetime}.`
+     message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${dateScheduled}.`
   } else {
-     message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place today ${reminderTimeStr[0]} to focus on ${intention}.`;
+     message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place today ${reminderTimeStr} to focus on ${intention}.`;
 
   }
   return message;
