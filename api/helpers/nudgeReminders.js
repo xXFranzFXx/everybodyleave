@@ -90,7 +90,7 @@ async function nudgeReminderContent(name, intention, dateScheduled, datetime, ti
   const reminderTimeStr = regex.exec(dateScheduled);
   console.log("reminderTimeStr: ", reminderTimeStr)
   let message = '';
-  if (timezone == 'America/Honolulu' && nudgeReminders.length == 1) {
+  if ((timezone == 'America/Honolulu' && nudgeReminders.length == 1) || ( dayjs(datetime).date() > dayjs().date() && nudgeReminders.length === 1 )) {
     message = `Good Evening ${name}! You have scheduled a reminder for tomorrow ${datetime}.  Your intention is to focus on ${intention}.`;
   } else {
     message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place today ${reminderTimeStr[0]} to focus on ${intention}.`;
