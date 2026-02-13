@@ -208,7 +208,7 @@ async function findDateFromSmsLog(phone, receivedAt) {
   const event = Object.values(cursor).filter(
     (key) => dayjs(key.date[0]).format('YYYY-MM-DD') === dayjs(receivedAt).format('YYYY-MM-DD')
   )[0];
-  console.log('cursor: ', cursor);
+  // console.log('cursor: ', cursor);
   console.log('event: ', event);
   // const eventDetails = await cursor[0];
   return event;
@@ -293,6 +293,13 @@ async function webhookResponse(sender, message, receivedAt) {
         console.log('User sent incorrect response.');
         return { status: 'User sent incorrect response' };
       }
+     await  User.updateOne(
+      { phone: sender },
+      { 
+        $pull: { reminder: id },      
+        $push: { archived: id }     
+      }
+    )   
     }
   } catch (err) {
     console.log('Failed to process user response.  Smslog was not updated. ', err);

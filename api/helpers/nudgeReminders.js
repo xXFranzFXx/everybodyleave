@@ -36,7 +36,7 @@ async function getNudgeReminders(datetime, timezone) {
   const x = dayjs(datetime);
   const y = dayjs();
   const diffHours = x.diff(y, 'hour');
-
+  console.log("diffHours: ", diffHours)
   console.log('reminderHour: ', reminderHour);
   console.log('firstNudgeHour: ', firstNudgeHour);
   if ((timezone === 'America/Honolulu' && reminderHour === 18) || (reminderHour === 18 && dayjs(datetime) > dayjs())) {
