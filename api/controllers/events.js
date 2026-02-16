@@ -129,7 +129,7 @@ exports.saveReminder = async (req, res) => {
         },
         {
           $inc: { count: 1 },
-          $set: {
+          $setOnInsert: {
             endsAt: endTime,
           },
           $addToSet: { usersAttending: id },

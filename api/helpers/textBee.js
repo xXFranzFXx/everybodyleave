@@ -4,7 +4,7 @@ const API_KEY = process.env.TEXTBEE_API_KEY;
 const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
 const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
-const event = require('../models/EventModel');
+const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const dayjs = require('dayjs');
 
@@ -80,7 +80,7 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
     await log;
     console.log('Updated call log ', log);
 
-    await event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true });
+    await Event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true });
     console.log('event is now closed');
 
     console.log('textbee final reminder bulk sms sent: ', result);
@@ -111,6 +111,7 @@ async function textBeeFinalSms(message, recipient, eventId, eventDate) {
       }
     );
     const result = await response.data;
+    console.log("sent final sms: ", result)
     const fieldPath = `log.${recipient}`;
     const log = await SmsLog.findOneAndUpdate(
       { event: id },
@@ -127,7 +128,7 @@ async function textBeeFinalSms(message, recipient, eventId, eventDate) {
     await log;
     console.log('Updated call log ', log);
 
-    await event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true });
+    await Event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true });
     console.log('event is now closed');
 
     console.log('textbee final reminder bulk sms sent: ', result);
@@ -149,9 +150,10 @@ async function textBeeReceiveSms() {
 
 async function updateSmsLogResponse(eventId, sender, response) {
   const fieldPath = `log.${sender}`;
+  const id = new mongoose.Types.ObjectId(`${eventId}`);
   try {
-    const log = await SmsLog.findOneAndUpdate(
-      { event: eventId },
+    const log = await SmsLog.updateOne(
+      { event: id },
       {
         $set: { [fieldPath]: response },
       },
@@ -205,10 +207,10 @@ async function findDateFromSmsLog(phone, receivedAt) {
   // only return the datetime for the event that contains the date of the received response.
   // The dates should be the same since the user is required to respond on the same date
   // user must also be a recipient for the event in the smslog.
-  const event = Object.values(cursor).filter(
+  const event = await Object.values(cursor).filter(
     (key) => dayjs(key.date[0]).format('YYYY-MM-DD') === dayjs(receivedAt).format('YYYY-MM-DD')
   )[0];
-  // console.log('cursor: ', cursor);
+  console.log('cursor: ', cursor);
   console.log('event: ', event);
   // const eventDetails = await cursor[0];
   return event;
