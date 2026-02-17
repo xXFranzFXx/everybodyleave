@@ -299,7 +299,7 @@ const scheduleReminder = inngest.createFunction(
       const leaveTime = dayjs(nudgeTimeUtc)
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`; 
-      await textBeeFinalSms(message, phone, eventId, dateScheduled);
+      await textBeeFinalSms(message, phone, eventId, nudgeTimeUtc);
     });
 
       await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
