@@ -119,7 +119,7 @@ async function textBeeFinalSms(message, recipient, eventId, eventDate) {
         $addToSet: { recipients: recipient },
         $set: { [fieldPath]: 1  },
         $setOnInsert: { 
-          eventDate: new Date(dateScheduled),
+          eventDate: new Date(eventDate),
           smsId: result.data.smsBatchId,
         },
       },
