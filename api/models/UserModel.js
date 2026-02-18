@@ -12,13 +12,16 @@ const UserSchema = mongoose.Schema({
         required: true,
     },
     reminder: [{
-       type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
+       type: mongoose.Schema.Types.ObjectId, 
+       ref: 'Event'
     }],
     archived: [{
-        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Event'}]
+       type: mongoose.Schema.Types.ObjectId, 
+       ref: 'Event'
     }],
     calendarEvents: [{
-        type: [{type: mongoose.Schema.Types.ObjectId, ref: 'CalendarReminder'}]
+       type: mongoose.Schema.Types.ObjectId, 
+       ref: 'CalendarReminder'
     }],
     role: {
         type: String,
@@ -27,7 +30,7 @@ const UserSchema = mongoose.Schema({
     //for use with httpSMS
     events: [{
         event: {type: mongoose.Schema.Types.ObjectId, ref: 'Event'},
-        reminderDate: Date,
+        reminderDate: {type: Date},
         nudges:[{ type: Date }],
         intention: {type: String},
         response: {type: Number}

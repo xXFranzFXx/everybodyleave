@@ -5,7 +5,8 @@ const smsResponseModel = require('./SmsResponseModel');
 
 const SignedUpEventSchema = mongoose.Schema({
     usersAttending:[{
-         type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
     }],
     count: {
         type: Number,
