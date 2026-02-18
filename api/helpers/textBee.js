@@ -6,6 +6,7 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
+const { updateSmsLog, findDateFromSmsLog } = require('./smsLog');
 const dayjs = require('dayjs');
 
 const mongoose = require('mongoose');
@@ -16,7 +17,7 @@ function fifteenMinuteLimit(reminder, receivedAt) {
   const duration = x.diff(y, 'minutes');
   return duration <= 15;
 }
-
+//time limit to respond after followup sms is 25 min
 function followUpMinuteLimit(endsAt, receivedAt) {
   const x = dayjs(endsAt);
   const y = dayjs(receivedAt);
@@ -112,25 +113,7 @@ async function textBeeFinalSms(message, recipient, eventId, eventDate) {
     );
     const result = await response.data;
     console.log("sent final sms: ", result)
-    const fieldPath = `log.${recipient}`;
-    const log = await SmsLog.findOneAndUpdate(
-      { event: id },
-      {
-        $addToSet: { recipients: recipient },
-        $set: { [fieldPath]: 1  },
-        $setOnInsert: { 
-          eventDate: new Date(eventDate),
-          smsId: result.data.smsBatchId,
-        },
-      },
-      { new: true, upsert: true }
-    );
-    await log;
-    console.log('Updated call log ', log);
-
-    await Event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true });
-    console.log('event is now closed');
-
+    await updateSmsLog(eventId, recipient, eventDate, result.data.smsBatchId)
     console.log('textbee final reminder bulk sms sent: ', result);
     return result;
   } catch (error) {
@@ -166,55 +149,7 @@ async function updateSmsLogResponse(eventId, sender, response) {
   }
 }
 
-async function findDateFromSmsLog(phone, receivedAt) {
-  const dateSubstr = dayjs(receivedAt).format('YYYY-MM-DD');
-  console.log('receivedAt: ', dateSubstr);
-  const agg = [
-    {
-      $match: {
-        recipients: phone,
-      },
-    },
-    {
-      $lookup: {
-        from: 'events',
-        localField: 'event',
-        foreignField: '_id',
-        as: 'eventInfo',
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        date: '$eventInfo.date',
-        endsAt: '$eventInfo.endsAt',
-      },
-    },
-    //only return event with date that contains the receivedAt date ** Not working
-    // {
-    // $match: {
-    //   $expr: {
-    //     $regexMatch: {
-    //       input: '$eventInfo.date',
-    //       regex: `${dateSubstr}`, // The substring to search for
-    //       options: "i"    // Case-insensitive option
-    //     }
-    //   }
-    // }
-    // }
-  ];
-  const cursor = await SmsLog.aggregate(agg);
-  // only return the datetime for the event that contains the date of the received response.
-  // The dates should be the same since the user is required to respond on the same date
-  // user must also be a recipient for the event in the smslog.
-  const event = await Object.values(cursor).filter(
-    (key) => dayjs(key.date[0]).format('YYYY-MM-DD') === dayjs(receivedAt).format('YYYY-MM-DD')
-  )[0];
-  console.log('cursor: ', cursor);
-  console.log('event: ', event);
-  // const eventDetails = await cursor[0];
-  return event;
-}
+
 
 async function textBeeInitialSms(profileName, phone, dateScheduled, intention, logins) {
   const message =
@@ -245,20 +180,23 @@ async function webhookResponse(sender, message, receivedAt) {
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
   const event = await findDateFromSmsLog(sender, receivedAt);
   try {
-    if (event === undefined || (message !== '1' && message !== '2')) {
+    if ( (message !== '1' && message !== '2') || event === undefined ) {
       const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`;
       await textBeeSendSms(response, sender);
       console.log('User responded to event that does not exist');
       return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
     } else {
       const { _id, date, endsAt } = await event;
+      console.log("_id: ", _id);
+      console.log("date: ", date);
+      console.log("endsAt: ", endsAt)
       const tooEarly = dayjs(endsAt).subtract(2, 'hour');
       const id = new mongoose.Types.ObjectId(`${_id}`);
       const smsLog = await SmsLog.findOne({ event: id });
       const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
-      if (dayjs(receivedAt).isAfter(endsAt, 'min') && !fifteenMinuteLimit(receivedAt, endsAt)) {
+      if (dayjs(receivedAt).isAfter(endsAt, 'min') && !followUpResponseLimit) {
         // await smsLog.log.set(sender, '2');
-        await updateSmsLogResponse(id, sender, message);
+        await updateSmsLogResponse(id, sender, '2');
         const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
         await textBeeSendSms(response, sender);
         return { status: `User responded late to the followup sms` };
@@ -270,12 +208,7 @@ async function webhookResponse(sender, message, receivedAt) {
         await textBeeSendSms(response, sender);
         console.log('User responded too early.');
         return { status: 'User responded too early' };
-      } else if (message === '1' && followUpMinuteLimit(endsAt, receivedAt)) {
-        const response = `Great Job! Thank you for participating`;
-        await textBeeSendSms(response, sender);
-        console.log(`User responded with ${message}`);
-        return { status: `User responded on time with ${message}.` };
-      } else if (message === '2' && followUpMinuteLimit(endsAt, receivedAt)) {
+      } else if (message === '2' && followUpResponseLimit) {
         const response = `There's always next time!`;
         await updateSmsLogResponse(id, sender, message);
         // await smsLog.log.set(sender, '2');
@@ -284,7 +217,12 @@ async function webhookResponse(sender, message, receivedAt) {
         return {
           status: `User was not able to complete the leave successfully, but responded to the followup on time`,
         };
-      } else if (
+      } else if (message === '1' && followUpResponseLimit) {
+        const response = `Great Job! Thank you for participating`;
+        await textBeeSendSms(response, sender);
+        console.log(`User responded with ${message}`);
+        return { status: `User responded on time with ${message}.` };
+      }  else if (
         (message !== '1' && message !== '2') &&
         (dayjs(receivedAt).isBefore(date, 'min') || dayjs(receivedAt).isAfter(endsAt, 'min'))
       ) {
