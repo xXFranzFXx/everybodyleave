@@ -14,12 +14,12 @@ const SmsRecipientSchema = mongoose.Schema({
         eventDate: Date,
    
             status: { 
-                type: String, 
+                type: [String], 
                 enum: ['pending', 'complete',  'canceled'], 
                 default: 'pending' 
             },
             response: {
-                type: String,
+                type: [String],
                 enum: ['pending', '0', '1', '2'],
                 default: ['pending']
                 }
