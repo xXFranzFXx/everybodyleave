@@ -1,6 +1,5 @@
 const eventModel = require('./EventModel');
 const mongoose =  require('mongoose');
-const smsResponseModel = require('./SmsResponseModel');
 
 
 const SignedUpEventSchema = mongoose.Schema({

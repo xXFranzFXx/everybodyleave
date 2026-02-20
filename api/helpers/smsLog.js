@@ -11,7 +11,7 @@ async function updateSmsLog(eventId, recipient,  response, eventDate="",smsBatch
   try {
     session.startTransaction();
     const fieldPath = `log.${recipient}`;
-    const id = new mongoose.Types.ObjectId(`${eventId}`);
+    const id =  new mongoose.Types.ObjectId(`${eventId}`);
     const log = await SmsLog.findOneAndUpdate(
       { event: id },
       {

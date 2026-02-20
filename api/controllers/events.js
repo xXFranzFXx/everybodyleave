@@ -1,6 +1,8 @@
 const Event = require('../models/EventModel');
 const User = require('../models/UserModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
+const SmsRecipient = require('../models/SmsRecipientModel');
+const SmsLog = require('../models/SmsLogModel')
 const EventBucket = require('../models/EventBucketModel');
 const mongoose = require('mongoose');
 const dayjs =  require('dayjs');
@@ -114,7 +116,8 @@ exports.saveReminder = async (req, res) => {
           $inc: { credit: -1 } 
         
         }, { new: true, upsert: true }, { session });
-
+      const smsRecipient = await SmsRecipient.findOneAndUpdate({ parentId: id }, {},{ new: true, upsert:true, setDefaultsOnInsert: true }, {session})
+      await SmsLog.findOneAndUpdate({ event: event}, { $set: { eventDate: datetime }, $addToSet: { recipients: smsRecipient }}, { new: true, upsert:true }, { session })
       await session.commitTransaction();
       const { date } = event;
       req.io.emit('created reminder', { reminder: date });
@@ -138,8 +141,9 @@ exports.saveReminder = async (req, res) => {
         { session }
       );
       // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
-      await User.updateOne({ phone: phone }, { $addToSet: { reminder: event } }, { new: true, upsert:true }, { session });
-
+      const user = await User.updateOne({ phone: phone }, { $addToSet: { reminder: event } }, { new: true, upsert:true }, { session });
+      const smsRecipient = await SmsRecipient.findOneAndUpdate({ parentId: id }, {} ,{ new: true, upsert:true, setDefaultsOnInsert: true }, {session})
+      await SmsLog.findOneAndUpdate({ event: event}, { $set: { eventDate: datetime }, $addToSet: { recipients: smsRecipient }}, { new: true, upsert:true }, { session })
       await session.commitTransaction();
       const { date } = event;
       req.io.emit('created reminder', { reminder: date });
