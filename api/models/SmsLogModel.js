@@ -1,42 +1,43 @@
 const mongoose = require('mongoose');
-
+const dayjs = require('dayjs');
 /**
  * For textBee
  */
-const SmsLogSchema = mongoose.Schema({
-  event: [{
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Event',
-  }],
-  eventDate: {
-    type: Date,
-    default: Date.now
+const SmsLogSchema = mongoose.Schema(
+  {
+    event: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Event',
+    },
+    eventDate: {
+      type: Date,
+    },
+    messageType: {
+      type: String,
+      enum: ['confirmation', 'cancellation', 'nudge', 'final', 'followup'],
+      default: 'nudge',
+    },
+    recipient: {
+       type: mongoose.Schema.Types.ObjectId,
+      ref: 'SmsRecipient',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'sent', 'complete'],
+      default: 'pending'
+    },
+    response : {
+      type: String,
+      enum: ['awaiting', 'notRequired', 'noResponse', '1', '2'],
+      default: 'notRequired'
+    },
+    smsId: {
+      type: String,
+    },
   },
-  smsId: {
-    type: String
-  },
-  recipients: [{
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'SmsRecipient'
-  }], 
-  log: [{
-    type: String
-  }]
-  // log: {
-  //   type: Map,
-  //   of: String
-  // }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-  SmsLogSchema.static('getSmsLog', function(id, phone, filters={}){
-    return this.findOne({
-      ...filters,
-      $and: [
-        { event: id },
-        { log: { $in: [ phone ] } }
-      ]
-    })
-  })
 // Quick lookups for API callbacks
 SmsLogSchema.index({ smsId: 1 }, { unique: true, sparse: true });
 
@@ -44,6 +45,78 @@ SmsLogSchema.index({ smsId: 1 }, { unique: true, sparse: true });
 SmsLogSchema.index({ event: 1, eventDate: -1 });
 
 // Efficiently find logs for a specific recipient
-SmsLogSchema.index({ recipients: 1 });
+SmsLogSchema.index({ recipient: 1 });
+
+// Partial TTL Index: 
+// Expire after 90 days ONLY if hasResponse is false
+SmsLogSchema.index(
+  { createdAt: 1 }, 
+  { 
+    expireAfterSeconds: 60 * 60 * 24 * 30, // 30 days
+    partialFilterExpression: { messageType: { $in: ['confirmation', 'cancellation', 'nudge', 'final'] }  } 
+  }
+);
+
+SmsLogSchema.pre('save', function (next) {
+  if (this.messageType !== 'followup') {
+    this.status = 'complete';
+    this.response = 'notRequired';
+  } else if (this.messageType === 'followup') {
+    this.response = 'awaiting';
+  } else if (this.response === 'noResponse' || this.response === '1' || this.response === '2') {
+    this.status = 'complete';
+  } else {
+    this.status = 'pending',
+    this.response = 'awaiting'
+  }
+  next();
+})
+
+SmsLogSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  if (update.messageType) {
+  // If messageType is being updated, set the priority accordingly
+  if (update.messageType !== 'followup' && update.status === 'complete') {
+    update.response = 'notRequired';
+  } else if (update.messageType === 'followup' && !update.response) {
+    update.response = 'awaiting';
+  } else if (update.response === 'noResponse' || update.response === '1' || update.response === '2') {
+    update.status = 'complete';
+  }
+  }
+  next();
+});
+
+SmsLogSchema.static('getUserSms', function (id, mongoId, filters = {}) {
+  return this.findOne({
+    ...filters,
+    $and: [{ event: id }, { recipient: mongoId }],
+  }).sort({ updatedAt: 1 });
+});
+
+SmsLogSchema.static('createLog', async function (data) {
+  const { eventId, eventDate, messageType, recipient, smsId="" } = data
+  const log =  new this({
+    event: eventId,
+    eventDate: eventDate,
+    messageType: messageType,
+    recipient: recipient,
+    smsId: smsId
+  })
+  return await log;
+});
+
+SmsLogSchema.static('findByReceivedDate', async function(receivedAt, filters={}) {
+  const dateSubstr = dayjs(receivedAt).format('YYYY-MM-DD');
+  return await this.findOne({
+    ...filters,
+    $expr: {
+    $eq: [
+      { $dateToString: { format: "%Y-%m-%d", date: "$eventDate" } },
+      dateSubstr
+    ]
+    }
+  })
+})
 
 module.exports = mongoose.model('SmsLog', SmsLogSchema);

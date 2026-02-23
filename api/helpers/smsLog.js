@@ -2,6 +2,7 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
+const SmsRecipient = require('../models/SmsRecipientModel');
 const dayjs = require('dayjs');
 
 const mongoose = require('mongoose');
@@ -13,10 +14,9 @@ async function updateSmsLog(eventId, recipient,  response, eventDate="",smsBatch
     const fieldPath = `log.${recipient}`;
     const id =  new mongoose.Types.ObjectId(`${eventId}`);
     const log = await SmsLog.findOneAndUpdate(
-      { event: id },
+      { event: eventId },
       {
-        $addToSet: { recipients: recipient },
-        $set: { [fieldPath]: response },
+        $addToSet: { log: recipient },
         $setOnInsert: {
           eventDate: eventDate,
           smsId: smsBatchId,
@@ -30,6 +30,7 @@ async function updateSmsLog(eventId, recipient,  response, eventDate="",smsBatch
 
     await Event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true, upsert: true }, { session });
     console.log('event is now closed');
+    await SmsRecipient.findOneAndUpdate({})
     await session.commitTransaction();
 
   } catch (err) {
@@ -45,7 +46,7 @@ async function findDateFromSmsLog(recipient, receivedAt) {
   const agg = [
     {
       $match: {
-        recipients: recipient,
+        recipient: recipient,
       },
     },
     {
@@ -77,5 +78,23 @@ async function findDateFromSmsLog(recipient, receivedAt) {
   // const eventDetails = await cursor[0];
   return event;
 }
+async function saveResponseToLog(eventId, eventDate, phone, response) {
+ const recipient = await User.getUser(phone);
+ const mongoId = new mongoose.Types.ObjectId(recipient._id);
+ const log = await SmsLog.getUserSms(eventId, mongoId, { eventDate: new Date(nudgeTimeUtc)})
+}
+async function createSmslog(eventId="", eventDate="", messageType, phone, smsId) {
+    const recipient = await User.getUser(phone);
+    const mongoId = new mongoose.Types.ObjectId(recipient._id)
+    const event = eventId ? eventId : await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoId)
+    const log = await SmsLog.createLog(event, eventDate, messageType, recipient, smsId);
+    if(messageType === 'followup') {
+        await log.set({ status: 'pending'});
+    } else {
+        await log.set({ status: 'complete'});
+    }
+    log.save();
+    return await log;
+}
 
-module.exports = { updateSmsLog, findDateFromSmsLog };
+module.exports = { updateSmsLog, findDateFromSmsLog, createSmslog };

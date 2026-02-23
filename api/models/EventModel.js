@@ -14,9 +14,8 @@ const EventSchema = mongoose.Schema({
     status: {
         type: String,
         default: 'open'
-    }
-
-}, baseOptions);
+    },
+}, { timestamps: true }, baseOptions);
 
 EventSchema.path('date').index({ 
   unique: true, 

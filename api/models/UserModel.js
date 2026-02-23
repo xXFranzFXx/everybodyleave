@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const baseOptions = {
+	discriminatorKey: "type",
+  	collection: "users",
+};
 const UserSchema = mongoose.Schema({
     _id: String,
     name: {
@@ -26,20 +30,13 @@ const UserSchema = mongoose.Schema({
     role: {
         type: String,
         default: 'basic'
-    },
-    //for use with httpSMS
-    events: [{
-        event: {type: mongoose.Schema.Types.ObjectId, ref: 'Event'},
-        reminderDate: {type: Date},
-        nudges:[{ type: Date }],
-        intention: {type: String},
-        response: {type: Number}
-    }],
+    },   
     credit: {
         type: Number,
         default: 3,
     }
-});
+}, baseOptions);
+
 UserSchema.static('getUser', function(phoneNumber, filters={}) {
     return this.findOne({
         ...filters,

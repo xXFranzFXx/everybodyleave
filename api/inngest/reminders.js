@@ -283,13 +283,13 @@ const scheduleReminder = inngest.createFunction(
     const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
 
     await step.run('send-textBee-initialSms', async () => {
-      await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
+      await textBeeInitialSms(profileName, phone, dateScheduled, nudgeTimeUtc, intention, logins);
     });
 
     for (let i = 0; i < nudgeReminderTs.length; i++) {
       await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
       await step.run('send-textBee-nudgeText', async () => {
-        await textBeeSendSms(nudgeMessage, phone);
+        await textBeeSendSms(nudgeMessage, phone, eventId, 'nudge' );
       });
     }
 
@@ -299,7 +299,7 @@ const scheduleReminder = inngest.createFunction(
       const leaveTime = dayjs(nudgeTimeUtc)
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`; 
-      await textBeeFinalSms(message, phone, eventId, nudgeTimeUtc);
+      await textBeeFinalSms(message, phone, eventId, 'nudge', nudgeTimeUtc);
     });
 
       await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
@@ -307,7 +307,7 @@ const scheduleReminder = inngest.createFunction(
           const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
          console.log('sending phonelist to textBee for followup');
-         await textBeeSendSms(message, phone);
+         await textBeeSendSms(message, phone, eventId, 'followup');
       });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
@@ -316,15 +316,11 @@ const scheduleReminder = inngest.createFunction(
     });
 //if no response is received within 20 min update the smslog with 0
     if (!smsResponse ) {
-        const fieldPath = `log.${phone}`;
-          const log = await SmsLog.findOneAndUpdate(
-            { event: eventId },
-            {
-              $set: {[fieldPath]: '0' }
-            },
-            { new: true, upsert: true }
-          );
-      await log;
+          const log = await SmsLog.getUserSms(eventId, userId)
+          log.response = 'noResponse';
+          log.status = 'complete';
+          log.save();
+          await log;
       console.log('Updated call log ', log);
       return { status: 'user failed to participate' }
        

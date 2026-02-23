@@ -2,13 +2,14 @@ const axios = require('axios');
 const BASE_URL = 'https://api.textbee.dev/api/v1';
 const API_KEY = process.env.TEXTBEE_API_KEY;
 const DEVICE_ID = process.env.TEXTBEE_DEVICE_ID;
-const SmsLog = require('../models/SmsLogModel');
+const {createSmsLog} = require('../helpers/smsLog');
 const { textBeeInitialSms } = require('../helpers/textBee')
 
 //sends confirmation sms
 exports.textBeeSms = async (req, res) => {
     const { profileName, phone, dateScheduled, intention, logins } = req.body; 
     await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
+    
 }
 
 exports.textBeeBulkSms = async (req, res) => {
@@ -50,5 +51,6 @@ exports.textBeeSmsCancel = async (req, res) => {
         }
     });
     const result = await response.data;
-    return result;
+    await createSmsLog('', dateScheduled, 'cancellation', phone, result.smsId);
+    return await result;
 }

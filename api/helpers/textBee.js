@@ -6,7 +6,7 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
-const { updateSmsLog, findDateFromSmsLog } = require('./smsLog');
+const { updateSmsLog, findDateFromSmsLog, createSmslog } = require('./smsLog');
 const dayjs = require('dayjs');
 
 const mongoose = require('mongoose');
@@ -32,7 +32,9 @@ async function getEventTime(phone, id) {
   const eventDate = event.date;
   return eventDate;
 }
-async function textBeeSendSms(message, recipient) {
+
+async function textBeeSendSms(message, recipient, nudgeTimeUtc, messageType) {
+  try {
   const response = await axios.post(
     `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`,
     {
@@ -46,9 +48,18 @@ async function textBeeSendSms(message, recipient) {
     }
   );
   const result = await response.data;
+  const smsId = result.smsId
+  if (response.ok) {
+  let eventId;
+  const data = { eventId, nudgeTimeUtc, messageType, recipient, smsId };
   console.log('TextBee Sms Sent: ', result.data);
-
-  return result;
+  const log = await SmsLog.createLog(data);
+  await log.save();
+  }
+  return await result;
+  }catch (err) {
+    console.log('Failed to send sms. ', err)
+  }
 }
 async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
   const id = new mongoose.Types.ObjectId(`${eventId}`);
@@ -90,8 +101,7 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
     console.log('Failed to send bulk sms reminders:  ', error);
   }
 }
-
-async function textBeeFinalSms(message, recipient, eventId, eventDate) {
+async function textBeeFinalSms(message, recipient, eventId, messageType, eventDate) {
   const id = new mongoose.Types.ObjectId(`${eventId}`);
   try {
     const response = await axios.post(
@@ -112,10 +122,14 @@ async function textBeeFinalSms(message, recipient, eventId, eventDate) {
       }
     );
     const result = await response.data;
+    const smsId = result.smsId;
+    if (response.ok) {
+      const data = { eventId, eventDate, messageType, recipient, smsId };
+      const log = SmsLog.createLog(data);
+    }
     console.log("sent final sms: ", result)
-    await updateSmsLog(eventId, recipient, eventDate, result.data.smsBatchId)
     console.log('textbee final reminder bulk sms sent: ', result);
-    return result;
+    return await result;
   } catch (error) {
     console.log('Failed to send bulk sms reminders:  ', error);
   }
@@ -151,13 +165,14 @@ async function updateSmsLogResponse(eventId, sender, response) {
 
 
 
-async function textBeeInitialSms(profileName, phone, dateScheduled, intention, logins) {
+async function textBeeInitialSms(profileName, phone, dateScheduled, date, intention, logins) {
   const message =
     logins === 1
       ? `Congratulations ${profileName}! You have scheduled your first leave for ${dateScheduled}. Your intention for the leave is ${intention}  You will receive 4 nudge reminders on the day of your scheduled leave.  You response is required on the final reminder text. Thank you!`
       : intention
       ? `Hello ${profileName}! You have scheduled an EbL leave for ${dateScheduled}. You have set an intention for ${intention}.`
       : `Hello ${profileName}! You have scheduled an EbL leave for ${dateScheduled}`;
+ try {
   const response = await axios.post(
     `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`,
     {
@@ -171,14 +186,36 @@ async function textBeeInitialSms(profileName, phone, dateScheduled, intention, l
     }
   );
   const result = await response.data;
+  const smsId = result.smsId;
+  const messageType = 'confirmation';
+  let eventId;
+  if (response.ok) {
+  const data = { eventId, date, messageType, phone, smsId };
+  const log = await SmsLog.createLog(data);
   console.log('TextBee Initial Sms Sent: ', result);
+  await log.save();
+
+  }
   return result;
+ } catch (err) {
+  console.log(err)
+ }
 }
 
 async function webhookResponse(sender, message, receivedAt) {
-  // const { sender, message, receivedAt } = await payload;
+
+  const user = await User.getUser(sender);
+  const smsLog = await SmsLog.findByReceivedDate(receivedAt, { recipient: new mongoose.Types.ObjectId(`${user._id}`)})
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
-  const event = await findDateFromSmsLog(sender, receivedAt);
+  
+  const smsEvent = smsLog.event;
+  const eventId = mongoose.Types.ObjectId(`${smsEvent}`)
+  
+  const event  = await Event.find({ eventId });
+  const endsAt = event.endsAt;
+  
+  const tooEarly = dayjs(endsAt).subtract(2, 'hour');   
+  const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
   try {
     if ( (message !== '1' && message !== '2') || event === undefined ) {
       const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`;
@@ -186,17 +223,12 @@ async function webhookResponse(sender, message, receivedAt) {
       console.log('User responded to event that does not exist');
       return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
     } else {
-      const { _id, date, endsAt } = await event;
-      console.log("_id: ", _id);
-      console.log("date: ", date);
-      console.log("endsAt: ", endsAt)
-      const tooEarly = dayjs(endsAt).subtract(2, 'hour');
-      const id = new mongoose.Types.ObjectId(`${_id}`);
-      const smsLog = await SmsLog.findOne({ event: id });
-      const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
+   
+     
       if (dayjs(receivedAt).isAfter(endsAt, 'min') && !followUpResponseLimit) {
         // await smsLog.log.set(sender, '2');
-        await updateSmsLogResponse(id, sender, '2');
+        smsLog.response = '2';
+        await smsLog.save();
         const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
         await textBeeSendSms(response, sender);
         return { status: `User responded late to the followup sms` };
@@ -210,8 +242,8 @@ async function webhookResponse(sender, message, receivedAt) {
         return { status: 'User responded too early' };
       } else if (message === '2' && followUpResponseLimit) {
         const response = `There's always next time!`;
-        await updateSmsLogResponse(id, sender, message);
-        // await smsLog.log.set(sender, '2');
+        smsLog.response = '2';
+        await smsLog.save();
         await textBeeSendSms(response, sender);
         console.log(`User responded with ${message}`);
         return {
@@ -219,6 +251,8 @@ async function webhookResponse(sender, message, receivedAt) {
         };
       } else if (message === '1' && followUpResponseLimit) {
         const response = `Great Job! Thank you for participating`;
+        smsLog.response = '1';
+        await smsLog.save();
         await textBeeSendSms(response, sender);
         console.log(`User responded with ${message}`);
         return { status: `User responded on time with ${message}.` };
@@ -236,8 +270,8 @@ async function webhookResponse(sender, message, receivedAt) {
      await  User.updateOne(
       { phone: sender },
       { 
-        $pull: { reminder: id },      
-        $push: { archived: id }     
+        $pull: { reminder: eventId },      
+        $push: { archived: eventId }     
       }
     )   
     }

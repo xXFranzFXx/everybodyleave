@@ -16,6 +16,15 @@ const SignedUpEventSchema = mongoose.Schema({
         default: false
     }
 })
+
+SignedUpEventSchema.index(
+  { createdAt: 1 }, 
+  { 
+    expireAfterSeconds: 60 * 60 * 24 * 30, // 30 days
+    partialFilterExpression: { usersAttending: { $eq: [] } } 
+  }
+);
+
 SignedUpEventSchema.static('getSignedUpEventByDate', function(datetime, mongoId, filters = {}) {
   return this.findOne({
     ...filters,
