@@ -116,8 +116,9 @@ exports.saveReminder = async (req, res) => {
           $inc: { credit: -1 } 
         
         }, { new: true, upsert: true }, { session });
-      const smsRecipient = await SmsRecipient.findOneAndUpdate({ parentId: id }, {},{ new: true, upsert:true, setDefaultsOnInsert: true }, {session})
-      await SmsLog.findOneAndUpdate({ event: event}, { $set: { eventDate: datetime }, $addToSet: { recipients: smsRecipient }}, { new: true, upsert:true }, { session })
+      const smsRecipient = await SmsRecipient.findOneAndUpdate({ parentId: id }, {$set: { phone: phone, currentReminder: { event: event, date: new Date(datetime)}}},{ new: true, upsert:true }, {session})
+      const smsLog = await SmsLog.findOneAndUpdate({ event: event }, { $set: { eventDate: new Date(datetime), recipient: smsRecipient }}, { new: true, upsert:true }, { session })
+     
       await session.commitTransaction();
       const { date } = event;
       req.io.emit('created reminder', { reminder: date });
@@ -142,8 +143,9 @@ exports.saveReminder = async (req, res) => {
       );
       // const eventId = new mongoose.Types.ObjectId(`${event._id}`);
       const user = await User.updateOne({ phone: phone }, { $addToSet: { reminder: event } }, { new: true, upsert:true }, { session });
-      const smsRecipient = await SmsRecipient.findOneAndUpdate({ parentId: id }, {} ,{ new: true, upsert:true, setDefaultsOnInsert: true }, {session})
-      await SmsLog.findOneAndUpdate({ event: event}, { $set: { eventDate: datetime }, $addToSet: { recipients: smsRecipient }}, { new: true, upsert:true }, { session })
+      const smsRecipient = await SmsRecipient.findOneAndUpdate({ parentId: id }, { new: true, upsert:true }, {session})
+      const smsLog = await SmsLog.findOneAndUpdate({ event: event }, { $set: { eventDate: new Date(datetime), recipient: smsRecipient }}, { new: true, upsert:true }, { session })
+     
       await session.commitTransaction();
       const { date } = event;
       req.io.emit('created reminder', { reminder: date });
