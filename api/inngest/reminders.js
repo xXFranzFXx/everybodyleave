@@ -283,7 +283,7 @@ const scheduleReminder = inngest.createFunction(
     const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
 
     await step.run('send-textBee-initialSms', async () => {
-      await textBeeInitialSms(profileName, phone, dateScheduled, nudgeTimeUtc, intention, logins);
+      await textBeeInitialSms(eventId, profileName, phone, dateScheduled, nudgeTimeUtc, intention, logins);
     });
 
     for (let i = 0; i < nudgeReminderTs.length; i++) {
@@ -307,7 +307,7 @@ const scheduleReminder = inngest.createFunction(
           const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
          console.log('sending phonelist to textBee for followup');
-         await textBeeSendSms(message, phone, eventId, 'followup');
+         await textBeeSendSms(message, phone, eventId, 'followup', nudgeTimeUtc);
       });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
