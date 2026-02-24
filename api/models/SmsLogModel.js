@@ -87,10 +87,11 @@ SmsLogSchema.pre('findOneAndUpdate', function(next) {
   next();
 });
 
-SmsLogSchema.static('getUserSms', function (id, mongoId, filters = {}) {
+SmsLogSchema.static('getUserSms', function (id, smsUserId, filters = {}) {
+
   return this.findOne({
     ...filters,
-    $and: [{ event: id }, { recipient: mongoId }],
+    $and: [{ event: id }, { recipient: smsUserId }],
   }).sort({ updatedAt: 1 });
 });
 

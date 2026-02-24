@@ -11,9 +11,10 @@ const SmsRecipientSchema = mongoose.Schema({
 
 SmsRecipientSchema.index({ parentId: 1 });
 SmsRecipientSchema.static('getRecipient', function (mongoId, filters = {}) {
+  const id = new mongoose.Types.ObjectId(`${mongoId}`)
   return this.findOne({
     ...filters,
-    parentId: mongoId,
+    parentId: id,
 });
 })
 userModel.discriminator('SmsRecipient', SmsRecipientSchema);
