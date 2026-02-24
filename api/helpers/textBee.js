@@ -50,7 +50,7 @@ async function textBeeSendSms(message, recipient, userId, eventId, messageType, 
   const result = await response.data;
   const smsId = result.smsId
   const eventID = new mongoose.Types.ObjectId(`${eventId}`);
-  const smsUser = await SmsRecipient.getRecipient(mongoId)
+  const smsUser = await SmsRecipient.getRecipient(userId);
   if (response.ok) {
   const data = { eventID, nudgeTimeUtc, messageType, smsUser, smsId };
   console.log('TextBee Sms Sent: ', result.data);
@@ -117,7 +117,7 @@ async function textBeeFollowUpResponseSms(message, recipient, userId, eventId, s
     }
   );
   const result = await response.data;
-  const smsUser = await SmsRecipient.getUserSms(userId);
+  const smsUser = await SmsRecipient.getRecipient(userId);
   const smsLog = await SmsLog.getUserSms(eventId, smsUser._id)
   smsLog.response = message;
   await smsLog.save();
