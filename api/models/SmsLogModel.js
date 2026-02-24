@@ -57,7 +57,7 @@ SmsLogSchema.index(
   }
 );
 
-SmsLogSchema.pre('save', function (next) {
+SmsLogSchema.pre('save', function () {
   if (this.messageType !== 'followup') {
     this.status = 'complete';
     this.response = 'notRequired';
@@ -69,10 +69,10 @@ SmsLogSchema.pre('save', function (next) {
     this.status = 'pending',
     this.response = 'awaiting'
   }
-  next();
+  ;
 })
 
-SmsLogSchema.pre('findOneAndUpdate', function(next) {
+SmsLogSchema.pre('findOneAndUpdate', function() {
   const update = this.getUpdate();
   if (update.messageType) {
   // If messageType is being updated, set the priority accordingly
@@ -84,7 +84,7 @@ SmsLogSchema.pre('findOneAndUpdate', function(next) {
     update.status = 'complete';
   }
   }
-  next();
+  
 });
 
 SmsLogSchema.static('getUserSms', function (id, smsUserId, filters = {}) {
