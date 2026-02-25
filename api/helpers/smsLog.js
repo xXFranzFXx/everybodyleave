@@ -2,24 +2,27 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
-const SmsRecipient = require('../models/SmsRecipientModel');
 const dayjs = require('dayjs');
 
 const mongoose = require('mongoose');
 
-async function updateSmsLog(eventId, recipient,  response, eventDate="",smsBatchId="") {
+//for use after the event, will log the sms response and then close the event
+async function updateSmsLog(eventId, recipient,  response) {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const fieldPath = `log.${recipient}`;
     const id =  new mongoose.Types.ObjectId(`${eventId}`);
+    const user = await User.getUser(recipient);
+    const userId = new mongoose.Types.ObjectId(`${user._id}`);
     const log = await SmsLog.findOneAndUpdate(
-      { event: eventId },
+      { event: eventId, 
+        recipient: userId
+      },
       {
-        $addToSet: { log: recipient },
-        $setOnInsert: {
-          eventDate: eventDate,
-          smsId: smsBatchId,
+        $set: { 
+            response: response,
+            status: 'complete'
+
         },
       },
       { new: true, upsert: true },
@@ -30,7 +33,6 @@ async function updateSmsLog(eventId, recipient,  response, eventDate="",smsBatch
 
     await Event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true, upsert: true }, { session });
     console.log('event is now closed');
-    await SmsRecipient.findOneAndUpdate({})
     await session.commitTransaction();
 
   } catch (err) {
@@ -78,14 +80,11 @@ async function findDateFromSmsLog(recipient, receivedAt) {
   // const eventDetails = await cursor[0];
   return event;
 }
-async function saveResponseToLog(eventId, eventDate, phone, response) {
- const recipient = await User.getUser(phone);
- const mongoId = new mongoose.Types.ObjectId(recipient._id);
- const log = await SmsLog.getUserSms(eventId, mongoId, { eventDate: new Date(nudgeTimeUtc)})
-}
+
+//for testing
 async function createSmslog(eventId="", eventDate="", messageType, phone, smsId) {
     const recipient = await User.getUser(phone);
-    const mongoId = new mongoose.Types.ObjectId(recipient._id)
+    const mongoId = new mongoose.Types.ObjectId(`${recipient._id}`);
     const event = eventId ? eventId : await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoId)
     const log = await SmsLog.createLog(event, eventDate, messageType, recipient, smsId);
     if(messageType === 'followup') {

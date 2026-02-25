@@ -9,7 +9,7 @@ const { textBeeInitialSms } = require('../helpers/textBee')
 exports.textBeeSms = async (req, res) => {
     const { profileName, phone, dateScheduled, intention, logins } = req.body; 
     await textBeeInitialSms(profileName, phone, dateScheduled, intention, logins);
-    
+
 }
 
 exports.textBeeBulkSms = async (req, res) => {
@@ -51,6 +51,6 @@ exports.textBeeSmsCancel = async (req, res) => {
         }
     });
     const result = await response.data;
-    await createSmsLog('', dateScheduled, 'cancellation', phone, result.smsId);
+    await createSmsLog('', new Date(dateScheduled), 'cancellation', phone, result.smsId);
     return await result;
 }
