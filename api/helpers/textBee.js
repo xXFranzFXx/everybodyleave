@@ -191,11 +191,10 @@ async function textBeeFinalSms(message, recipient, eventId, userId, messageType,
     const eventID = new mongoose.Types.ObjectId(`${eventId}`)
     const user  = await User.getUser(recipient)
     const user_id = user._id;
-    if (response.ok) {
       const data = { eventID, eventDate, user_id, messageType, smsId };
       const log = await SmsLog.createLog(data);
       await log.save()
-    }
+  
     console.log("sent final sms: ", result)
     console.log('textbee final reminder bulk sms sent: ', result);
     return await result;
@@ -240,14 +239,16 @@ async function textBeeInitialSms(eventId, profileName, phone, userId, dateSchedu
   const messageType = 'confirmation';
   const eventID = new mongoose.Types.ObjectId(`${eventId}`);
   const user = await User.getUser(phone)
-
-  if (response.ok) {
-  const data = { eventID, date, messageType, smsUser, smsId };
+  console.log("found user for initial sms: ", user)
+ 
+  const data = { eventID, date, messageType, user, smsId };
   const log = await SmsLog.createLog(data);
+  await log.save();
+  console.log("sms log created: ", log)
   console.log('TextBee Initial Sms Sent: ', result);
   await log.save();
 
-  }
+  
   return result;
  } catch (err) {
   console.log(err)
