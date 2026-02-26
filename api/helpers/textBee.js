@@ -101,7 +101,7 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
     console.log('Failed to send bulk sms reminders:  ', error);
   }
 }
-async function textBeeFollowUpResponseSms(message, recipient, userId, eventId, smsLogId) {
+async function textBeeFollowUpResponseSms(message, recipient, eventId) {
   try {
   const response = await axios.post(
     `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`,
@@ -119,7 +119,9 @@ async function textBeeFollowUpResponseSms(message, recipient, userId, eventId, s
   const user = await User.getUser(recipient);
   const user_id = user._id
   const smsLog = await SmsLog.getUserSms(eventId, user_id);
-  smsLog.response = message;
+  smsLog.response = 'notRequired';
+  smsLog.status = 'complete';
+  smsLog.messageType = 'response';
   await smsLog.save();
   return await result;
   }catch (err) {
@@ -214,7 +216,7 @@ async function textBeeReceiveSms() {
 }
 
 
-async function textBeeInitialSms(eventId, profileName, phone, userId, dateScheduled,  date, intention, logins) {
+async function textBeeInitialSms(eventId, profileName, phone, userId="", dateScheduled,  date, intention, logins) {
   const message =
     logins === 1
       ? `Congratulations ${profileName}! You have scheduled your first leave for ${dateScheduled}. Your intention for the leave is ${intention}  You will receive 4 nudge reminders on the day of your scheduled leave.  You response is required on the final reminder text. Thank you!`
@@ -235,13 +237,11 @@ async function textBeeInitialSms(eventId, profileName, phone, userId, dateSchedu
     }
   );
   const result = await response.data;
-  const smsId = result.smsId;
+  const smsId = result.smsBatchId;
   const messageType = 'confirmation';
   const eventID = new mongoose.Types.ObjectId(`${eventId}`);
-  const user = await User.getUser(phone)
-  console.log("found user for initial sms: ", user)
  
-  const data = { eventID, date, messageType, user, smsId };
+  const data = { eventID, date, messageType, phone, smsId };
   const log = await SmsLog.createLog(data);
   await log.save();
   console.log("sms log created: ", log)

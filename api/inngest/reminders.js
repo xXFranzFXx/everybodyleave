@@ -283,7 +283,7 @@ const scheduleReminder = inngest.createFunction(
     const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
 
     await step.run('send-textBee-initialSms', async () => {
-      await textBeeInitialSms(eventId, profileName, phone, userId, dateScheduled, nudgeTimeUtc, intention, logins);
+      await textBeeInitialSms(eventId, profileName, phone, dateScheduled, nudgeTimeUtc, intention, logins);
     });
 
     for (let i = 0; i < nudgeReminderTs.length; i++) {

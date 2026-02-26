@@ -14,12 +14,12 @@ const SmsLogSchema = mongoose.Schema(
     },
     messageType: {
       type: String,
-      enum: ['confirmation', 'cancellation', 'nudge', 'final', 'followup'],
+      enum: ['confirmation', 'cancellation', 'nudge', 'final', 'followup', 'response'],
       default: 'nudge',
     },
     recipient: {
        type: mongoose.Schema.Types.ObjectId,
-      ref: 'SmsRecipient',
+      ref: 'User',
     },
     status: {
       type: String,
@@ -58,7 +58,7 @@ SmsLogSchema.index(
 );
 
 SmsLogSchema.pre('save', function () {
-  if (this.messageType !== 'followup') {
+  if (this.messageType === 'confirmation' || this.messageType === 'cancellation' || this.messageType === 'nudge') {
     this.status = 'complete';
     this.response = 'notRequired';
   } else if (this.messageType === 'followup') {
@@ -76,10 +76,8 @@ SmsLogSchema.pre('findOneAndUpdate', function() {
   const update = this.getUpdate();
   if (update.messageType) {
   // If messageType is being updated, set the priority accordingly
-  if (update.messageType !== 'followup' && update.status === 'complete') {
+  if ((update.messageType === 'confirmation' || update.messageType === 'cancellation' || update.messageType === 'nudge') && update.status === 'complete') {
     update.response = 'notRequired';
-  } else if (update.messageType === 'followup' && !update.response) {
-    update.response = 'awaiting';
   } else if (update.response === 'noResponse' || update.response === '1' || update.response === '2') {
     update.status = 'complete';
   }
@@ -87,16 +85,19 @@ SmsLogSchema.pre('findOneAndUpdate', function() {
   
 });
 
-SmsLogSchema.static('getUserSms', function (id, smsUserId, filters = {}) {
-
+SmsLogSchema.static('getUserSms', function (id, userId, filters = {}) {
+   const user_id = new mongoose.Types.ObjectId(`${userId}`);
+   const event_id = new mongoose.Types.ObjectId(`${id}`);
   return this.findOne({
     ...filters,
-    $and: [{ event: id }, { recipient: smsUserId }],
+    $and: [{ event: event_id }, { recipient: user_id }],
   }).sort({ updatedAt: 1 });
 });
 
 SmsLogSchema.static('createLog', async function (data) {
-  const { eventId, eventDate, messageType, recipient, smsId="" } = data
+  const { eventId, eventDate, messageType, userId, smsId="" } = data
+   const id = new mongoose.Types.ObjectId(`${userId}`)
+
   const log =  new this({
     event: eventId,
     eventDate: eventDate,
