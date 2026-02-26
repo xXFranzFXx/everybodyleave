@@ -15,7 +15,7 @@ async function updateSmsLog(eventId, recipient,  response) {
     const user = await User.getUser(recipient);
     const userId = new mongoose.Types.ObjectId(`${user._id}`);
     const log = await SmsLog.findOneAndUpdate(
-      { event: eventId, 
+      { event: id, 
         recipient: userId
       },
       {
@@ -82,7 +82,7 @@ async function findDateFromSmsLog(recipient, receivedAt) {
 }
 
 //for testing
-async function createSmslog(eventId="", eventDate="", messageType, phone, smsId) {
+async function createSmsLog(eventId="", eventDate="", messageType, phone, smsId) {
     const recipient = await User.getUser(phone);
     const mongoId = new mongoose.Types.ObjectId(`${recipient._id}`);
     const event = eventId ? eventId : await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoId)
@@ -96,4 +96,4 @@ async function createSmslog(eventId="", eventDate="", messageType, phone, smsId)
     return await log;
 }
 
-module.exports = { updateSmsLog, findDateFromSmsLog, createSmslog };
+module.exports = { updateSmsLog, findDateFromSmsLog, createSmsLog };
