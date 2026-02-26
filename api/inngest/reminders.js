@@ -311,18 +311,14 @@ const scheduleReminder = inngest.createFunction(
       });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
-      timeout: '20m',
+      timeout: '25m',
       if: 'event.data.phone == async.data.sender',
     });
 //if no response is received within 20 min update the smslog with 0
     if (!smsResponse ) {
-          const log = await SmsLog.getUserSms(eventId, userId)
-          log.response = 'noResponse';
-          log.status = 'complete';
-          log.save();
-          await log;
-      console.log('Updated call log ', log);
-      return { status: 'user failed to participate' }
+          await updateSmsLog(eventId, phone, 'noResponse')
+      console.log('Updated call log ');
+      return { status: 'user failed to participate or respond to follow up.' }
        
     } else {
       return { status: 'Leave completed successfully.'}
