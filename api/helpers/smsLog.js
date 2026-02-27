@@ -83,7 +83,6 @@ async function findDateFromSmsLog(recipient, receivedAt) {
 
 //for testing
 async function createSmsLog( eventDate, messageType, mongoId, smsId) {
-    console.log("creating sms log for: ", recipient)
     const mongoID = new mongoose.Types.ObjectId(`${mongoId}`);
 
     const event = await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoID)
