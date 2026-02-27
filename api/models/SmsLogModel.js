@@ -98,7 +98,7 @@ SmsLogSchema.static('createLog', async function (data) {
   const { eventId="", eventDate, messageType, mongoId, smsId="" } = data
   
   const log =  new this({
-    event: eventId,
+    event: new mongoose.Types.ObjectId(eventId),
     eventDate: eventDate,
     messageType: messageType,
     recipient: mongoId,
