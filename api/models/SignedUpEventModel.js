@@ -29,7 +29,7 @@ SignedUpEventSchema.static('getSignedUpEventByDate', function(datetime, mongoId,
   return this.findOne({
     ...filters,
     $and: [
-      { date: new Date(datetime) }, 
+      { date: datetime }, 
       { usersAttending: { $in: [ mongoId ] }}
       ],
   });

@@ -6,7 +6,7 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
-const { updateSmsLog, findDateFromSmsLog, createSmslog } = require('./smsLog');
+const { updateSmsLog, findDateFromSmsLog, createSmsLog } = require('./smsLog');
 const dayjs = require('dayjs');
 
 const mongoose = require('mongoose');
