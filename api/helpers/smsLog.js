@@ -82,11 +82,13 @@ async function findDateFromSmsLog(recipient, receivedAt) {
 }
 
 //for testing
-async function createSmsLog(eventId="", eventDate="", messageType, phone, smsId) {
-    const recipient = await User.getUser(phone);
-    const mongoId = new mongoose.Types.ObjectId(`${recipient._id}`);
-    const event = eventId ? eventId : await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoId)
-    const log = await SmsLog.createLog(event, eventDate, messageType, recipient, smsId);
+async function createSmsLog( eventDate, messageType, mongoId, smsId) {
+    console.log("creating sms log for: ", recipient)
+    const mongoID = new mongoose.Types.ObjectId(`${mongoId}`);
+
+    const event = await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoID)
+    const eventId = event._id;
+    const log = await SmsLog.createLog(eventId, eventDate, messageType, mongoID, smsId);
     if(messageType === 'followup') {
         await log.set({ status: 'pending'});
     } else {
