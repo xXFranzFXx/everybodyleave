@@ -51,6 +51,6 @@ exports.textBeeSmsCancel = async (req, res) => {
         }
     });
     const result = await response.data;
-    await createSmsLog( datetime, 'cancellation',  mongoId, result.smsBatchId);
+    // await createSmsLog( datetime, 'cancellation',  mongoId, result.smsBatchId);
     return await result;
 }
