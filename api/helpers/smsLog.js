@@ -86,14 +86,15 @@ async function createSmsLog( eventDate, messageType, mongoId, smsId) {
     const mongoID = new mongoose.Types.ObjectId(`${mongoId}`);
 
     const event = await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoID)
+    console.log("Event for sms log is: ". event);
     const eventId = event._id;
-    const log = await SmsLog.createLog(eventId, eventDate, messageType, mongoID, smsId);
+    const log = await SmsLog.createLog(event, eventDate, messageType, mongoID, smsId);
     if(messageType === 'followup') {
         await log.set({ status: 'pending'});
     } else {
         await log.set({ status: 'complete'});
     }
-    log.save();
+    await log.save();
     return await log;
 }
 
