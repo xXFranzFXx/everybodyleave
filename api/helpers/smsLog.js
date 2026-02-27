@@ -87,7 +87,7 @@ async function createSmsLog( eventDate, messageType, mongoId, smsId) {
 
     const event = await SignedUpEvent.getSignedUpEventByDate(eventDate, mongoID)
     console.log("Event for sms log is: ". event);
-    const eventId = event._id;
+    // const eventId = event._id;
     const log = await SmsLog.createLog(event, eventDate, messageType, mongoID, smsId);
     if(messageType === 'followup') {
         await log.set({ status: 'pending'});
