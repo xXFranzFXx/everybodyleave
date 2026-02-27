@@ -1,12 +1,20 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import duration from 'dayjs/plugin/duration';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
 import utc from 'dayjs/plugin/utc';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-
+dayjs.extend(isSameOrAfter);
+  dayjs.extend(LocalizedFormat)
+  dayjs.extend(utc)
+  dayjs.extend(calendar);
+  dayjs.extend(duration)
 
   
-    const checkDst = (date) => {
+   
+const useCalendar = () => {
+   const checkDst = (date) => {
         const currentYr = dayjs().get('year');
         const dstStart = dayjs(`${currentYr}-03-09T10:00:00Z`); // Second Sunday of March
         const dstEnd = dayjs(`${currentYr}-11-02T10:00:00Z`);   // First Sunday of November
@@ -15,11 +23,8 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
         return targetDate.isBetween(dstStart, dstEnd, 'day', '[]')
     }
-const useCalendar = () => {
-  dayjs.extend(LocalizedFormat)
-  dayjs.extend(utc)
-  dayjs.extend(calendar);
-  dayjs.extend(duration)
+    
+  
   const currentDate = dayjs();
   const customFormat = {
     sameDay: '[Today] [at] h:mm A',
@@ -41,7 +46,17 @@ const useCalendar = () => {
   const d2 = dayjs(date2).format();
   return d1.isSame(d2, 'week');
  }
- 
+ const enableFirstWeekNextMonth = (dateToTest) => { 
+    const lastWeekThreshold = currentDate.endOf('month').subtract(7, 'day');
+    if (currentDate.isSameOrAfter(lastWeekThreshold)) {
+        const firstWeekNextMonthEnd = dayjs().add(1, 'month').startOf('month').add(7, 'day');
+         console.log("disable date: ", dayjs(dateToTest).isAfter(firstWeekNextMonthEnd, 'day'))
+         return dayjs(dateToTest).isAfter(firstWeekNextMonthEnd, 'day');
+    }
+    return false;
+ }
+
+
  const isInCurrentMonth = (date) => {
   const date1 = dayjs(); 
   const date2 = dayjs(date);
@@ -101,7 +116,8 @@ const useCalendar = () => {
     checkDay ,
     fifteenMinuteLimit,
     outsideFifteenMinutes,
-    checkDst
+    checkDst,
+enableFirstWeekNextMonth  
   }
 }
 

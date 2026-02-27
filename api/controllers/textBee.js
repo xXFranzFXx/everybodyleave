@@ -40,7 +40,7 @@ exports.textBeeBulkSms = async (req, res) => {
     
 
 exports.textBeeSmsCancel = async (req, res) => {
-    const {profileName, phone, dateScheduled } = req.body; 
+    const {phone, mongoId, datetime, dateScheduled } = req.body; 
     const message = `You have cancelled your EbL leave scheduled for ${dateScheduled}.`
     const response = await axios.post(`${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`, {
     recipients: [phone],
@@ -51,6 +51,6 @@ exports.textBeeSmsCancel = async (req, res) => {
         }
     });
     const result = await response.data;
-    await createSmsLog('', new Date(dateScheduled), 'cancellation', phone, result.smsBatchId);
+    await createSmsLog( datetime, 'cancellation', phone, mongoId, result.smsBatchId);
     return await result;
 }

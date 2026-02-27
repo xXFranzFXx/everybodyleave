@@ -95,14 +95,13 @@ SmsLogSchema.static('getUserSms', function (id, userId, filters = {}) {
 });
 
 SmsLogSchema.static('createLog', async function (data) {
-  const { eventId, eventDate, messageType, userId, smsId="" } = data
-   const id = new mongoose.Types.ObjectId(`${userId}`)
-
+  const { eventId="", eventDate, messageType, mongoId, smsId="" } = data
+  
   const log =  new this({
     event: eventId,
     eventDate: eventDate,
     messageType: messageType,
-    recipient: recipient,
+    recipient: mongoId,
     smsId: smsId
   })
   return await log;
