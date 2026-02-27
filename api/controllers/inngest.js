@@ -25,10 +25,7 @@ exports.cancelLeave = async (req, res) => {
 
 exports.createLeave = async (req, res) => {
   const { mongoId, phone, dateScheduled, datetime, timezone, profileName, intention, logins, nudgeTimeUtc } = req.body;
-  const userId = new mongoose.Types.ObjectId(`${mongoId}`);
-  const signedUpEvent = await SignedUpEvent.getSignedUpEventByDate(nudgeTimeUtc, userId);
-  console.log('signedUpEvent: ', signedUpEvent);
-  const eventId = new mongoose.Types.ObjectId(`${signedUpEvent._id}`);
+ 
   console.log('original datetime: ', dateScheduled);
  
   const nudgeReminderTs = await getNudgeReminders(nudgeTimeUtc, timezone);
@@ -45,7 +42,7 @@ exports.createLeave = async (req, res) => {
         profileName,
         logins,
         intention,
-        eventId,
+        mongoId,
         nudgeTimeUtc,
         nudgeReminderTs,
         nudgeMessage,

@@ -216,7 +216,11 @@ async function textBeeReceiveSms() {
 }
 
 
-async function textBeeInitialSms(eventId, profileName, phone, userId="", dateScheduled,  date, intention, logins) {
+async function textBeeInitialSms(profileName, phone, mongoId, dateScheduled,  date, intention, logins) {
+  const userId = new mongoose.Types.ObjectId(`${mongoId}`);
+  const signedUpEvent = await SignedUpEvent.getSignedUpEventByDate(nudgeTimeUtc, userId);
+  console.log('signedUpEvent: ', signedUpEvent);
+  const eventId = signedUpEvent._id;
   const message =
     logins === 1
       ? `Congratulations ${profileName}! You have scheduled your first leave for ${dateScheduled}. Your intention for the leave is ${intention}  You will receive 4 nudge reminders on the day of your scheduled leave.  You response is required on the final reminder text. Thank you!`
@@ -239,9 +243,8 @@ async function textBeeInitialSms(eventId, profileName, phone, userId="", dateSch
   const result = await response.data;
   const smsId = result.smsBatchId;
   const messageType = 'confirmation';
-  const eventID = new mongoose.Types.ObjectId(`${eventId}`);
  
-  const data = { eventID, date, messageType, phone, smsId };
+  const data = { eventId, date, messageType, mongoId, smsId };
   const log = await SmsLog.createLog(data);
   await log.save();
   console.log("sms log created: ", log)
