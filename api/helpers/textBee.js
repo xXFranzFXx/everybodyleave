@@ -215,7 +215,6 @@ async function textBeeReceiveSms() {
   return messages;
 }
 
-
 async function textBeeInitialSms(profileName, phone, mongoId, dateScheduled,  date, intention, logins) {
   const userId = new mongoose.Types.ObjectId(`${mongoId}`);
   const signedUpEvent = await SignedUpEvent.getSignedUpEventByDate(nudgeTimeUtc, userId);
@@ -249,9 +248,6 @@ async function textBeeInitialSms(profileName, phone, mongoId, dateScheduled,  da
   await log.save();
   console.log("sms log created: ", log)
   console.log('TextBee Initial Sms Sent: ', result);
-  await log.save();
-
-  
   return result;
  } catch (err) {
   console.log(err)
