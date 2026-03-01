@@ -38,8 +38,6 @@ const SmsLogSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-// Quick lookups for API callbacks
-SmsLogSchema.index({ smsId: 1 }, { unique: true, sparse: true });
 
 // Efficiently find logs for a specific event, sorted by date
 SmsLogSchema.index({ event: 1, eventDate: -1 });
@@ -102,7 +100,6 @@ SmsLogSchema.static('createLog', async function (data) {
     eventDate: datetime,
     messageType: messageType,
     recipient: new mongoose.Types.ObjectId(`${mongoId}`),
-    smsId: smsId
   })
   return await log;
 });
