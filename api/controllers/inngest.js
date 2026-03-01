@@ -38,9 +38,10 @@ exports.createLeave = async (req, res) => {
     await inngest.send({
       name: 'reminders/create.leave',
       data: {
-        userId,
+       mongoId,
         phone,
         dateScheduled,
+        datetime,
         timezone,
         profileName,
         logins,
