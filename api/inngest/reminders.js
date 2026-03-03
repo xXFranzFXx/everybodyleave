@@ -16,6 +16,7 @@ const {
   textBeeSendSms,
   textBeeFinalSms,
 } = require('../helpers/textBee');
+const { updateSmsLog } = require('../helpers/smsLog');
 const { sendSms } = require('../helpers/httpsms');
 dayjs.extend(utc);
 dayjs.extend(timezone);
