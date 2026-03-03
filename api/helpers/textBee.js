@@ -189,7 +189,7 @@ async function textBeeFinalSms(message, recipient, eventId, userId, messageType,
       }
     );
     const result = await response.data;
-    const smsId = result.smsId;
+    const smsId = result.data.smsId;
     const eventID = new mongoose.Types.ObjectId(`${eventId}`)
     const user  = await User.getUser(recipient)
     const user_id = user._id;
@@ -238,7 +238,7 @@ async function textBeeInitialSms(profileName, phone, mongoId, eventId, dateSched
     }
   );
   const result = await response.data;
-  const smsId = result.smsBatchId;
+  const smsId = result.data.smsBatchId;
   const messageType = 'confirmation';
  
   const data = { eventId, datetime, messageType, mongoId, smsId };

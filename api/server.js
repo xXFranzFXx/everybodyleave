@@ -7,7 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const { serve } = require("inngest/express");
 const { inngest, functions } = require("./inngest/reminders");
-const  connectDb  = require('./db/config/dbConfig');
+const  connectDb  = require('./config/dbConfig');
 const { sendBulkSmsCSV } = require('./helpers/httpsms');
 const { dbConnection } = connectDb;
 

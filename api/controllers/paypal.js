@@ -1,49 +1,26 @@
-const { 
-  Client, 
-  Environment, 
-  OrdersController 
-}  = require("@paypal/paypal-server-sdk");
+const { createOrder, captureOrder } = require('../helpers/paypal');
 
 
-
-const client = new Client({
-  clientCredentialsAuthCredentials: {
-    oAuthClientId: process.env.PAYPAL_CLIENT_ID,
-    oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET,
-  },
-  environment: Environment.Sandbox, // or Environment.Production
-});
-
-const ordersController = new OrdersController(client);
-
-exports.createOrder = async (req, res) => {
-   
+      
+exports.createPaypalOrder = async (req, res) => {
   try {
-    const { body } = await ordersController.ordersCreate({
-      body: {
-        intent: "CAPTURE",
-        purchaseUnits: [{
-          amount: {
-            currencyCode: "USD",
-            value: "100.00",
-          },
-        }],
-      },
-    });
-    res.json(JSON.parse(body));
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
- }
+        // use the cart information passed from the front-end to calculate the order amount detals
+        const { cart } = req.body;
+        const { jsonResponse, httpStatusCode } = await createOrder(cart);
+        res.status(httpStatusCode).json(jsonResponse);
+    } catch (error) {
+       console.error("Failed to create order:", error);
+        res.status(500).json({ error: "Failed to create order." });
+    }
+};
 
- exports.captureOrder = async (req, res) => {
+ exports.capturePaypalOrder = async (req, res) => {
     try {
-    const { orderId } = req.params;
-    const { body } = await ordersController.ordersCapture({
-      id: orderId,
-    });
-    res.json(JSON.parse(body));
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+        const { orderID } = req.params;
+        const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
+        res.status(httpStatusCode).json(jsonResponse);
+    } catch (error) {
+        console.error("Failed to create order:", error);
+        res.status(500).json({ error: "Failed to capture order." });
+    }
  }

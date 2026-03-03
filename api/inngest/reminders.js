@@ -266,7 +266,7 @@ const scheduleReminder = inngest.createFunction(
   { event: 'reminders/create.leave' },
   async ({ event, step }) => {
     const {
-      mongoId,
+      userId,
       phone,
       dateScheduled,
       datetime,
@@ -284,13 +284,13 @@ const scheduleReminder = inngest.createFunction(
     const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
 
     await step.run('send-textBee-initialSms', async () => {
-      await textBeeInitialSms(profileName, phone, mongoId, eventId, dateScheduled, datetime, nudgeTimeUtc, intention, logins);
+      await textBeeInitialSms(profileName, phone, userId, eventId, dateScheduled, datetime, nudgeTimeUtc, intention, logins);
       });
 
     for (let i = 0; i < nudgeReminderTs.length; i++) {
       await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
       await step.run('send-textBee-nudgeText', async () => {
-        await textBeeSendSms(nudgeMessage, phone, mongoId, eventId, 'nudge', nudgeTimeUtc );
+        await textBeeSendSms(nudgeMessage, phone, userId, eventId, 'nudge', nudgeTimeUtc );
       });
     }
 
@@ -300,7 +300,7 @@ const scheduleReminder = inngest.createFunction(
       const leaveTime = dayjs(nudgeTimeUtc)
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`; 
-      await textBeeFinalSms(message, phone, mongoId, eventId, 'nudge', nudgeTimeUtc);
+      await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
     });
 
       await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
@@ -308,7 +308,7 @@ const scheduleReminder = inngest.createFunction(
           const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
          console.log('sending phonelist to textBee for followup');
-         await textBeeSendSms(message, phone, mongoId, eventId, 'followup', nudgeTimeUtc);
+         await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
       });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
