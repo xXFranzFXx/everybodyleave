@@ -264,7 +264,12 @@ async function webhookResponse(sender, message, receivedAt) {
   const userId = user._id;
   const smsLog = await SmsLog.findByReceivedDate(receivedAt, { recipient: new mongoose.Types.ObjectId(`${user._id}`), messageType: "followup"})
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
-  
+  if ( (message !== '1' && message !== '2') || smsLog === undefined || smsLog.event === null ) {
+      const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`;
+      await textBeeFollowUpResponseSms(response, sender);
+      console.log('User responded to event that does not exist');
+      return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
+    } else {
   const smsEvent = smsLog.event;
   const eventId = new mongoose.Types.ObjectId(`${smsEvent}`)
   const leaveDate = smsEvent.eventDate;
@@ -275,12 +280,7 @@ async function webhookResponse(sender, message, receivedAt) {
   const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
   const pastLimit = pastFollowUpLimit(endsAt, receivedAt);
   try {
-    if ( (message !== '1' && message !== '2') || event === undefined ) {
-      const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`;
-      await textBeeFollowUpResponseSms(response, sender);
-      console.log('User responded to event that does not exist');
-      return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
-    } else {
+   
    
      
       if (dayjs(receivedAt).isAfter(endsAt, 'min') && !followUpResponseLimit) {
@@ -324,11 +324,12 @@ async function webhookResponse(sender, message, receivedAt) {
         return { status: 'User sent incorrect response' };
       }
       await User.archiveEvent(userId, eventId);
-    }
+    
   } catch (err) {
     console.log('Failed to process user response.  Smslog was not updated. ', err);
     return { status: err };
   }
+    }
 }
 module.exports = {
   textBeeBulkSms,
