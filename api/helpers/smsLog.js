@@ -7,7 +7,7 @@ const dayjs = require('dayjs');
 const mongoose = require('mongoose');
 
 //for use after the event, will log the sms response and then close the event
-async function updateSmsLog(eventId, recipient,  response) {
+async function updateSmsLog(eventId, recipient, messageType, response) {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
@@ -16,7 +16,8 @@ async function updateSmsLog(eventId, recipient,  response) {
     const userId = new mongoose.Types.ObjectId(`${user._id}`);
     const log = await SmsLog.findOneAndUpdate(
       { event: id, 
-        recipient: userId
+        recipient: userId,
+        messageType: messageType
       },
       {
         $set: { 
@@ -25,13 +26,17 @@ async function updateSmsLog(eventId, recipient,  response) {
 
         },
       },
-      { new: true, upsert: true },
+      { new: true },
       { session }
     );
+     if (!log) {
+        console.log("Error updating smslog.  Cannot find smslog entry.");
+    }
     await log;
+
     console.log('Updated call log ', log);
 
-    await Event.updateOne({ id }, { $set: { status: 'closed' } }, { new: true, upsert: true }, { session });
+    await Event.findByIdAndUpdate({ id },  { status: 'closed' } , { new: true }, { session });
     console.log('event is now closed');
     await session.commitTransaction();
 

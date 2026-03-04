@@ -255,7 +255,8 @@ async function textBeeInitialSms(profileName, phone, mongoId, eventId, dateSched
 async function webhookResponse(sender, message, receivedAt) {
 
   const user = await User.getUser(sender);
-  const smsLog = await SmsLog.findByReceivedDate(receivedAt, { recipient: new mongoose.Types.ObjectId(`${user._id}`)})
+  const userId = user._id;
+  const smsLog = await SmsLog.findByReceivedDate(receivedAt, { recipient: new mongoose.Types.ObjectId(`${user._id}`), messageType: "followup"})
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
   
   const smsEvent = smsLog.event;
@@ -277,7 +278,7 @@ async function webhookResponse(sender, message, receivedAt) {
      
       if (dayjs(receivedAt).isAfter(endsAt, 'min') && !followUpResponseLimit) {
         // await smsLog.log.set(sender, '2');
-        await updateSmsLog(eventId, sender, message)
+        await updateSmsLog(eventId, sender, 'followup', '2')
        
         const response = `You have replied past the cutoff time.  To receive full credit, you must respond within 15 min.`;
         await textBeeFollowUpResponseSms(response, sender);
@@ -290,9 +291,9 @@ async function webhookResponse(sender, message, receivedAt) {
         await textBeeFollowUpResponseSms(response, sender);
         console.log('User responded too early.');
         return { status: 'User responded too early' };
-      } else if (message === '2' && followUpResponseLimit) {
+      } else if (message === '2' && followUpResponseLimit && event !== undefined) {
         const response = `There's always next time!`;
-        await updateSmsLog(eventId, sender, message)
+        await updateSmsLog(eventId, sender, 'followup', message)
         await textBeeFollowUpResponseSms(response, sender);
         console.log(`User responded with ${message}`);
         return {
@@ -300,7 +301,7 @@ async function webhookResponse(sender, message, receivedAt) {
         };
       } else if (message === '1' && followUpResponseLimit) {
         const response = `Great Job! Thank you for participating`;
-        await updateSmsLog(eventId, sender, message)
+        await updateSmsLog(eventId, sender, 'followup', message)
         await textBeeFollowUpResponseSms(response, sender);
         console.log(`User responded with ${message}`);
         return { status: `User responded on time with ${message}.` };
@@ -315,13 +316,7 @@ async function webhookResponse(sender, message, receivedAt) {
         console.log('User sent incorrect response.');
         return { status: 'User sent incorrect response' };
       }
-     await  User.updateOne(
-      { phone: sender },
-      { 
-        $pull: { reminder: eventId },      
-        $push: { archived: eventId }     
-      }
-    )   
+      await User.archiveEvent(userId, eventId);
     }
   } catch (err) {
     console.log('Failed to process user response.  Smslog was not updated. ', err);

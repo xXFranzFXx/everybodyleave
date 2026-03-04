@@ -318,13 +318,15 @@ const scheduleReminder = inngest.createFunction(
     });
 //if no response is received within 20 min update the smslog with 0
     if (!smsResponse ) {
-          await updateSmsLog(eventId, phone, 'noResponse')
-      console.log('Updated call log ');
-      return { status: 'user failed to participate or respond to follow up.' }
-       
+          await step.run("response-not-received", async () => {
+            await updateSmsLog(eventId, phone, 'followup', 'noResponse')
+            await User.archiveEvent(userId, eventId)
+            console.log('Updated call log ');
+      return { status: 'user failed to participate or respond to follow up.' }  
+    })       
     } else {
       return { status: 'Leave completed successfully.'}
-  }
+  };
   }
 );
 const functions = [scheduleReminder, textBeeWhFunction];

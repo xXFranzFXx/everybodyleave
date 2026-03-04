@@ -15,6 +15,20 @@ const UserSchema = mongoose.Schema({
         trim: true,
         required: true,
     },
+    completed: {
+    type: Map,
+    of: mongoose.Schema.Types.Mixed,
+    default: {
+        count: {
+            type: Number,
+            default: 0
+        },
+        events: [{
+            type: mongoose.Schema.Types.ObjectId
+        }]
+    }
+  },
+
     reminder: [{
        type: mongoose.Schema.Types.ObjectId, 
        ref: 'Event'
@@ -42,5 +56,15 @@ UserSchema.static('getUser', function(phoneNumber, filters={}) {
         ...filters,
         phone: phoneNumber 
     })
+})
+
+UserSchema.static('archiveEvent', function(userId, eventId){
+    return this.findByIdAndUpdate(
+        { userId },
+         { 
+        $pull: { reminder: eventId },      
+        $push: { archived: eventId }     
+      }
+    )
 })
 module.exports = mongoose.model('User', UserSchema);
