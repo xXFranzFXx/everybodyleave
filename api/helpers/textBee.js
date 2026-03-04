@@ -24,6 +24,12 @@ function followUpMinuteLimit(endsAt, receivedAt) {
   const duration = y.diff(x, 'minutes');
   return duration <= 25;
 }
+function pastFollowUpLimit(endsAt, receivedAt) {
+   const x = dayjs(endsAt);
+  const y = dayjs(receivedAt);
+  const duration = y.diff(x, 'minutes');
+  return duration > 25;
+}
 
 async function getEventTime(phone, id) {
   const user = await User.getUser(phone);
@@ -264,9 +270,10 @@ async function webhookResponse(sender, message, receivedAt) {
   const leaveDate = smsEvent.eventDate;
   const event  = await Event.find({ eventId });
   const endsAt = event.endsAt;
-  
+  const receivedAfterEnd = dayjs(receivedAt).isAfter(endsAt, 'min');
   const tooEarly = dayjs(endsAt).subtract(2, 'hour');   
   const followUpResponseLimit = followUpMinuteLimit(endsAt, receivedAt);
+  const pastLimit = pastFollowUpLimit(endsAt, receivedAt);
   try {
     if ( (message !== '1' && message !== '2') || event === undefined ) {
       const response = `You have sent a response for an event that does not exist. Please only respond to the followup message you will receive after your scheduled leave ends.`;
@@ -291,7 +298,7 @@ async function webhookResponse(sender, message, receivedAt) {
         await textBeeFollowUpResponseSms(response, sender);
         console.log('User responded too early.');
         return { status: 'User responded too early' };
-      } else if (message === '2' && followUpResponseLimit && event !== undefined) {
+      } else if (message === '2' && (receivedAfterEnd && followUpResponseLimit) && event !== undefined) {
         const response = `There's always next time!`;
         await updateSmsLog(eventId, sender, 'followup', message)
         await textBeeFollowUpResponseSms(response, sender);
@@ -299,7 +306,7 @@ async function webhookResponse(sender, message, receivedAt) {
         return {
           status: `User was not able to complete the leave successfully, but responded to the followup on time`,
         };
-      } else if (message === '1' && followUpResponseLimit) {
+      } else if (message === '1' && (receivedAfterEnd && followUpResponseLimit)) {
         const response = `Great Job! Thank you for participating`;
         await updateSmsLog(eventId, sender, 'followup', message)
         await textBeeFollowUpResponseSms(response, sender);
@@ -307,7 +314,7 @@ async function webhookResponse(sender, message, receivedAt) {
         return { status: `User responded on time with ${message}.` };
       }  else if (
         (message !== '1' && message !== '2') &&
-        (dayjs(receivedAt).isBefore(date, 'min') || dayjs(receivedAt).isAfter(endsAt, 'min'))
+        (dayjs(receivedAt).isBefore(date, 'min') || pastLimit)
       ) {
         console.log('message: ', message);
         // console.log(message !== '1');
