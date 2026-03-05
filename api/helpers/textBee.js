@@ -55,13 +55,13 @@ async function textBeeSendSms(message, recipient, userId, eventId, messageType, 
     const result = await response.data;
     const smsId = result.smsId;
     const user = await User.getUser(recipient);
-    if (response.ok) {
+    
       const data = { eventId, nudgeTimeUtc, messageType, userId };
       const log = await SmsLog.createLog(data);
       await log.save();
             console.log('TextBee Sms Sent: ', result.data);
 
-    }
+    
     return await result;
   } catch (err) {
     console.log('Failed to send sms. ', err);

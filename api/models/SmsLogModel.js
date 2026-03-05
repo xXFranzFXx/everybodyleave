@@ -99,7 +99,7 @@ SmsLogSchema.static('createLog', async function (data) {
     event: new mongoose.Types.ObjectId(`${eventId}`),
     eventDate: new Date(datetime),
     messageType: messageType,
-    recipient: new mongoose.Types.ObjectId(`${mongoId}`),
+    recipient: new mongoose.Types.ObjectId(`${mongoId}`)
   })
   return await log;
 });
