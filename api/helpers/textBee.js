@@ -55,8 +55,9 @@ async function textBeeSendSms(message, recipient, userId, eventId, messageType, 
     const result = await response.data;
     const smsId = result.smsId;
     const user = await User.getUser(recipient);
+    const user_id = user._id;
     
-      const data = { eventId, nudgeTimeUtc, messageType, userId };
+      const data = { eventId, nudgeTimeUtc, messageType, user_id };
       const log = await SmsLog.createLog(data);
       await log.save();
             console.log('TextBee Sms Sent: ', result.data);
