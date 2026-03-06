@@ -1,5 +1,6 @@
 const { Inngest, NonRetriableError } = require('inngest');
-const inngest = new Inngest({ id: 'weekly_reminders', eventKey: process.env.INNGEST_EVENT_KEY });
+const { realtimeMiddleware } = require("@inngest/realtime/middleware");
+
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
@@ -20,6 +21,12 @@ const { updateSmsLog } = require('../helpers/smsLog');
 const { sendSms } = require('../helpers/httpsms');
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+const inngest = new Inngest({
+   id: 'weekly_reminders', 
+   eventKey: process.env.INNGEST_EVENT_KEY, 
+   middleware: [realtimeMiddleware()] 
+  });
 
 //helper functions if not using dayjs
 
@@ -302,6 +309,14 @@ const scheduleReminder = inngest.createFunction(
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`; 
       await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
+      // await step.sendEvent("send-countdown-trigger-event", {
+      //   name: "app/trigger.countdown",
+      //   data: {
+      //     datetime: nudgeTimeUtc,
+      //     eventId: eventId,
+      //     user: userId
+      //   }
+      // })
     });
 
       await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));

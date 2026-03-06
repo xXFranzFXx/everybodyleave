@@ -11,12 +11,12 @@ async function updateSmsLog(eventId, recipient, messageType, response) {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const id =  new mongoose.Types.ObjectId(`${eventId}`);
+    // const id =  new mongoose.Types.ObjectId(`${eventId}`);
     const user = await User.getUser(recipient);
-    const userId = new mongoose.Types.ObjectId(`${user._id}`);
+    // const userId = new mongoose.Types.ObjectId(`${user._id}`);
     const log = await SmsLog.findOneAndUpdate(
-      { event: id, 
-        recipient: userId,
+      { event: eventId, 
+        recipient: user._id,
         messageType: messageType
       },
       {

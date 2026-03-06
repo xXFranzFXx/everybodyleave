@@ -1,4 +1,5 @@
 const { inngest } = require('../inngest/reminders');
+const { getSubscriptionToken } = require("@inngest/realtime");
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const mongoose = require('mongoose');
 const dayjs = require('dayjs');
@@ -81,4 +82,20 @@ exports.nudgeTexts = async (req, res) => {
   }
 };
 
+
+// Example within an Express route
+exports.subscriptionToken =  async (req, res) => {
+  try {
+    const { mongoId } = req.body;
+    // 2. Create the token scoped to a channel and specific topics
+    const token = await getSubscriptionToken(inngest, {
+      // You can use a static channel or dynamic one (e.g., `user:${user.id}`)
+      channel: `user: ${mongoId}`, 
+      topics: ["countdown"],
+    });
+    res.json(token);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 //TODO: add routes

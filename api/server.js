@@ -7,6 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const { serve } = require("inngest/express");
 const { inngest, functions } = require("./inngest/reminders");
+const { countdownFunction } = require("./inngest/countdown");
 const  connectDb  = require('./config/dbConfig');
 const { sendBulkSmsCSV } = require('./helpers/httpsms');
 const { dbConnection } = connectDb;
@@ -118,7 +119,7 @@ app.use('/api', eventRoutes);
 app.use('/api', calendarRoutes);
 app.use('/api', textBeeRoutes);
 app.use('/api', httpSmsRoutes);
-app.use('/api/inngest', serve({ client: inngest, functions }));
+app.use('/api/inngest', serve({ client: inngest, functions, countdownFunction }));
 app.use('/api', inngestWorkflowRoutes);
 // app.use('/api', paymentsRoutes);
 
