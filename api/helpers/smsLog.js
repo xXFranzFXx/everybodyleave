@@ -17,7 +17,7 @@ async function updateSmsLog(eventId, recipient, messageType, response) {
     const log = await SmsLog.findOneAndUpdate(
       { event: eventId, 
         recipient: user._id,
-        messageType: messageType
+        messageType: messageType,
       },
       {
         $set: { 
@@ -26,7 +26,7 @@ async function updateSmsLog(eventId, recipient, messageType, response) {
 
         },
       },
-      { new: true },
+      { new: true, upsert: true },
       { session }
     );
      if (!log) {

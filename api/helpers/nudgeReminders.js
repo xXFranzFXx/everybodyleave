@@ -83,7 +83,7 @@ async function nudgeReminderContent(name, intention, dateScheduled, datetime, ti
   const creationDate = dayjs().date()
   // const regex = creationDate < reminderDate ? /,.+/g : /\d.+/g ;
   // const regex =/(\d:.*)$/g
-  const regex = /\d:.*$/gm;
+  const regex = /\d{1,}:.*$/gm;
   console.log("datetime: ", datetime)
   console.log("dateScheduled: ", dateScheduled)
   console.log("regex: ", regex)

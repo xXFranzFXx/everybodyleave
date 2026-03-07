@@ -59,11 +59,13 @@ UserSchema.static('getUser', function(phoneNumber, filters={}) {
 })
 
 UserSchema.static('archiveEvent', function(userId, eventId){
+    const id = new mongoose.Types.ObjectId(userId)
+    const eventID = new mongoose.Types.ObjectId(eventId)
     return this.findByIdAndUpdate(
-        { userId },
+        { id },
          { 
-        $pull: { reminder: eventId },      
-        $push: { archived: eventId }     
+        $pull: { reminder: eventID },      
+        $push: { archived: eventID }     
       }
     )
 })
