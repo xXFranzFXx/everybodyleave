@@ -23,7 +23,7 @@ async function createOrder (cart) {
                             name: "EbL Upgrade",
                             unitAmount: {
                                 currencyCode: "USD",
-                                value: "6",
+                                value: "7",
                             },
                             quantity: "1",
                             description: "EbL one month upgrade",
@@ -35,7 +35,7 @@ async function createOrder (cart) {
         },
         prefer: "return=minimal",
     };
-   
+  
 
     try {
         const { body, ...httpResponse } = await ordersController.createOrder(
@@ -66,7 +66,7 @@ const captureOrder = async (orderID) => {
             collect
         );
         // Get more response info...
-        // const { statusCode, headers } = httpResponse;
+        const { statusCode, headers } = httpResponse;
         return {
             jsonResponse: JSON.parse(body),
             httpStatusCode: httpResponse.statusCode,

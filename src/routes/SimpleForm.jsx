@@ -9,7 +9,7 @@ import { useSettingsContext } from '../context/SettingsProvider';
 import { useAuth0 } from '@auth0/auth0-react';
 import { subscribe } from 'valtio';
 import { Typography, Button, Grid2, Box, Paper, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
-import { Reminders } from './Reminders';
+import { Reminders } from '../form/Reminders';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useFetch from '../hooks/useFetch';
 import useCalendar from '../hooks/useCalendar';
@@ -17,9 +17,10 @@ import FormDialog from '../form-components/FormDialog';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import NextAvailable from './NextAvailable';
-import CalendarComponent from '../components/calendar/CalendarComponent';
+import NextAvailable from '../form/NextAvailable';
+import CalendarComponent from './CalendarComponent';
 import CalendarViewButton from '../components/calendar/CalendarViewButton';
+import PreCountDownTimer from '../components/timer/PreCountDownTimer';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const dialog = {
@@ -159,7 +160,7 @@ const SimpleForm = () => {
           title={dialog.saveTitle}
           // checkbox={true}
         />
-
+        <PreCountDownTimer/>
         <Box
           style={{
             display: 'flex',
@@ -173,9 +174,9 @@ const SimpleForm = () => {
             gridRowGap: '20px',
             padding: '20px',
             margin: 'auto',
-            width: '100%',
+            width: '80%',
             maxWidth: '800px',
-            minWidth: '415px',
+            minWidth: '315px',
             marginTop: '30px',
           }}
         >
@@ -184,6 +185,7 @@ const SimpleForm = () => {
           <Grid2 size={12} sx={{ display: 'flex', justifyContent: 'flex-end'}}>
           <CalendarViewButton/>
           </Grid2>
+        
            { view === 'datepicker' && <>
             <Box
               px={3}

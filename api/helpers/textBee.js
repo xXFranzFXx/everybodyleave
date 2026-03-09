@@ -290,7 +290,7 @@ async function webhookResponse(sender, message, receivedAt) {
     const smsEvent = smsLog.event;
     const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
     const leaveDate = smsEvent.eventDate;
-    const event = await Event.find({ eventId });
+    const event = await Event.findOne({ _id: eventId });
     console.log("event found from smsLog: ", event);
     const endsAt = event.endsAt;
     const eventDate = event.date;

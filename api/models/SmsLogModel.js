@@ -93,11 +93,11 @@ SmsLogSchema.static('getUserSms', function (id, userId, filters = {}) {
 });
 
 SmsLogSchema.static('createLog', async function (data) {
-  const { eventId, datetime, messageType, user_id } = data
+  const { eventId, nudgeTimeUtc, messageType, user_id } = data
   
   const log =  new this({
     event: eventId,
-    eventDate: new Date(datetime),
+    eventDate: new Date(nudgeTimeUtc),
     messageType: messageType,
     recipient: user_id
   })

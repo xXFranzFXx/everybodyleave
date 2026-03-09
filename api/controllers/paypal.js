@@ -4,8 +4,9 @@ const { createOrder, captureOrder } = require('../helpers/paypal');
       
 exports.createPaypalOrder = async (req, res) => {
   try {
+    console.log("req.body: ", req.body)
         // use the cart information passed from the front-end to calculate the order amount detals
-        const { cart } = req.body;
+        const { cart } = await req.body;
         const { jsonResponse, httpStatusCode } = await createOrder(cart);
         res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {

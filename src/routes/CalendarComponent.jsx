@@ -1,21 +1,16 @@
 import React, { useEffect, useCallback, useRef, useState } from 'react';
-import { FormInputRadio } from '../../form-components/FormInputRadio';
-import { FormInputText } from '../../form-components/FormInputText';
 // import Calendar from 'react-mui-calendar';
 import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
-import { FormInputCheckBox } from '../../form-components/FormInputCheckBox';
-import { FormInputMultiCheckbox } from '../../form-components/FormInputMultiCheckbox';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useTheme, useMediaQuery } from '@mui/material';
-import Calendar from './Calendar';
-import { useCalendarContext } from '../../context/CalendarProvider';
-import useCalendar from '../../hooks/useCalendar';
-import useFetch from '../../hooks/useFetch';
-import { DataThresholdingTwoTone } from '@mui/icons-material';
-import CalendarDrawer from './CalendarDrawer';
-import CalendarDrawerData from './CalendarDrawerData';
-import { useSocketContext } from '../../context/SocketProvider';
+import Calendar from '../components/calendar/Calendar';
+import { useCalendarContext } from '../context/CalendarProvider';
+import useCalendar from '../hooks/useCalendar';
+import useFetch from '../hooks/useFetch';
+import CalendarDrawer from '../components/calendar/CalendarDrawer';
+import CalendarDrawerData from '../components/calendar/CalendarDrawerData';
+import { useSocketContext } from '../context/SocketProvider';
 const testData = [
   {
     day: 3,
@@ -157,7 +152,6 @@ const CalendarComponent = () => {
     handleSubmit,
     register,
     getValues,
-
     reset,
     control,
     setValue,
@@ -189,17 +183,17 @@ const CalendarComponent = () => {
     setValue('month', month);
     setValue('year', year);
     setDayName(dayjs(`${year}-${month}-${day}`).format('dddd'));
-    console.log('data: ', data);
-    console.log('daysOfMonth: ', daysOfMonth);
+    // console.log('data: ', data);
+    // console.log('daysOfMonth: ', daysOfMonth);
     const date = dayjs(`${year}-${month}-${day}`);
     const weekday = dayjs(date).get('day');
-    console.log('day: ', weekday);
+    // console.log('day: ', weekday);
 
     if (hasData && isInCurrentMonth(`${year}-${month}-${day}`)) {
       setValue('dayData', data);
       setDataDrawerOpen(true);
     } else if (daysOfMonth?.includes(day) && isInCurrentMonth(`${year}-${month}-${day}`) && !isBeforeNow(date)) {
-      console.log(`${year}-${month}-${day} is in currentMonth: `, isInCurrentMonth(`${year}-${month}-${day}`));
+    //   console.log(`${year}-${month}-${day} is in currentMonth: `, isInCurrentMonth(`${year}-${month}-${day}`));
       setOpen(true);
     }
   };
@@ -218,17 +212,6 @@ const CalendarComponent = () => {
     []
   );
 
-  const changePrimaryColor = (color) => {
-    setPrimaryColor(color.hex);
-  };
-
-  const changeSecondaryColor = (color) => {
-    setSecondaryColor(color.hex);
-  };
-
-  const changeDataDisplay = (e) => {
-    setDataDisplay(e.target.value);
-  };
 
   const onSubmit = (data) => {
     saveCalendarReminder(data);
@@ -272,7 +255,6 @@ const CalendarComponent = () => {
           toggleDrawer={toggleDrawer}
           handleCancel={handleCancel}
         />
-   
       <div style={{ height: '30px' }}></div>
       <Calendar
         isMobile={isMobile}
@@ -282,7 +264,7 @@ const CalendarComponent = () => {
         dataDisplay={dataDisplay}
         handleClickDay={handleClick}
       />
-         </FormProvider>
+     </FormProvider>
     </div>
   );
 };
