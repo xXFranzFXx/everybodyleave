@@ -261,7 +261,7 @@ async function textBeeInitialSms(
     const smsId = result.data.smsBatchId;
     const messageType = 'confirmation';
 
-    const data = { eventId, datetime, messageType, mongoId, smsId };
+    const data = { eventId, nudgeTimeUtc, messageType, mongoId};
     const log = await SmsLog.createLog(data);
     await log.save();
     console.log('sms log created: ', log);
