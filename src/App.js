@@ -3,24 +3,17 @@ import './App.css';
 import { ThemeProvider } from '@mui/material/node/styles';
 import { CssBaseline } from '@mui/material/node';
 import { createTheme } from '@mui/material/node/styles';
-import SimpleForm from './form/SimpleForm';
+import SimpleForm from './routes/SimpleForm';
 import LoginButton from './components/LoginButton';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useSocketContext } from './context/SocketProvider';
-import CalendarComponent from './components/calendar/CalendarComponent';
-import NextAvailable from './form/NextAvailable';
-import CalendarViewButton from './components/calendar/CalendarViewButton';
-import { Box } from '@mui/material';
+import SocketProvider from './context/SocketProvider';
+import MetaDataProvider from './context/MetadataProvider';
+import CalendarProvider from './context/CalendarProvider';
+import SettingsProvider from './context/SettingsProvider';
 import NavBar from './components/NavBar';
+
 function App() {
   const { isAuthenticated, user, loginWithRedirect } = useAuth0();
-  const { state } = useSocketContext();
-
-  useEffect(() => {
-    const name = user?.name;
-    state.phone = name;
-  }, [user]);
-
   const theme = createTheme({
     breakpoints: {
       values: {
@@ -65,22 +58,22 @@ function App() {
       },
     },
   });
-  
-
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      
       {isAuthenticated ? (
         <>
-        {/* <NextAvailable/> */}
-        <NavBar/>
-       
-     
-          <SimpleForm  /> 
-       
-     
+          <SocketProvider>
+            <SettingsProvider>
+              <MetaDataProvider>
+                <CalendarProvider>
+                  <NavBar />
+                  <SimpleForm />
+                </CalendarProvider>
+              </MetaDataProvider>
+            </SettingsProvider>
+          </SocketProvider>
         </>
       ) : (
         <LoginButton />
