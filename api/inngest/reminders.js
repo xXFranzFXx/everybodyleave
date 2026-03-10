@@ -336,10 +336,13 @@ const scheduleReminder = inngest.createFunction(
           await step.run("response-not-received", async () => {
             await updateSmsLog(eventId, phone, 'followup', 'noResponse')
             await User.archiveEvent(userId, eventId)
+            await SignedUpEvent.closeEvent(eventId)
             console.log('Updated call log ');
       return { status: 'user failed to participate or respond to follow up.' }  
     })       
     } else {
+            await User.archiveEvent(userId, eventId)
+            await SignedUpEvent.closeEvent(eventId)
       return { status: 'Leave completed successfully.'}
   };
   }
