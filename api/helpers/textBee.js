@@ -108,12 +108,12 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
     console.log('Failed to send bulk sms reminders:  ', error);
   }
 }
-async function textBeeFollowUpResponseSms(message, recipient, eventId, eventDate) {
+async function textBeeFollowUpResponseSms(message, sender, eventId, messageType, eventDate) {
   try {
     const response = await axios.post(
       `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`,
       {
-        recipients: [recipient],
+        recipients: [sender],
         message: message,
       },
       {
@@ -123,17 +123,11 @@ async function textBeeFollowUpResponseSms(message, recipient, eventId, eventDate
       }
     );
     const result = await response.data;
-    const user = await User.getUser(recipient);
+    const user = await User.getUser(sender);
     const user_id = user._id;
-    const smsLog = await SmsLog.getUserSms(eventId, user_id);
-    if (!smsLog) {
-      console.log("No smsLog found!")
-    } else {
-    smsLog.response = 'notRequired';
-    smsLog.status = 'complete';
-    smsLog.messageType = 'response';
+    const data = { eventId, nudgeTimeUtc: eventDate, messageType, user_id}
+    const smsLog = await SmsLog.createLog(eventId, user_id);
     await smsLog.save();
-    }
     return await result;
   } catch (err) {
     console.log('Failed to send sms. ', err);
@@ -179,7 +173,7 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
     console.log('Failed to send bulk sms reminders:  ', error);
   }
 }
-async function textBeeFinalSms(message, recipient, eventId, userId, messageType, eventDate) {
+async function textBeeFinalSms(message, recipient, userId, eventId, messageType, nudgeTimeUtc) {
   const id = new mongoose.Types.ObjectId(`${eventId}`);
   try {
     const response = await axios.post(
@@ -203,15 +197,15 @@ async function textBeeFinalSms(message, recipient, eventId, userId, messageType,
     const smsId = result.data.smsId;
     const user = await User.getUser(recipient);
     const user_id = user._id;
-    const data = { eventId, eventDate, user_id, messageType, smsId };
+     const data = { eventId, nudgeTimeUtc, messageType, user_id };
     const log = await SmsLog.createLog(data);
     await log.save();
 
     console.log('sent final sms: ', result);
-    console.log('textbee final reminder bulk sms sent: ', result);
+    console.log('textbee final reminder sms sent: ', result);
     return await result;
   } catch (error) {
-    console.log('Failed to send bulk sms reminders:  ', error);
+    console.log('Failed to send final sms reminder:  ', error);
   }
 }
 
@@ -279,19 +273,20 @@ async function webhookResponse(sender, message, receivedAt) {
     recipient: new mongoose.Types.ObjectId(`${userId}`),
     messageType: 'followup',
   });
-  console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
-  console.log('smsLog: ', smsLog);
-  if ((message !== '1' && message !== '2') || smsLog === null || smsLog.event === null) {
-    const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
-    await textBeeFollowUpResponseSms(response, sender);
-    console.log('User responded to event that does not exist');
-    return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
-  } else {
-    const smsEvent = smsLog.event;
+   const smsEvent = smsLog.event;
     const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
     const leaveDate = smsEvent.eventDate;
     const event = await Event.findOne({ _id: eventId });
     console.log("event found from smsLog: ", event);
+  console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
+  console.log('smsLog: ', smsLog);
+  if ((message !== '1' && message !== '2') || smsLog === null || smsLog.event === null) {
+    const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
+    await textBeeFollowUpResponseSms(response, sender, );
+    console.log('User responded to event that does not exist');
+    return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
+  } else {
+   
     const endsAt = event.endsAt;
     const eventDate = event.date;
     const receivedAfterEnd = dayjs(receivedAt).isAfter(endsAt, 'min');
@@ -302,7 +297,7 @@ async function webhookResponse(sender, message, receivedAt) {
       if (message === '2' && receivedAfterEnd && followUpResponseLimit && event !== undefined) {
         const response = `There's always next time!`;
         await updateSmsLog(eventId, sender, 'followup', message);
-        await textBeeFollowUpResponseSms(response, sender, eventId, eventDate);
+        await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
         await User.archiveEvent(userId, eventId);
         console.log(`User responded with ${message}`);
         return {
@@ -311,7 +306,7 @@ async function webhookResponse(sender, message, receivedAt) {
       } else if (message === '1' && receivedAfterEnd && followUpResponseLimit) {
         const response = `Great Job! Thank you for participating`;
         await updateSmsLog(eventId, sender, 'followup', message);
-        await textBeeFollowUpResponseSms(response, sender, eventId, eventDate);
+        await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
         console.log(`User responded with ${message}`);
         await User.archiveEvent(userId, eventId);
 
@@ -320,7 +315,7 @@ async function webhookResponse(sender, message, receivedAt) {
         console.log('message: ', message);
         // console.log(message !== '1');
         const response = `Sorry, late responses are not accepted.`;
-        await textBeeFollowUpResponseSms(response, sender, eventId, eventDate);
+        await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
         console.log('User sent late response.');
         return { status: 'User sent late response' };
       }
