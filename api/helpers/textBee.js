@@ -125,8 +125,9 @@ async function textBeeFollowUpResponseSms(message, sender, eventId, messageType,
     const result = await response.data;
     const user = await User.getUser(sender);
     const user_id = user._id;
-    const data = { eventId, nudgeTimeUtc: eventDate, messageType, user_id}
-    const smsLog = await SmsLog.createLog(eventId, user_id);
+    const nudgeTimeUtc = eventDate;
+    const data = { eventId, nudgeTimeUtc, messageType, user_id}
+    const smsLog = await SmsLog.createLog(data);
     await smsLog.save();
     return await result;
   } catch (err) {
