@@ -56,13 +56,35 @@ async function textBeeSendSms(message, recipient, userId, eventId, messageType, 
     const smsId = result.smsId;
     const user = await User.getUser(recipient);
     const user_id = user._id;
-    
-      const data = { eventId, nudgeTimeUtc, messageType, user_id };
-      const log = await SmsLog.createLog(data);
-      await log.save();
-            console.log('TextBee Sms Sent: ', result.data);
 
-    
+    const data = { eventId, nudgeTimeUtc, messageType, user_id };
+    const log = await SmsLog.createLog(data);
+    await log.save();
+    console.log('TextBee Sms Sent: ', result.data);
+
+    return await result;
+  } catch (err) {
+    console.log('Failed to send sms. ', err);
+  }
+}
+async function textBeeSendBasicSms(message, recipient) {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/gateway/devices/${DEVICE_ID}/send-sms`,
+      {
+        recipients: [recipient],
+        message: message,
+      },
+      {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      }
+    );
+    const result = await response.data;
+
+    console.log('TextBee Sms Sent: ', result.data);
+
     return await result;
   } catch (err) {
     console.log('Failed to send sms. ', err);
@@ -126,7 +148,7 @@ async function textBeeFollowUpResponseSms(message, sender, eventId, messageType,
     const user = await User.getUser(sender);
     const user_id = user._id;
     const nudgeTimeUtc = eventDate;
-    const data = { eventId, nudgeTimeUtc, messageType, user_id}
+    const data = { eventId, nudgeTimeUtc, messageType, user_id };
     const smsLog = await SmsLog.createLog(data);
     await smsLog.save();
     return await result;
@@ -198,7 +220,7 @@ async function textBeeFinalSms(message, recipient, userId, eventId, messageType,
     const smsId = result.data.smsId;
     const user = await User.getUser(recipient);
     const user_id = user._id;
-     const data = { eventId, nudgeTimeUtc, messageType, user_id };
+    const data = { eventId, nudgeTimeUtc, messageType, user_id };
     const log = await SmsLog.createLog(data);
     await log.save();
 
@@ -256,7 +278,7 @@ async function textBeeInitialSms(
     const smsId = result.data.smsBatchId;
     const messageType = 'confirmation';
 
-    const data = { eventId, nudgeTimeUtc, messageType, mongoId};
+    const data = { eventId, nudgeTimeUtc, messageType, mongoId };
     const log = await SmsLog.createLog(data);
     await log.save();
     console.log('sms log created: ', log);
@@ -274,20 +296,23 @@ async function webhookResponse(sender, message, receivedAt) {
     recipient: new mongoose.Types.ObjectId(`${userId}`),
     messageType: 'followup',
   });
-   const smsEvent = smsLog.event;
-    const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
-    const leaveDate = smsEvent.eventDate;
-    const event = await Event.findOne({ _id: eventId });
-    console.log("event found from smsLog: ", event);
+  if (!smsLog) {
+    const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
+    await textBeeSendBasicSms(response, sender);
+  }
+  const smsEvent = smsLog?.event;
+  const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
+  const leaveDate = smsEvent?.eventDate;
+  const event = await Event.findOne({ _id: eventId });
+  console.log('event found from smsLog: ', event);
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
   console.log('smsLog: ', smsLog);
   if ((message !== '1' && message !== '2') || smsLog === null || smsLog.event === null) {
     const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
-    await textBeeFollowUpResponseSms(response, sender, );
+    await textBeeFollowUpResponseSms(response, sender, eventId);
     console.log('User responded to event that does not exist');
     return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
   } else {
-   
     const endsAt = event.endsAt;
     const eventDate = event.date;
     const receivedAfterEnd = dayjs(receivedAt).isAfter(endsAt, 'min');
