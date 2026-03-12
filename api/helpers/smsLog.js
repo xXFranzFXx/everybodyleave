@@ -36,7 +36,7 @@ async function updateSmsLog(eventId, recipient, messageType, response) {
 
     console.log('Updated call log ', log);
 
-    await Event.findByIdAndUpdate({ id },  { status: 'closed' } , { new: true }, { session });
+    await Event.findByIdAndUpdate({ eventId },  { status: 'closed' } , { new: true }, { session });
     console.log('event is now closed');
     await session.commitTransaction();
 
