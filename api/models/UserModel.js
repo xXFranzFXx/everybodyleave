@@ -62,7 +62,7 @@ UserSchema.static('archiveEvent', function(userId, eventId){
     const id = new mongoose.Types.ObjectId(userId)
     const eventID = new mongoose.Types.ObjectId(eventId)
     return this.findByIdAndUpdate(
-        { _id: userId },
+        { id },
          { 
         $pull: { reminder: eventID },      
         $push: { archived: eventID }     
