@@ -1,5 +1,5 @@
 const { Inngest, NonRetriableError } = require('inngest');
-const { realtimeMiddleware } = require("@inngest/realtime/middleware");
+const { realtimeMiddleware } = require('@inngest/realtime/middleware');
 
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
@@ -23,10 +23,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const inngest = new Inngest({
-   id: 'weekly_reminders', 
-   eventKey: process.env.INNGEST_EVENT_KEY, 
-   middleware: [realtimeMiddleware()] 
-  });
+  id: 'weekly_reminders',
+  eventKey: process.env.INNGEST_EVENT_KEY,
+  middleware: [realtimeMiddleware()],
+});
 
 //helper functions if not using dayjs
 
@@ -90,7 +90,6 @@ const textBeeWhFunction = inngest.createFunction(
  * AKST/Anchorage, 17:00/01:00UTC next day 19:00/03:00UTC next day
  * HST/Honolulu 17:00/03:00UTC next day 19:00/05:00UTC next day
  */
-
 
 /** Not Using
  * database task to create timeslots.
@@ -283,7 +282,7 @@ const scheduleReminder = inngest.createFunction(
       intention,
       logins,
       eventId,
-      
+
       nudgeTimeUtc,
       nudgeMessage,
       nudgeReminderTs,
@@ -292,22 +291,32 @@ const scheduleReminder = inngest.createFunction(
     const followUpTime = dayjs(nudgeTimeUtc).add(1, 'hour');
 
     await step.run('send-textBee-initialSms', async () => {
-      await textBeeInitialSms(profileName, phone, userId, eventId, dateScheduled, datetime, nudgeTimeUtc, intention, logins);
-      });
+      await textBeeInitialSms(
+        profileName,
+        phone,
+        userId,
+        eventId,
+        dateScheduled,
+        datetime,
+        nudgeTimeUtc,
+        intention,
+        logins
+      );
+    });
 
     for (let i = 0; i < nudgeReminderTs.length; i++) {
       await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
       await step.run('send-textBee-nudgeText', async () => {
-        await textBeeSendSms(nudgeMessage, phone, userId, eventId, 'nudge', nudgeTimeUtc );
+        await textBeeSendSms(nudgeMessage, phone, userId, eventId, 'nudge', nudgeTimeUtc);
       });
     }
 
     await step.sleepUntil('sleep-until-final-reminder-time', new Date(finalTime));
     await step.run('send-textBee-final-Reminder', async () => {
       const current = dayjs();
-      const leaveTime = dayjs(nudgeTimeUtc)
+      const leaveTime = dayjs(nudgeTimeUtc);
       const timeLeft = leaveTime.diff(current, 'minute');
-      const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`; 
+      const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`;
       await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
       // await step.sendEvent("send-countdown-trigger-event", {
       //   name: "app/trigger.countdown",
@@ -319,32 +328,34 @@ const scheduleReminder = inngest.createFunction(
       // })
     });
 
-      await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
-         await step.run('send-textBee-followup', async () => {
-          const message =
+    await step.sleepUntil('sleep-until-followup-time', new Date(followUpTime));
+    await step.run('send-textBee-followup', async () => {
+      const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
-         console.log('sending phonelist to textBee for followup');
-         await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
-      });
+      console.log('sending phonelist to textBee for followup');
+      await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
+    });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'textBee/sms.received',
       timeout: '25m',
       if: 'event.data.phone == async.data.sender',
     });
-//if no response is received within 20 min update the smslog with 0
-    if (!smsResponse ) {
-          await step.run("response-not-received", async () => {
-            await updateSmsLog(eventId, phone, 'followup', 'noResponse')
-            await User.archiveEvent(userId, eventId)
-            await SignedUpEvent.closeEvent(eventId)
-            console.log('Updated call log ');
-      return { status: 'user failed to participate or respond to follow up.' }  
-    })       
-    } else {
-            await User.archiveEvent(userId, eventId)
-            await SignedUpEvent.closeEvent(eventId)
-      return { status: 'Leave completed successfully.'}
-  };
+    //if no response is received within 20 min update the smslog with 0
+    if (!smsResponse) {
+      await step.run('response-not-received', async () => {
+        await updateSmsLog(eventId, phone, 'followup', 'noResponse');
+        console.log('Updated call log ');
+        return { status: 'user failed to participate or respond to follow up.' };
+      });
+    } 
+    await step.run('close-and-archive-event', async () => {
+       await SignedUpEvent.closeEvent(eventId);
+      await User.archiveEvent(userId, eventId);
+
+    })
+     
+      
+    
   }
 );
 const functions = [scheduleReminder, textBeeWhFunction];
