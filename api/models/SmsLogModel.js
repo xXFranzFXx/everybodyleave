@@ -56,7 +56,7 @@ SmsLogSchema.index(
 );
 
 SmsLogSchema.pre('save', function () {
-  if (this.messageType === 'confirmation' || this.messageType === 'cancellation' || this.messageType === 'nudge') {
+  if (this.messageType === 'confirmation' || this.messageType === 'cancellation' || this.messageType === 'nudge'|| this.messageType === 'response') {
     this.status = 'complete';
     this.response = 'notRequired';
   } else if (this.messageType === 'followup') {

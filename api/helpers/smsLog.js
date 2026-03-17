@@ -8,9 +8,9 @@ const mongoose = require('mongoose');
 
 //for use after the event, will log the sms response and then close the event
 async function updateSmsLog(eventId, recipient, messageType, response) {
-  const session = await mongoose.startSession();
+  // const session = await mongoose.startSession();
   try {
-    session.startTransaction();
+    // session.startTransaction();
     // const id =  new mongoose.Types.ObjectId(`${eventId}`);
     const user = await User.getUser(recipient);
     // const userId = new mongoose.Types.ObjectId(`${user._id}`);
@@ -27,21 +27,22 @@ async function updateSmsLog(eventId, recipient, messageType, response) {
         },
       },
       { new: true, upsert: true },
-      { session }
+      // { session }
     );
      if (!log) {
         console.log("Error updating smslog.  Cannot find smslog entry.");
     }
-    await log;
+      console.log('Updated call log ', log);
+    return await log;
 
-    console.log('Updated call log ', log);
+  
 
-    await Event.findByIdAndUpdate({ eventId },  { status: 'closed' } , { new: true }, { session });
+    // await SignedUpEvent.findByIdAndUpdate({ eventId },  { $set: { status: 'closed' } } , { new: true }, { session });
     console.log('event is now closed');
-    await session.commitTransaction();
+    // await session.commitTransaction();
 
   } catch (err) {
-    await session.abortTransaction();
+    // await session.abortTransaction();
     console.log("Error updating smslog: ", err);
   }
 }
