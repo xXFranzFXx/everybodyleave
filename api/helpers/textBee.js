@@ -300,7 +300,8 @@ async function webhookResponse(sender, message, receivedAt) {
   if (!smsLog) {
     const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
     await textBeeSendBasicSms(response, sender);
-  }
+    
+  } else {
   const smsEvent = smsLog?.event;
   const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
   const leaveDate = smsEvent?.eventDate;
@@ -364,10 +365,12 @@ async function webhookResponse(sender, message, receivedAt) {
         console.log('User sent late response.');
         // return { status: 'User sent late response' };
       }
+    
     } catch (err) {
       console.log('Failed to process user response.  Smslog was not updated. ', err);
       return { status: err };
     }
+  }
   }
 }
 module.exports = {
