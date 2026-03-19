@@ -39,7 +39,7 @@ async function getNudgeReminders(datetime, timezone) {
   console.log("diffHours: ", diffHours)
   console.log('reminderHour: ', reminderHour);
   console.log('firstNudgeHour: ', firstNudgeHour);
-  if ((timezone === 'America/Honolulu' && reminderHour === 18) || ((reminderHour === 18) && (dayjs(datetime) > dayjs()))) {
+  if ((timezone === 'America/Honolulu' && (reminderHour === 17 || reminderHour === 18) || (reminderHour === 17 || reminderHour === 18) && (dayjs(datetime) > dayjs()))) {
     //if the earliest timeslot is 10am or 9am set the nudgeReminder to the night before.
     const newDate = dayjs(datetime).subtract(13, 'hour').minute(0).second(0).millisecond(0).utc().format();
     console.log(`nudgeReminder for ${datetime} is ${newDate}`);
@@ -47,7 +47,7 @@ async function getNudgeReminders(datetime, timezone) {
     return nudgeReminders;
   }
   //if there is more than 24 hours between now and reminder time
-  else if ((x.date() > y.date()) && (diffHours > 8)) {
+  else if ((x.date() > y.date()) && (diffHours > 8 && reminderHour > 18)) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   }
