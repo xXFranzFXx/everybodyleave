@@ -6,6 +6,7 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
+const { inngest } = require('../inngest/reminders');
 const { updateSmsLog, findDateFromSmsLog, createSmsLog } = require('./smsLog');
 const dayjs = require('dayjs');
 
@@ -325,25 +326,43 @@ async function webhookResponse(sender, message, receivedAt) {
         await updateSmsLog(eventId, sender, 'followup', message);
         await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
         await User.archiveEvent(userId, eventId);
+        await User.updateCredits({ phone: sender }, 1);
         console.log(`User responded with ${message}`);
-        return {
-          status: `User was not able to complete the leave successfully, but responded to the followup on time`,
-        };
+        await inngest.send({
+          name: 'reminders/processed-textBee-webhook',
+          data: {
+            sender,
+            message,
+            receivedAt,
+          },
+        });
+        // return {
+        //   status: `User was not able to complete the leave successfully, but responded to the followup on time`,
+        // };
       } else if (message === '1' && receivedAfterEnd && followUpResponseLimit) {
         const response = `Great Job! Thank you for participating`;
         await updateSmsLog(eventId, sender, 'followup', message);
         await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
+        await User.updateCredits({ phone: sender }, 2);
+        await inngest.send({
+          name: 'reminders/processed-textBee-webhook',
+          data: {
+            sender,
+            message,
+            receivedAt,
+          },
+        });
         console.log(`User responded with ${message}`);
         await User.archiveEvent(userId, eventId);
 
-        return { status: `User responded on time with ${message}.` };
+        // return { status: `User responded on time with ${message}.` };
       } else if ((message === '1' || message === '2') && pastLimit) {
         console.log('message: ', message);
         // console.log(message !== '1');
         const response = `Sorry, late responses are not accepted.`;
         await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
         console.log('User sent late response.');
-        return { status: 'User sent late response' };
+        // return { status: 'User sent late response' };
       }
     } catch (err) {
       console.log('Failed to process user response.  Smslog was not updated. ', err);

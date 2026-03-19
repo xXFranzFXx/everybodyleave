@@ -47,7 +47,7 @@ const UserSchema = mongoose.Schema({
     },   
     credit: {
         type: Number,
-        default: 3,
+        default: 0,
     }
 }, baseOptions);
 
@@ -58,15 +58,22 @@ UserSchema.static('getUser', function(phoneNumber, filters={}) {
     })
 })
 
+UserSchema.static('updateCredits', function(filters={}, credits) {
+    return this.updateOne(
+        { ...filters },
+        { $inc: { credit: credits } },
+        { new: true, upsert: true }
+    )
+})
 UserSchema.static('archiveEvent', function(userId, eventId){
-    const id = new mongoose.Types.ObjectId(userId)
-    const eventID = new mongoose.Types.ObjectId(eventId)
+    // const id = new mongoose.Types.ObjectId(userId)
+    // const eventID = new mongoose.Types.ObjectId(`${eventId}`)
     return this.findByIdAndUpdate(
-        { id },
+        { userId },
          { 
-        $pull: { reminder: eventID },      
-        $push: { archived: eventID }     
-      }
+        $pull: { reminder: eventId },      
+        $push: { archived: eventId }     
+      }, { new: true, upsert: true}
     )
 })
 module.exports = mongoose.model('User', UserSchema);

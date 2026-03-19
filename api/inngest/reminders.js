@@ -336,8 +336,8 @@ const scheduleReminder = inngest.createFunction(
       await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
     });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-      event: 'textBee/sms.received',
-      timeout: '25m',
+      event: 'reminders/processed-textBee-webhook',
+      timeout: '30m',
       if: 'event.data.phone == async.data.sender',
     });
     //if no response is received within 20 min update the smslog with 0
