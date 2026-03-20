@@ -292,6 +292,7 @@ async function textBeeInitialSms(
 
 async function webhookResponse(sender, message, receivedAt) {
   const user = await User.getUser(sender);
+  if(user) {
   const userId = `${user._id}`;
   const smsLog = await SmsLog.findByReceivedDate(receivedAt, {
     recipient: new mongoose.Types.ObjectId(`${userId}`),
@@ -366,6 +367,9 @@ async function webhookResponse(sender, message, receivedAt) {
             receivedAt,
           },
         });
+  } else {
+    return { status: 'User not found.'}
+  }
 }
 module.exports = {
   textBeeBulkSms,
