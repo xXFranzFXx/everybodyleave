@@ -292,7 +292,7 @@ async function textBeeInitialSms(
 
 async function webhookResponse(sender, message, receivedAt) {
   const user = await User.getUser(sender);
-  const userId = user._id;
+  const userId = `${user._id}`;
   const smsLog = await SmsLog.findByReceivedDate(receivedAt, {
     recipient: new mongoose.Types.ObjectId(`${userId}`),
     messageType: 'followup',
@@ -327,16 +327,9 @@ async function webhookResponse(sender, message, receivedAt) {
         await updateSmsLog(eventId, sender, 'followup', message);
         await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
         await User.archiveEvent(userId, eventId);
-        await User.updateCredits({ phone: sender }, 1);
+        await User.updateCredits({ phone: sender }, 1, eventId);
         console.log(`User responded with ${message}`);
-        await inngest.send({
-          name: 'reminders/processed-textBee-webhook',
-          data: {
-            sender,
-            message,
-            receivedAt,
-          },
-        });
+       
         // return {
         //   status: `User was not able to complete the leave successfully, but responded to the followup on time`,
         // };
@@ -344,17 +337,10 @@ async function webhookResponse(sender, message, receivedAt) {
         const response = `Great Job! Thank you for participating`;
         await updateSmsLog(eventId, sender, 'followup', message);
         await textBeeFollowUpResponseSms(response, sender, eventId, 'response', eventDate);
-        await User.updateCredits({ phone: sender }, 2);
-        await inngest.send({
-          name: 'reminders/processed-textBee-webhook',
-          data: {
-            sender,
-            message,
-            receivedAt,
-          },
-        });
+        await User.updateCredits({ phone: sender }, 2, eventId);
+      
         console.log(`User responded with ${message}`);
-        await User.archiveEvent(userId, eventId);
+        // await User.archiveEvent(userId, eventId);
 
         // return { status: `User responded on time with ${message}.` };
       } else if ((message === '1' || message === '2') && pastLimit) {
@@ -372,6 +358,14 @@ async function webhookResponse(sender, message, receivedAt) {
     }
   }
   }
+    await inngest.send({
+          name: 'reminders/processed.textBee.webhook',
+          data: {
+            sender,
+            message,
+            receivedAt,
+          },
+        });
 }
 module.exports = {
   textBeeBulkSms,

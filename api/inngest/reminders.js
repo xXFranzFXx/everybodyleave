@@ -307,7 +307,7 @@ const scheduleReminder = inngest.createFunction(
     for (let i = 0; i < nudgeReminderTs.length; i++) {
       await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
       await step.run('send-textBee-nudgeText', async () => {
-        await textBeeSendSms(nudgeMessage, phone, userId, eventId, 'nudge', nudgeTimeUtc);
+        return await textBeeSendSms(nudgeMessage, phone, userId, eventId, 'nudge', nudgeTimeUtc);
       });
     }
 
@@ -317,7 +317,7 @@ const scheduleReminder = inngest.createFunction(
       const leaveTime = dayjs(nudgeTimeUtc);
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`;
-      await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
+     return  await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
       // await step.sendEvent("send-countdown-trigger-event", {
       //   name: "app/trigger.countdown",
       //   data: {
@@ -333,26 +333,23 @@ const scheduleReminder = inngest.createFunction(
       const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
       console.log('sending phonelist to textBee for followup');
-      await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
+     return await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
     });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
       event: 'reminders/processed-textBee-webhook',
       timeout: '30m',
-      if: 'event.data.phone == async.data.sender',
+      if: `async.data.sender == "${phone}"`,
     });
     //if no response is received within 20 min update the smslog with 0
     if (!smsResponse) {
       await step.run('response-not-received', async () => {
-        await updateSmsLog(eventId, phone, 'followup', 'noResponse');
-        console.log('Updated call log ');
-        return { status: 'user failed to participate or respond to follow up.' };
+       return await User.updateCredits({ phone: phone }, 0, eventId);
       });
     } 
     await step.run('close-and-archive-event', async () => {
        await SignedUpEvent.closeEvent(eventId);
-      await User.archiveEvent(userId, eventId);
-
-    })
+      //  await User.archiveEvent(userId, eventId);
+    });
      
       
     
