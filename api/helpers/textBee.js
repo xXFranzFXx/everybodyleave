@@ -6,7 +6,6 @@ const SmsLog = require('../models/SmsLogModel');
 const User = require('../models/UserModel');
 const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
-const { inngest } = require('../inngest/reminders');
 const { updateSmsLog, findDateFromSmsLog, createSmsLog } = require('./smsLog');
 const dayjs = require('dayjs');
 
@@ -300,7 +299,7 @@ async function webhookResponse(sender, message, receivedAt) {
   });
   if (!smsLog) {
     const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
-    await textBeeSendBasicSms(response, sender);
+   return  await textBeeSendBasicSms(response, sender);
     
   } else {
   const smsEvent = smsLog?.event;
@@ -359,14 +358,7 @@ async function webhookResponse(sender, message, receivedAt) {
     }
   }
   }
-    await inngest.send({
-          name: 'reminders/processed.textBee.webhook',
-          data: {
-            sender,
-            message,
-            receivedAt,
-          },
-        });
+   
   } else {
     return { status: 'User not found.'}
   }
