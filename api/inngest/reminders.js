@@ -67,18 +67,35 @@ const textBeeWhFunction = inngest.createFunction(
   { id: 'textBee-sms-received' },
   { event: 'textBee/sms.received' },
   async ({ event, step }) => {
-    await step.run('process-wh-data', async () => {
+    const wh = await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
       const payload = await processWebhook(event.data);
-      const { sender, message, receivedAt } = await payload;
+      // const { sender, message, receivedAt } = await payload;
       console.log('Webhook payload:', payload);
       console.log('sender is: ', sender);
       console.log('response is: ', message);
       console.log('received at: ', receivedAt);
-      await webhookResponse(sender, message, receivedAt);
+      return payload;
     });
-
-    return { status: 'success' };
+    try {
+      const sender = await wh.payload.sender;
+      const message = await wh.payload.message;
+      const receivedAt = await wh.payload.receivedAt;
+      await step.run('process-webhook-response', async () => {
+        await webhookResponse(sender, message, receivedAt);
+        return { status: 'processed webhook response' };
+      });
+      // await inngest.sendEvent({
+      //       name: 'reminders/processed.textBee.webhook',
+      //       data: {
+      //         sender,
+      //         message,
+      //         receivedAt,
+      //       },
+      //     });
+    } catch (err) {
+      return { status: 'failed to process webhook response'}
+    }
   }
 );
 /**
@@ -317,7 +334,7 @@ const scheduleReminder = inngest.createFunction(
       const leaveTime = dayjs(nudgeTimeUtc);
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`;
-     return  await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
+      return await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
       // await step.sendEvent("send-countdown-trigger-event", {
       //   name: "app/trigger.countdown",
       //   data: {
@@ -333,26 +350,23 @@ const scheduleReminder = inngest.createFunction(
       const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
       console.log('sending phonelist to textBee for followup');
-     return await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
+      return await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
     });
-    const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-      event: 'reminders/processed-textBee-webhook',
-      timeout: '30m',
-      if: `async.data.sender == "${phone}"`,
-    });
-    //if no response is received within 20 min update the smslog with 0
-    if (!smsResponse) {
-      await step.run('response-not-received', async () => {
-       return await User.updateCredits({ phone: phone }, 0, eventId);
-      });
-    } 
-    await step.run('close-and-archive-event', async () => {
-       await SignedUpEvent.closeEvent(eventId);
-      //  await User.archiveEvent(userId, eventId);
-    });
-     
-      
-    
+    // const smsResponse = await step.waitForEvent('wait-for-sms-response', {
+    //   event: 'reminders/processed-textBee-webhook',
+    //   timeout: '30m',
+    //   if: `async.data.sender == "${phone}"`,
+    // });
+    // //if no response is received within 20 min update the smslog with 0
+    // if (!smsResponse) {
+    //   await step.run('response-not-received', async () => {
+    //     return await User.updateCredits({ phone: phone }, 0, eventId);
+    //   });
+    // }
+    // await step.run('close-and-archive-event', async () => {
+    //   await SignedUpEvent.closeEvent(eventId);
+    //   //  await User.archiveEvent(userId, eventId);
+    // });
   }
 );
 const functions = [scheduleReminder, textBeeWhFunction];

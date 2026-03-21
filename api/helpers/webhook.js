@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-
+const User = require('../models/UserModel');
 function generateHmacSha256(key, data) {
   const hmac = crypto.createHmac('sha256', key);
   hmac.update(data);
@@ -24,9 +24,18 @@ async function processWebhook(data) {
     }
 
   const payload =  await JSON.parse(rawBody);
-//   const { sender, message, receivedAt } =  payload;
+  const { sender, message, receivedAt } =  payload;
+  const user = await User.getUser(sender);
+  if (user) {
+    return payload;
+  } else {
+     throw new NonRetriableError("User not found");
 
-  return payload;
+  }
+  
 }
 
 module.exports = { processWebhook }
+
+
+ 
