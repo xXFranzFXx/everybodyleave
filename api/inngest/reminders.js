@@ -67,23 +67,23 @@ const textBeeWhFunction = inngest.createFunction(
   { id: 'textBee-sms-received' },
   { event: 'textBee/sms.received' },
   async ({ event, step }) => {
+     try {
     const wh = await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
-      const payload = await processWebhook(event.data);
-      const { sender, message, receivedAt } = await payload;
-      console.log('Webhook payload:', payload);
-      console.log('sender is: ', sender);
-      console.log('response is: ', message);
-      console.log('received at: ', receivedAt);
-      return payload;
+          return await processWebhook(event.data);  
     });
-    try {
+   
+     
       const sender = await wh.payload.sender;
       const message = await wh.payload.message;
       const receivedAt = await wh.payload.receivedAt;
+      console.log('Webhook payload:', wh);
+      console.log('sender is: ', sender);
+      console.log('response is: ', message);
+      console.log('received at: ', receivedAt);
+      
       await step.run('process-webhook-response', async () => {
-        await webhookResponse(sender, message, receivedAt);
-        return { status: 'processed webhook response' };
+       return await webhookResponse(sender, message, receivedAt);
       });
       // await inngest.sendEvent({
       //       name: 'reminders/processed.textBee.webhook',
