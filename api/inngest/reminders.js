@@ -70,7 +70,7 @@ const textBeeWhFunction = inngest.createFunction(
     const wh = await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
       const payload = await processWebhook(event.data);
-      // const { sender, message, receivedAt } = await payload;
+      const { sender, message, receivedAt } = await payload;
       console.log('Webhook payload:', payload);
       console.log('sender is: ', sender);
       console.log('response is: ', message);
