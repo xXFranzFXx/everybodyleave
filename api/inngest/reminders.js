@@ -308,7 +308,7 @@ const scheduleReminder = inngest.createFunction(
     for (let i = 0; i < nudgeReminderTs.length; i++) {
       await step.sleepUntil('sleep-until-nudge-reminder-time', new Date(nudgeReminderTs[i]));
       await step.run('send-textBee-nudgeText', async () => {
-        return await textBeeSendSms(nudgeMessage, phone, userId, eventId, 'nudge', nudgeTimeUtc);
+        return await textBeeSendSms(nudgeMessage, phone, eventId, 'nudge', nudgeTimeUtc);
       });
     }
 
@@ -318,7 +318,7 @@ const scheduleReminder = inngest.createFunction(
       const leaveTime = dayjs(nudgeTimeUtc);
       const timeLeft = leaveTime.diff(current, 'minute');
       const message = `This is your final scheduled reminder from EbL. Your leave will begin in ${timeLeft} minutes.`;
-     return  await textBeeFinalSms(message, phone, userId, eventId, 'nudge', nudgeTimeUtc);
+     return  await textBeeFinalSms(message, phone, eventId, 'nudge', nudgeTimeUtc);
       // await step.sendEvent("send-countdown-trigger-event", {
       //   name: "app/trigger.countdown",
       //   data: {
@@ -334,7 +334,7 @@ const scheduleReminder = inngest.createFunction(
       const message =
         'Hello!  This is just a follow up to see how your leave went. Please verify within 15 minutes with 1 if your leave was successful or 2 if you were not able to complete it.  Thank you!';
       console.log('sending phonelist to textBee for followup');
-     return await textBeeSendSms(message, phone, userId, eventId, 'followup', nudgeTimeUtc);
+     return await textBeeSendSms(message, phone, eventId, 'followup', nudgeTimeUtc);
     });
   //   const smsResponse = await step.waitForEvent('wait-for-sms-response', {
   //     event: 'reminders/processed-textBee-webhook',

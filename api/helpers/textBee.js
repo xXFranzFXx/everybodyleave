@@ -172,7 +172,7 @@ async function textBeeBulkSms(message, phoneList, eventId, eventDate) {
     console.log('Failed to send bulk sms reminders:  ', error);
   }
 }
-async function textBeeFinalSms(message, recipient, userId, eventId, messageType, nudgeTimeUtc) {
+async function textBeeFinalSms(message, recipient, eventId, messageType, nudgeTimeUtc) {
   const id = new mongoose.Types.ObjectId(`${eventId}`);
   try {
     
