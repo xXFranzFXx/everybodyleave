@@ -58,10 +58,14 @@ UserSchema.static('getUser', function(phoneNumber, filters={}) {
     })
 })
 
-UserSchema.static('updateCredits', function(filters={}, credits) {
+UserSchema.static('updateCredits', function(filters={}, credits, eventId) {
     return this.updateOne(
         { ...filters },
-        { $inc: { credit: credits } },
+        { 
+            $inc: { credit: credits }, 
+            $pull: { reminder: eventId },      
+            $push: { archived: eventId }  
+        },
         { new: true, upsert: true }
     )
 })

@@ -66,6 +66,7 @@ const getFutureDate = (daysAhead) => {
 const textBeeWhFunction = inngest.createFunction(
   { id: 'textBee-sms-received' },
   { event: 'textBee/sms.received' },
+  {retries: 2},
   async ({ event, step }) => {
     await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
