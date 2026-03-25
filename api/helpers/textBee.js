@@ -53,15 +53,15 @@ async function textBeeSendSms(message, recipient, eventId, messageType, nudgeTim
     //   }
     // );
     const response = await textBeeSendBasicSms(message, recipient)
-    const result = await response.data;
-    const smsId = result.smsId;
+   
+    const smsId = await response.smsId;
     const user = await User.getUser(recipient);
     const user_id = user._id;
 
     const data = { eventId, nudgeTimeUtc, messageType, user_id };
     const log = await SmsLog.createLog(data);
     await log.save();
-    console.log('TextBee Sms Sent: ', result.data);
+    console.log('TextBee Sms Sent: ', response);
 
     return await result;
   } catch (err) {
@@ -177,16 +177,15 @@ async function textBeeFinalSms(message, recipient, eventId, messageType, nudgeTi
   try {
     
     const response = await textBeeSendBasicSms(message, recipient)
-    const result = await response.data;
-    const smsId = result.data.smsId;
+    // const result = await response.data;
+    // const smsId = result.data.smsId;
     const user = await User.getUser(recipient);
     const user_id = user._id;
     const data = { eventId, nudgeTimeUtc, messageType, user_id };
     const log = await SmsLog.createLog(data);
     await log.save();
 
-    console.log('sent final sms: ', result);
-    console.log('textbee final reminder sms sent: ', result);
+    console.log('textbee final reminder sms sent: ', response);
     return await result;
   } catch (error) {
     console.log('Failed to send final sms reminder:  ', error);
