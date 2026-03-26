@@ -63,7 +63,7 @@ async function textBeeSendSms(message, recipient, eventId, messageType, nudgeTim
     await log.save();
     console.log('TextBee Sms Sent: ', response);
 
-    return await result;
+    return await response;
   } catch (err) {
     console.log('Failed to send sms. ', err);
   }
@@ -186,7 +186,7 @@ async function textBeeFinalSms(message, recipient, eventId, messageType, nudgeTi
     await log.save();
 
     console.log('textbee final reminder sms sent: ', response);
-    return await result;
+    return await response;
   } catch (error) {
     console.log('Failed to send final sms reminder:  ', error);
   }
