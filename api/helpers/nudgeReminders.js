@@ -52,7 +52,7 @@ async function getNudgeReminders(datetime, timezone) {
     return normalNudgeTimes;
   }
   //if reminder is scheduled on the same day within the next 5 hours, 1 nudgreminder is scheduled
-  else if ((x.date() === y.date()) &&  diffHours <= 4) {
+  else if ((x.date() === y.date()) &&  (diffHours <= 4 && diffHours > 0)) {
     nudgeReminders.push(dayjs(datetime).subtract(1, 'hour'));
     console.log('nudgeReminders second condition: ', nudgeReminders);
     return nudgeReminders;
