@@ -336,21 +336,25 @@ const scheduleReminder = inngest.createFunction(
       console.log('sending phonelist to textBee for followup');
      return await textBeeSendSms(message, phone, eventId, 'followup', nudgeTimeUtc);
     });
-  //   const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-  //     event: 'reminders/processed-textBee-webhook',
-  //     timeout: '30m',
-  //     if: `async.data.sender == "${phone}"`,
-  //   });
-  //   //if no response is received within 20 min update the smslog with 0
-  //   if (!smsResponse) {
-  //     await step.run('response-not-received', async () => {
-  //      return await User.updateCredits({ phone: phone }, 0, eventId);
-  //     });
-  //   } 
-  //   await step.run('close-and-archive-event', async () => {
-  //      await SignedUpEvent.closeEvent(eventId);
-  //     //  await User.archiveEvent(userId, eventId);
-  //   });
+    const smsResponse = await step.waitForEvent('wait-for-sms-response', {
+      event: 'reminders/processed-textBee-webhook',
+      timeout: '30m',
+      if: `async.data.sender == "${phone}"`,
+    });
+    //if no response is received within 20 min update the smslog with 0
+   if (smsResponse) {
+    await step.run('close-and-archive-event', async () => {
+      console.log("response received. closing event.")
+       await SignedUpEvent.closeEvent(eventId);
+      //  await User.archiveEvent(userId, eventId);
+    }); 
+   } else {
+  
+      await step.run('response-not-received', async () => {
+        console.log("no response received.  deducting one point.")
+       return await User.updateCredits({ phone: phone }, -1, eventId);
+      });
+   }
      
       
     

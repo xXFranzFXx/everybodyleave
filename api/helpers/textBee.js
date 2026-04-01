@@ -252,11 +252,14 @@ async function textBeeInitialSms(
 async function webhookResponse(sender, message, receivedAt) {
   const user = await User.getUser(sender);
   if(user) {
-  const userId = `${user._id}`;
+  const userId = user._id;
   const smsLog = await SmsLog.findByReceivedDate(receivedAt, {
     recipient: new mongoose.Types.ObjectId(`${userId}`),
     messageType: 'followup',
   });
+  if ( smsLog ) {
+    console.log("found smslog: ", smsLog)
+  }
   if (!smsLog) {
     const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
    return  await textBeeSendBasicSms(response, sender);
@@ -265,6 +268,7 @@ async function webhookResponse(sender, message, receivedAt) {
   const smsEvent = smsLog?.event;
   const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
   const leaveDate = smsEvent?.eventDate;
+  console.log("leave date: ", leaveDate);
   const event = await Event.findOne({ _id: eventId });
   console.log('event found from smsLog: ', event);
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
