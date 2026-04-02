@@ -8,7 +8,9 @@ const Event = require('../models/EventModel');
 const SignedUpEvent = require('../models/SignedUpEventModel');
 const { updateSmsLog, findDateFromSmsLog, createSmsLog } = require('./smsLog');
 const dayjs = require('dayjs');
+const  utc  = require('dayjs/plugin/utc');
 
+dayjs.extend(utc);
 const mongoose = require('mongoose');
 
 function fifteenMinuteLimit(reminder, receivedAt) {
@@ -253,7 +255,8 @@ async function webhookResponse(sender, message, receivedAt) {
   const user = await User.getUser(sender);
   if(user) {
   const userId = user._id;
-  const smsLog = await SmsLog.findByReceivedDate(receivedAt, {
+  const receivedAtUtc = dayjs().format();
+  const smsLog = await SmsLog.findByReceivedDate(receivedAtUtc, {
     recipient: new mongoose.Types.ObjectId(`${userId}`),
     messageType: 'followup',
   });
@@ -272,6 +275,7 @@ async function webhookResponse(sender, message, receivedAt) {
   const event = await Event.findOne({ _id: eventId });
   console.log('event found from smsLog: ', event);
   console.log('receivedAt: ', dayjs(receivedAt).format('YYYY-MM-DD'));
+  console.log('receivedAtUtc: ', receivedAtUtc);
   console.log('smsLog: ', smsLog);
   if ((message !== '1' && message !== '2') || smsLog === null || smsLog.event === null) {
     const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
