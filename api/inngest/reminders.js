@@ -77,7 +77,13 @@ const textBeeWhFunction = inngest.createFunction(
       console.log('response is: ', message);
       console.log('received at: ', receivedAt);
       await webhookResponse(sender, message, receivedAt);
+        await step.sendEvent('processed-webhook', {
+        name: 'reminders/webhook.processed',
+       data: { sender: sender },
+  // Optional: id (for idempotency), user, v, ts
+  });
     });
+  
 
     return { status: 'success' };
   }
@@ -337,7 +343,7 @@ const scheduleReminder = inngest.createFunction(
      return await textBeeSendSms(message, phone, eventId, 'followup', nudgeTimeUtc);
     });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-      event: 'reminders/processed-textBee-webhook',
+      event: 'reminders/processed.webhook',
       timeout: '30m',
       if: `async.data.sender == "${phone}"`,
     });
@@ -346,12 +352,14 @@ const scheduleReminder = inngest.createFunction(
     await step.run('close-and-archive-event', async () => {
       console.log("response received. closing event.")
        await SignedUpEvent.closeEvent(eventId);
+     
       //  await User.archiveEvent(userId, eventId);
     }); 
    } else {
   
       await step.run('response-not-received', async () => {
         console.log("no response received.  deducting one point.")
+          await updateSmsLog(eventId, phone, 'followup', 'noResponse');
        return await User.updateCredits({ phone: phone }, -1, eventId);
       });
    }
