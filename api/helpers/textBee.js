@@ -270,7 +270,7 @@ async function webhookResponse(sender, message, receivedAt) {
   } else {
   const smsEvent = smsLog?.event;
   const eventId = new mongoose.Types.ObjectId(`${smsEvent}`);
-  const leaveDate = smsEvent?.eventDate;
+  const leaveDate = smsLog?.eventDate;
   console.log("leave date: ", leaveDate);
   const event = await Event.findOne({ _id: eventId });
   console.log('event found from smsLog: ', event);
@@ -279,7 +279,7 @@ async function webhookResponse(sender, message, receivedAt) {
   console.log('smsLog: ', smsLog);
   if ((message !== '1' && message !== '2') || smsLog === null || smsLog.event === null) {
     const response = `You have sent a response for an event that does not exist, or an event that has not started yet. Please only respond to the followup message you will receive after your scheduled leave ends.`;
-    await textBeeSendSms(response, sender, eventId,  'response-to-user', eventDate);
+    await textBeeSendSms(response, sender, eventId,  'response-to-user', leaveDate);
     console.log('User responded to event that does not exist');
     return { status: 'User responded incorrectly.  Please check date and time to verify the leave.' };
   } else {

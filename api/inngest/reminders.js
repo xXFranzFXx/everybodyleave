@@ -64,7 +64,10 @@ const getFutureDate = (daysAhead) => {
 
 // webhook function for processing sms replies.
 const textBeeWhFunction = inngest.createFunction(
-  { id: 'textBee-sms-received' },
+  { 
+    id: 'textBee-sms-received',
+    retries: 0
+     },
   { event: 'textBee/sms.received' },
 
   async ({ event, step }) => {
@@ -76,7 +79,14 @@ const textBeeWhFunction = inngest.createFunction(
       console.log('sender is: ', sender);
       console.log('response is: ', message);
       console.log('received at: ', receivedAt);
+      try {
       await webhookResponse(sender, message, receivedAt);
+      } catch (err) {
+        if (err.name === 'TypeError') {
+          throw new NonRetriableError('No users signed up for this event');
+        }
+        throw err;
+      }
         await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { sender: sender },
