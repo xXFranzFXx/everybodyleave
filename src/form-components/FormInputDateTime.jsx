@@ -64,8 +64,8 @@ const checkTimeFinalCall = (time) => {
     // console.log("selectedDay: ", selectedDay)
    
 
-    if (scheduledReminders?.result.length > 0 && view === 'hours') {
-      const reminders = scheduledReminders?.result;
+    if (scheduledReminders?.length > 0 && view === 'hours') {
+      const reminders = scheduledReminders;
       scheduled = reminders.map((result) => dayjs(result).date());
       return (
         weekDayArr.includes(weekday) ||
