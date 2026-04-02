@@ -177,8 +177,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       try {
         const response = await axios({
           method: 'POST',
-          url: `http://localhost:4000/api/events/save`,
-          // url: `https://everybodyleave.onrender.com/api/events/save`,
+          // url: `http://localhost:4000/api/events/save`,
+          url: `https://everybodyleave.onrender.com/api/events/save`,
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -236,8 +236,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        url: `http://localhost:4000/api/textBee/cancellationSMS`,
-        // url: `https://everybodyleave.onrender.com/api/textBee/cancellationSMS`,
+        // url: `http://localhost:4000/api/textBee/cancellationSMS`,
+        url: `https://everybodyleave.onrender.com/api/textBee/cancellationSMS`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -317,8 +317,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        url: `http://localhost:4000/api/inngestWorkflows/cancelLeave`,
-        // url: `https://everybodyleave.onrender.com/api/inngestWorkflows/cancelLeave`,
+        // url: `http://localhost:4000/api/inngestWorkflows/cancelLeave`,
+        url: `https://everybodyleave.onrender.com/api/inngestWorkflows/cancelLeave`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -341,8 +341,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        url: `http://localhost:4000/api/inngestWorkflows/createLeave`,
-        // url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
+        // url: `http://localhost:4000/api/inngestWorkflows/createLeave`,
+        url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
