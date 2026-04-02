@@ -100,6 +100,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       });
       let reminders = [];
       let completed = [];
+      console.log("response: ", response.data)
       reminders = await response.data.result;
       console.log("reminders: ", reminders)
       completed = await response.data.archivedResult;
