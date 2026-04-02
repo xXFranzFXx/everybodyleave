@@ -87,14 +87,13 @@ const textBeeWhFunction = inngest.createFunction(
         }
         throw err;
       }
-        await step.sendEvent('processed-webhook', {
+    });
+  
+await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { sender: sender },
   // Optional: id (for idempotency), user, v, ts
   });
-    });
-  
-
     return { status: 'success' };
   }
 );
