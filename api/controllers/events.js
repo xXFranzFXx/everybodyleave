@@ -320,32 +320,44 @@ exports.getReminders = async (req, res) => {
         },
       },
       {
-        $lookup: {
-          from: 'events',
-          localField: 'reminder',
-          foreignField: '_id',
-          as: 'eventDetails',
-        },
-        $lookup: {
-          from: 'events',
-          localField: 'archived',
-          foreignField: '_id',
-          as: 'archivedDetails',
+    $lookup: {
+      from: 'events', 
+      localField: 'archived', 
+      foreignField: '_id', 
+      as: 'archivedEvents'
+    }
+  }, {
+    $lookup: {
+      from: 'events', 
+      localField: 'reminder', 
+      foreignField: '_id', 
+      as: 'reminderEvents'
+    }
+  }, {
+    $project: {
+      name: 1, 
+      archivedEventDates: {
+        $map: {
+          input: '$archivedEvents', 
+          as: 'event', 
+          in: '$$event.date'
         }
-      },
-      {
-        $project: {
-          _id: 0,
-          eventDates: '$eventDetails.date',
-          archivedDates:'$archivedDetails.date'
-        },
-      },
+      }, 
+      reminderEventDates: {
+        $map: {
+          input: '$reminderEvents', 
+          as: 'event', 
+          in: '$$event.date'
+        }
+      }
+    }
+  }
     ];
 
     const cursor = await User.aggregate(agg);
-    // console.log('cursor: ', cursor);
-    const result = await cursor[0].eventDates;
-    const archivedResult = await cursor[0].archivedDates;
+    console.log('cursor: ', cursor);
+    const result = await cursor[0].reminderEventDates;
+    const archivedResult = await cursor[0].archivedEventDates;
     req.io.emit('scheduleReminders',  { scheduledReminders: result, archivedReminders: archivedResult } );
     return res.status(200).json({ result, archivedResult });
   } catch (error) {
