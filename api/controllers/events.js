@@ -326,20 +326,28 @@ exports.getReminders = async (req, res) => {
           foreignField: '_id',
           as: 'eventDetails',
         },
+        $lookup: {
+          from: 'events',
+          localField: 'archived',
+          foreignField: '_id',
+          as: 'archivedDetails',
+        }
       },
       {
         $project: {
           _id: 0,
           eventDates: '$eventDetails.date',
+          archivedDates:'$archivedDetails.date'
         },
       },
     ];
 
     const cursor = await User.aggregate(agg);
     // console.log('cursor: ', cursor);
-    const result = await cursor[0].eventDates
-    req.io.emit('scheduleReminders',  { scheduledReminders: result } );
-    return res.status(200).json({ result });
+    const result = await cursor[0].eventDates;
+    const archivedResult = await cursor[0].archivedDates;
+    req.io.emit('scheduleReminders',  { scheduledReminders: result, archivedReminders: archivedResult } );
+    return res.status(200).json({ result, archivedResult });
   } catch (error) {
     console.log('Error getting scheduled reminders: ', error);
     res.status(401).json({ error: error.message });

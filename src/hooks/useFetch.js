@@ -12,6 +12,7 @@ const useFetch = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const { formatDateTime, formatReminder } = useCalendar();
   const [scheduledReminders, setScheduledReminders] = useState([]);
+  const [archivedReminders, setArchivedReminders] = useState([]);
   const [calendarData, setCalendarData] = useState([]);
   const saveCalendarReminder = useCallback(async (data) => {
     const { role, reminderDate, mongoId, name, profileName } = user;
@@ -79,6 +80,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     }
   }, []);
 
+//fetches upcoming and completed reminders.  we use this data to decide what available dates and times are shown on the datepicker
   const getScheduledReminders = async () => {
     const { mongoId } = user;
 
@@ -97,10 +99,15 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
         },
       });
       let reminders = [];
-      reminders = await response.data;
+      let completed = [];
+      reminders = await response.data.result;
+      console.log("reminders: ", reminders)
+      completed = await response.data.archivedResult;
+      console.log("archived: ", completed);
       setScheduledReminders(reminders);
+      setArchivedReminders(completed);
       state.hasCancelled = false;
-      return reminders;
+      return { reminders, completed };
     } catch (err) {
       console.log('Error getting scheduled reminders: ', err);
     }
@@ -161,7 +168,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     []
   );
    const saveReminder = async (newDate, phone, timezone) => {
-      const { mongoId, name, profileName } = user;
+      const { mongoId,  profileName } = user;
 
       const token = await getAccessTokenSilently();
       console.log('mongoId: ', mongoId);
@@ -169,8 +176,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       try {
         const response = await axios({
           method: 'POST',
-          // url: `http://localhost:4000/api/events/save`,
-          url: `https://everybodyleave.onrender.com/api/events/save`,
+          url: `http://localhost:4000/api/events/save`,
+          // url: `https://everybodyleave.onrender.com/api/events/save`,
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -221,21 +228,22 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
   };
 
    const sendCancellationSMS = async (phone, dateScheduled) => {
-    const { profileName } = user;
+    const { profileName, mongoId } = user;
 
     const token = await getAccessTokenSilently();
 
     try {
       const response = await axios({
         method: 'POST',
-        // url: `http://localhost:4000/api/textBee/cancellationSMS`,
-        url: `https://everybodyleave.onrender.com/api/textBee/cancellationSMS`,
+        url: `http://localhost:4000/api/textBee/cancellationSMS`,
+        // url: `https://everybodyleave.onrender.com/api/textBee/cancellationSMS`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
         data: {
-          profileName: profileName,
           phone: phone,
+          mongoId: mongoId, 
+          datetime: dateScheduled,
           dateScheduled: formatReminder(dateScheduled),
         },
       });
@@ -308,8 +316,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        // url: `http://localhost:4000/api/inngestWorkflows/cancelLeave`,
-        url: `https://everybodyleave.onrender.com/api/inngestWorkflows/cancelLeave`,
+        url: `http://localhost:4000/api/inngestWorkflows/cancelLeave`,
+        // url: `https://everybodyleave.onrender.com/api/inngestWorkflows/cancelLeave`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -332,8 +340,8 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     try {
       const response = await axios({
         method: 'POST',
-        // url: `http://localhost:4000/api/inngestWorkflows/createLeave`,
-        url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
+        url: `http://localhost:4000/api/inngestWorkflows/createLeave`,
+        // url: `https://everybodyleave.onrender.com/api/inngestWorkflows/createLeave`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -368,6 +376,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
     createLeaveWorkflow,
     cancelLeaveWorkflow,
     scheduledReminders,
+    archivedReminders,
     calendarData,
   };
 };

@@ -19,11 +19,11 @@ const DATE_FORMAT = 'MM-DD-YYYY';
 
 export const FormInputDateTime = ({ name, control, label }) => {
   dayjs.tz.setDefault(dayjs.tz.guess())
-  const { scheduledReminders } = useFetch();
+  const { scheduledReminders, archivedReminders } = useFetch();
   const { state } = useSocketContext();
   const { timezone } = state;
   const weekDayArr = [0, 2, 4, 6, 7];
-  const { isInCurrentMonth, isInCurrentWeek, isInSameWeek } = useCalendar();
+  const { isInCurrentMonth, isInCurrentWeek, isInSameWeek, enableFirstWeekNextMonth } = useCalendar();
   const [errorMsg, setErrorMsg] = useState(null);
   const [currentTimezone, setCurrentTimezone] = React.useState('system');
   const { events, times, dates } = useCalendarContext();
@@ -87,7 +87,7 @@ const checkTimeFinalCall = (time) => {
 
   const shouldDisableDay = (date) => {
     let scheduled = [];
-
+    let archived = [];
     const currentMonth = dayjs().startOf('month').toDate();
     const startOfNextMonth = dayjs(currentMonth).add(1, 'month').toDate();
    
@@ -100,20 +100,27 @@ const checkTimeFinalCall = (time) => {
     const dateSet = new Set(datesArr);
     const pickerDate = dayjs.utc(date).format();
     console.log("pickerDate: ", pickerDate)
-    if (scheduledReminders?.result.length > 0) {
-      const reminders = scheduledReminders.result;
+    if (scheduledReminders?.length > 0) {
+      if(archivedReminders?.length > 0) {
+        console.log("archivedReminders in DatePicker: ", archivedReminders);
+        const archReminders = archivedReminders
+        archived = archReminders.map((result) => dayjs(result).date());
+        console.log("archived: ", archived)
+      }
+      console.log("scheduledReminders.result: ", scheduledReminders)
+      const reminders = scheduledReminders;
       scheduled = reminders.map((result) => dayjs(result).date());
       console.log("scheduled: ", scheduled);
       console.log("dayDate: ", dayDate)
 
       return (
-       (!isInCurrentMonth(date)  && date > firstWeekNextMonth  ) || weekDayArr.includes(weekday)   ||
+       (!isInCurrentMonth(date)  && date > firstWeekNextMonth  ) ||   (weekDayArr.includes(weekday) ||
+        !dateSet.has(dayDate) )||
         // (!isInCurrentMonth(date)  && !isInSameWeek(date, firstWeekNextMonth)) || 
         
-        reminders.includes(`${pickerDate}`) ||
-        scheduled.includes(dayDate) ||
-        (weekDayArr.includes(weekday) ||
-        !dateSet.has(dayDate) )
+        reminders.includes(`${pickerDate}`) || archived.includes(dayDate) ||
+        scheduled.includes(dayDate) 
+      
       );
     } else {
       return  (
