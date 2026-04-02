@@ -71,27 +71,32 @@ const textBeeWhFunction = inngest.createFunction(
   { event: 'textBee/sms.received' },
 
   async ({ event, step }) => {
-    await step.run('process-wh-data', async () => {
+  const webhookPayload =   await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
       const payload = await processWebhook(event.data);
-      const { sender, message, receivedAt } = await payload;
-      console.log('Webhook payload:', payload);
-      console.log('sender is: ', sender);
-      console.log('response is: ', message);
-      console.log('received at: ', receivedAt);
-      try {
-      await webhookResponse(sender, message, receivedAt);
-      } catch (err) {
-        if (err.name === 'TypeError') {
-          throw new NonRetriableError('No users signed up for this event');
-        }
-        throw err;
-      }
+      // const { sender, message, receivedAt } = await payload;
+      // console.log('Webhook payload:', payload);
+      // console.log('sender is: ', sender);
+      // console.log('response is: ', message);
+      // console.log('received at: ', receivedAt);
+      // try {
+      // await webhookResponse(sender, message, receivedAt);
+      // } catch (err) {
+      //   if (err.name === 'TypeError') {
+      //     throw new NonRetriableError('No users signed up for this event');
+      //   }
+      //   throw err;
+      // }
+      return payload;
     });
   
 await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
-       data: { sender: sender },
+       data: { 
+        sender: payload.sender,
+        message: payload.message,
+        receivedAt: payload.receivedAt
+         },
   // Optional: id (for idempotency), user, v, ts
   });
     return { status: 'success' };
@@ -352,15 +357,24 @@ const scheduleReminder = inngest.createFunction(
      return await textBeeSendSms(message, phone, eventId, 'followup', nudgeTimeUtc);
     });
     const smsResponse = await step.waitForEvent('wait-for-sms-response', {
-      event: 'reminders/processed.webhook',
+      event: 'reminders/webhook.processed',
       timeout: '30m',
       if: `async.data.sender == "${phone}"`,
     });
     //if no response is received within 20 min update the smslog with 0
    if (smsResponse) {
-    await step.run('close-and-archive-event', async () => {
+    await step.run('close-event', async () => {
+      const { sender, message, receivedAt } = smsResponse;
+         try {
+      await webhookResponse(sender, message, receivedAt);
+      } catch (err) {
+        if (err.name === 'TypeError') {
+          throw new NonRetriableError('No users signed up for this event');
+        }
+        throw err;
+      }
       console.log("response received. closing event.")
-       await SignedUpEvent.closeEvent(eventId);
+      return  await SignedUpEvent.closeEvent(eventId);
      
       //  await User.archiveEvent(userId, eventId);
     }); 
