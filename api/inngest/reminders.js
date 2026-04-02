@@ -93,9 +93,9 @@ const textBeeWhFunction = inngest.createFunction(
 await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { 
-        sender: payload.sender,
-        message: payload.message,
-        receivedAt: payload.receivedAt
+        sender: webhookPayload.sender,
+        message: webhookPayload.message,
+        receivedAt: webhookPayload.receivedAt
          },
   // Optional: id (for idempotency), user, v, ts
   });
