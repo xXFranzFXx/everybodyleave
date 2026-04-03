@@ -74,7 +74,7 @@ const textBeeWhFunction = inngest.createFunction(
   const webhook =   await step.run('process-wh-data', async () => {
       // const payload = await JSON.parse(rawBody);
       const payload = await processWebhook(event.data);
-      // const { sender, message, receivedAt } = await payload;
+      const { sender, message, receivedAt } = await payload;
       // console.log('Webhook payload:', payload);
       // console.log('sender is: ', sender);
       // console.log('response is: ', message);
@@ -87,15 +87,15 @@ const textBeeWhFunction = inngest.createFunction(
       //   }
       //   throw err;
       // }
-      return payload;
+      return {sender, message, receivedAt};
     });
 console.log("webhookpayload: ", webhook.payload)
 await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { 
-        sender: webhook.payload.sender,
-        message: webhook.payload.message,
-        receivedAt: webhook.payload.receivedAt
+        sender: webhook.sender,
+        message: webhook.message,
+        receivedAt: webhook.receivedAt
          },
   // Optional: id (for idempotency), user, v, ts
   });
