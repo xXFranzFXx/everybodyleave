@@ -89,7 +89,7 @@ const textBeeWhFunction = inngest.createFunction(
       // }
       return payload;
     });
-  
+console.log("webhookpayload: ", webhook.payload)
 await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { 
