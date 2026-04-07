@@ -13,6 +13,7 @@ const { processWebhook } = require('../helpers/webhook');
 const {
   textBeeBulkSms,
   webhookResponse,
+  webhookSmsResponse,
   textBeeInitialSms,
   textBeeSendSms,
   textBeeFinalSms,
@@ -364,7 +365,7 @@ const scheduleReminder = inngest.createFunction(
     //if no response is received within 20 min update the smslog with 0
    if (smsResponse) {
     await step.run('close-event', async () => {
-      const { sender, message, receivedAt } = smsResponse;
+      const { sender, message, receivedAt } = smsResponse.data;
          try {
       await webhookResponse(sender, message, receivedAt);
       } catch (err) {
