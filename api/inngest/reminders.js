@@ -90,8 +90,8 @@ const textBeeWhFunction = inngest.createFunction(
       // }
       return {sender, message, receivedAt};
     });
-    
-  const processWebhook = await step.run('process-wh-response', async () =>{
+  if ( webhook) {  
+ await step.run('process-wh-response', async () =>{
     try {
      await webhookResponse(webhook.sender, webhook.message, webhook.receivedAt)
      } catch (err) {
@@ -101,7 +101,7 @@ const textBeeWhFunction = inngest.createFunction(
         throw err;
       }
   })
-  
+  }
   await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { 
