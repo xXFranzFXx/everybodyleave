@@ -14,7 +14,7 @@ const SmsLogSchema = mongoose.Schema(
     },
     messageType: {
       type: String,
-      enum: ['confirmation', 'cancellation', 'nudge', 'final', 'followup', 'response'],
+      enum: ['confirmation', 'cancellation', 'nudge', 'final', 'followup', 'response', 'response-to-user'],
       default: 'nudge',
     },
     recipient: {
