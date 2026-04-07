@@ -90,8 +90,18 @@ const textBeeWhFunction = inngest.createFunction(
       // }
       return {sender, message, receivedAt};
     });
-console.log("webhookpayload: ", webhook)
-await step.sendEvent('processed-webhook', {
+  const processWebhook = await step.run('process-wh-response', async () =>{
+    try {
+     await webhookResponse(webhook.sender, webhook.message, webhook.receivedAt)
+     } catch (err) {
+        if (err.name === 'TypeError') {
+          throw new NonRetriableError('No users signed up for this event');
+        }
+        throw err;
+      }
+  })
+  if ( processWebhook) {
+  await step.sendEvent('processed-webhook', {
         name: 'reminders/webhook.processed',
        data: { 
         sender: webhook.sender,
@@ -100,7 +110,9 @@ await step.sendEvent('processed-webhook', {
          },
   // Optional: id (for idempotency), user, v, ts
   });
-    return { status: 'success' };
+   return { status: 'success' };
+  }
+   
   }
 );
 /**
@@ -366,14 +378,14 @@ const scheduleReminder = inngest.createFunction(
    if (smsResponse) {
     await step.run('close-event', async () => {
       const { sender, message, receivedAt } = smsResponse.data;
-         try {
-      await webhookResponse(sender, message, receivedAt);
-      } catch (err) {
-        if (err.name === 'TypeError') {
-          throw new NonRetriableError('No users signed up for this event');
-        }
-        throw err;
-      }
+      //    try {
+      // await webhookResponse(sender, message, receivedAt);
+      // } catch (err) {
+      //   if (err.name === 'TypeError') {
+      //     throw new NonRetriableError('No users signed up for this event');
+      //   }
+      //   throw err;
+      // }
       console.log("response received. closing event.")
       return  await SignedUpEvent.closeEvent(eventId);
      
