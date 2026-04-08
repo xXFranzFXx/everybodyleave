@@ -39,4 +39,60 @@ max-width: 210px !important
 button[aria-label="Previous"] {
   margin-left: 90%;
 }
+.graph-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.graph-page h1 {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 40px;
+}
+
+.view-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.view-controls button {
+  background-color: #eee;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-controls button.active {
+  background-color: #4F46E5;
+  color: white;
+}
+
+.month-navigator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.month-navigator button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.month-navigator span {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 20px;
+}
 
