@@ -355,7 +355,7 @@ exports.getReminders = async (req, res) => {
     ];
 
     const cursor = await User.aggregate(agg);
-    console.log('cursor: ', cursor);
+    // console.log('cursor: ', cursor);
     const result = await cursor[0].reminderEventDates;
     const archivedResult = await cursor[0].archivedEventDates;
     req.io.emit('scheduleReminders',  { scheduledReminders: result, archivedReminders: archivedResult } );
