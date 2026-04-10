@@ -139,10 +139,37 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       console.log('Error saving calendar reminder: ', err);
     }
   };
+
+   const getProgress = async () => {
+    const { mongoId } = user;
+    const token = await getAccessTokenSilently();
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: `http://localhost:4000/api/user/progress`,
+        // url: `https://everybodyleave.onrender.com/api/user/progress`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+       params: {
+         id: mongoId
+        },
+      });
+      const res = await response.data;
+      const progressData = await res.cursor;
+      setProgress(res.cursor);
+      state.progress =  [...progressData];
+      return  progressData;
+    } catch (err) {
+      console.log('Error fetching progress: ', err);
+    }
+  };
+
   useEffect(() => {
     getScheduledReminders();
     getCalendarReminders();
     getProgress();
+  
   }, []);
 
   //subscribe to state, when event is cancelled, fetch the user's scheduled events so
@@ -368,28 +395,7 @@ const deleteCalendarReminder = useCallback(async (calendarDataId) => {
       console.log('Error creating inngest workflow: ', err);
     }
   }
-   const getProgress = async () => {
-    const { mongoId } = user;
-    const token = await getAccessTokenSilently();
-    try {
-      const response = await axios({
-        method: 'GET',
-        // url: `http://localhost:4000/api/user/progress`,
-        url: `https://everybodyleave.onrender.com/api/user/progress`,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-       params: {
-         id: mongoId
-        },
-      });
-      const res = await response.data;
-      setProgress(res);
-      return res;
-    } catch (err) {
-      console.log('Error sending verification SMS: ', err);
-    }
-  };
+  
 
   return {
     saveReminder,

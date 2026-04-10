@@ -13,6 +13,7 @@ const SocketProvider = ({ children }) => {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             currentReminder: "",
             reminders:[],
+            archived:[],
             intention:"",
             intention2: "", 
             acceptTerms: false,
@@ -23,7 +24,8 @@ const SocketProvider = ({ children }) => {
             updatedReminders: [],
             hasSavedCalendar: false, 
             hasDeletedCalendar: false,
-            saveSuccess: false
+            saveSuccess: false,
+            progress: []
 
 
 })).current
@@ -32,6 +34,7 @@ const SocketProvider = ({ children }) => {
     const name = user?.name;
     state.phone = name;
   }, [user]);
+ 
   useEffect(() => initSockets({ state }), [initSockets]);
 
   return (

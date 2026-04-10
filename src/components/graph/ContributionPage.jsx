@@ -1,20 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { Box, Button, ButtonGroup, Typography } from '@mui/material';
 import CustomContributionGraph from './CustomContributionGraph';
-
+import { useSocketContext } from '../../context/SocketProvider';
+import useFetch from '../../hooks/useFetch';
 const ContributionPage = () => {
+  const { state } = useSocketContext();
+  const { getProgress } = useFetch();
+  const [graphData, setGraphData] = useState([])
+ useEffect(() => {
+  const userProgress = async () => {
+    const data = await getProgress();
+    setGraphData([...data]);
+  }
+  userProgress();
+ },[])
+
   const contributionData = [
-    { date: '2024/01/01', credit: 10 },
-    { date: '2024/01/03', credit: 22 },
-    { date: '2024/01/05', credit: 2 },
-    { date: '2024/02/01', credit: 15 },
-    { date: '2024/02/03', credit: 8 },
-    { date: '2024/02/05', credit: 18 },
-    { date: '2024/03/01', credit: 30 },
+   { date: '2026-03-14', credit: 0 },
+  { date: '2026-03-17', credit: 0 },
+  { date: '2026-03-18', credit: 0 },
+  { date: '2026-03-20', credit: 0 },
+  { date: '2026-03-26', credit: 2 },
+  { date: '2026-03-28', credit: 1 },
+  { date: '2026-04-02', credit: 0 },
+  { date: '2026-04-08', credit: 2 }
   ];
 
   const [view, setView] = useState('yearly');
-  const [currentDate, setCurrentDate] = useState(new Date('2024-01-01T12:00:00'));
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const handlePrevMonth = () => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
@@ -25,28 +39,34 @@ const ContributionPage = () => {
   };
 
   return (
-    <div className="graph-page">
-      <h1>Contribution Graph</h1>
-      <div className="view-controls">
-        <button onClick={() => setView('yearly')} className={view === 'yearly' ? 'active' : ''}>Yearly</button>
-        <button onClick={() => setView('monthly')} className={view === 'monthly' ? 'active' : ''}>Monthly</button>
-      </div>
+    <Box sx={{ p: 4, maxWidth: 1200, margin: 'auto' }}>
+      <Typography variant="h4" component="h1" gutterBottom align="center">
+        Your Progress
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <ButtonGroup variant="contained">
+          <Button onClick={() => setView('yearly')} disabled={view === 'yearly'}>Yearly</Button>
+          <Button onClick={() => setView('monthly')} disabled={view === 'monthly'}>Monthly</Button>
+        </ButtonGroup>
+      </Box>
 
       {view === 'monthly' && (
-        <div className="month-navigator">
-          <button onClick={handlePrevMonth}>&lt; Prev</button>
-          <span>{format(currentDate, 'MMMM yyyy')}</span>
-          <button onClick={handleNextMonth}>Next &gt;</button>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
+          <Button onClick={handlePrevMonth}>&lt; Prev</Button>
+          <Typography variant="h6" component="span" sx={{ mx: 2 }}>
+            {format(currentDate, 'MMMM yyyy')}
+          </Typography>
+          <Button onClick={handleNextMonth}>Next &gt;</Button>
+        </Box>
       )}
 
       <CustomContributionGraph
-        data={contributionData}
+        data={graphData}
         year={currentDate.getFullYear()}
         month={currentDate.getMonth()}
         view={view}
       />
-    </div>
+    </Box>
   );
 };
 

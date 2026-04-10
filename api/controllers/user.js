@@ -72,7 +72,7 @@ exports.scheduledReminders = async (req, res) => {
 exports.getProgress = async (req, res) => {
   try {
     const { id } = await req.query;
-    console.log("mongoId from Progress", id)
+    console.log('mongoId from Progress', id);
     const agg = [
       {
         $match: {
@@ -86,17 +86,25 @@ exports.getProgress = async (req, res) => {
           _id: 0,
           date: {
             $dateToString: {
-              format: '%Y-%m-%d',
+              format: '%Y/%m/%d',
               date: '$eventDate',
             },
           },
-          credit: {
+          status: {
             $cond: {
               if: {
                 $eq: ['$response', 'noResponse'],
               },
-              then: 0,
-              else: '$response',
+              then: 'no-show',
+              else: {
+                $cond: {
+                  if: {
+                    $eq: ['$response', '1'],
+                  },
+                  then: 'complete',
+                  else: 'incomplete'
+                },
+              },
             },
           },
         },
@@ -104,7 +112,7 @@ exports.getProgress = async (req, res) => {
     ];
 
     const cursor = await SmsLog.aggregate(agg);
-    console.log("progress fetched: ", cursor[0])
+    console.log('progress fetched: ', cursor);
     // const result = await cursor.toArray();
     return res.status(200).json({ cursor });
   } catch (error) {
