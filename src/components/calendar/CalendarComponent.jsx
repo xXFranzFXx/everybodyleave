@@ -4,13 +4,13 @@ import { useAuth0 } from '@auth0/auth0-react';
 import dayjs from 'dayjs';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useTheme, useMediaQuery } from '@mui/material';
-import Calendar from '../components/calendar/Calendar';
-import { useCalendarContext } from '../context/CalendarProvider';
-import useCalendar from '../hooks/useCalendar';
-import useFetch from '../hooks/useFetch';
-import CalendarDrawer from '../components/calendar/CalendarDrawer';
-import CalendarDrawerData from '../components/calendar/CalendarDrawerData';
-import { useSocketContext } from '../context/SocketProvider';
+import Calendar from './Calendar';
+import { useCalendarContext } from '../../context/CalendarProvider';
+import useCalendar from '../../hooks/useCalendar';
+import useFetch from '../../hooks/useFetch';
+import CalendarDrawer from './CalendarDrawer';
+import CalendarDrawerData from './CalendarDrawerData';
+import { useSocketContext } from '../../context/SocketProvider';
 const testData = [
   {
     day: 3,

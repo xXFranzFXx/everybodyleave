@@ -374,7 +374,7 @@ const MonthCalendar = (props) => {
             <Grid2 style={{height: '10px'}} size={12} />
             <Grid2
                 container
-                sx={{ marginLeft: { xs: '10px', sm: '0' }, marginRight: { xs: '10px', sm: '0' } }}
+                sx={{ marginLeft: { xs: '20px', sm: '0' }, marginRight: { xs: '20px', sm: '0' } }}
                 size={12}>
                 <Grid2 container spacing={1} size={12}>
                     <DaysOfWeek primaryColor={props.primaryColor} />

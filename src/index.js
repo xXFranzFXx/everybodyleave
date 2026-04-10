@@ -8,17 +8,24 @@ import Auth0ProviderWithHistory from './context/Auth0ProviderWithHistory';
 import MetaDataProvider  from './context/MetadataProvider';
 import CalendarProvider from './context/CalendarProvider';
 import SettingsProvider from './context/SettingsProvider';
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Switch } from "react-router";
+import ProtectedRoute from './routes/ProtectedRoute';
+import AllRoutes from './routes/AllRoutes';
+import CalendarComponent from './components/calendar/CalendarComponent';
+import Payments from './components/paypal/Payments';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+   <BrowserRouter>
     <Auth0ProviderWithHistory>
-      <BrowserRouter>
-      <Routes>
+     <App/>
+      {/* <Routes>
         <Route path="/" element={<App />} />
-        </Routes>
-     </BrowserRouter>
+ <ProtectedRoute path='/calendar' component={CalendarComponent} />
+            <ProtectedRoute path='/payments' component={Payments}/>        </Routes> */}
     </Auth0ProviderWithHistory>
+         </BrowserRouter>
+
   </React.StrictMode>
 );
 
