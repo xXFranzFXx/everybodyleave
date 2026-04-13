@@ -39,7 +39,7 @@ async function getNudgeReminders(datetime, timezone) {
   console.log("diffHours: ", diffHours)
   console.log('reminderHour: ', reminderHour);
   console.log('firstNudgeHour: ', firstNudgeHour);
-  if ((timezone === 'America/Honolulu' && (reminderHour === 17 || reminderHour === 18) || (reminderHour === 17 || reminderHour === 18 && (dayjs(datetime) > dayjs())))) {
+  if ((timezone === 'America/Honolulu' && (reminderHour === 17 || reminderHour === 18) || (timezone === 'America/Los_Angeles' && (reminderHour === 17 || reminderHour === 18 && (dayjs(datetime) > dayjs()))))) {
     //if the earliest timeslot is 10am or 9am set the nudgeReminder to the night before.
     const newDate = dayjs(datetime).subtract(13, 'hour').minute(0).second(0).millisecond(0).utc().format();
     console.log(`nudgeReminder for ${datetime} is ${newDate}`);
@@ -47,18 +47,18 @@ async function getNudgeReminders(datetime, timezone) {
     return nudgeReminders;
   }
   //if there is more than 24 hours between now and reminder time
-  else if ((x.date() > y.date()) && (diffHours >= 8 )) {
+  else if ((x.date() > y.date() && diffHours >= 8 )) {
     console.log('normal nudgeTime: ', normalNudgeTimes);
     return normalNudgeTimes;
   }
   //if reminder is scheduled on the same day within the next 5 hours, 1 nudgreminder is scheduled
-  else if ((x.date() === y.date()) &&  (diffHours <= 4 && diffHours > 0)) {
+  else if (x.date() === y.date() &&  diffHours <= 4 && diffHours >= 1) {
     nudgeReminders.push(dayjs(datetime).subtract(1, 'hour'));
     console.log('nudgeReminders second condition: ', nudgeReminders);
     return nudgeReminders;
   }
   //if reminder is scheduled on same day within next 8 hours, nudgereminders are scheduled 3 hours apart
-  else if ((x.date() === y.date()) && diffHours >= 6)  {
+  else if (x.date() === y.date() && diffHours >= 5)  {
     nudgeTimes = range(currentHour, reminderHour, 3);
     nudgeReminders = nudgeTimes.map((time) => dayjs(datetime).hour(time));
     console.log('nudgeReminders 3rd condition: ', nudgeReminders);
@@ -90,7 +90,7 @@ async function nudgeReminderContent(name, intention, dateScheduled, datetime, ti
   const reminderTimeStr = regex.exec(dateScheduled)[0];
   console.log("reminderTimeStr: ", reminderTimeStr)
   let message = '';
-  if ((timezone == 'America/Honolulu' && nudgeReminders.length == 1) || ( dayjs(datetime).date() > dayjs().date() && nudgeReminders.length === 1 )) {
+  if ((timezone == 'America/Honolulu' && nudgeReminders.length == 1) || ( dayjs(datetime).date() > dayjs().date() && nudgeReminders.length == 1 )) {
     message = `Good Evening ${name}! You have scheduled a reminder for ${dateScheduled}.  Your intention is to focus on ${intention}.`;
   } else if(dayjs(datetime).date() === dayjs().date()){
      message = `Hello ${name}! This is just a quick reminder that you have scheduled a leave that takes place ${dateScheduled} to focus on ${intention}.`
