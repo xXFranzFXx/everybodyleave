@@ -1,7 +1,6 @@
 const Sms = require('../models/SmsModel');
 const mongoose = require('mongoose');
-const { sendScheduledSms, sendBulkSmsCSV, sendSms } = require('../helpers/httpsms')
-
+const { sendScheduledSms, sendBulkSmsCSV, sendSms, sendBulkSmsXlsx } = require('../helpers/httpsms')
 const dayjs =  require('dayjs');
 
 
@@ -56,7 +55,7 @@ exports.scheduleInitialSms = async (req, res) => {
     const { timezone, phone, dateScheduled, intention, profileName } = req.body;
     const hour = dayjs(dateScheduled).hour()
     const date = dayjs(dateScheduled).hour(15).minute(0).second(0).millisecond(0)
-    const text = `Hello ${profileName}! You have scheduled a leave for ${dateScheduled} for the intention of ${intention}.  Please respond with 1 to confirm or 2 if you wish to cancel.`
+    const text = `Hello ${profileName}! You have scheduled a leave for ${dateScheduled} for the intention of ${intention}.`
     try {
         const sms = await sendScheduledSms(phone, text, date);
         console.log("Scheduled initial sms, ", sms)
@@ -66,6 +65,17 @@ exports.scheduleInitialSms = async (req, res) => {
         res.status(401).json({ err });
     }
    
+}
+exports.scheduleNudgeTexts = async (req, res) => {
+  const { recipient, name, intention, datetime, timezone } = req.body;
+   try {
+        const sms = await sendScheduledSms(recipient, name, datetime, timezone);
+        console.log("Scheduled nudgreminders, ", sms)
+        return res.status(200).json({ sms })
+    } catch (err) {
+        console.log("error scheduling nudgeReminder sms. ", err );
+        res.status(401).json({ err });
+    }
 }
 
 exports.nudgeTexts = async (req, res) => {
@@ -80,3 +90,6 @@ exports.nudgeTexts = async (req, res) => {
 
 
 }
+
+
+
